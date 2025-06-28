@@ -4,9 +4,9 @@ import { FaApple } from "react-icons/fa";
 
 export default function Auth() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800 flex items-center justify-center px-4">
-      <div className="w-full max-w-sm bg-gray-900 rounded-2xl border border-gray-700 shadow-2xl px-8 py-10 space-y-6">
-        <div className="text-center space-y-1">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800 px-4">
+      <div className="w-full max-w-sm space-y-6 rounded-2xl border border-gray-700 bg-gray-900 px-8 py-10 shadow-2xl">
+        <div className="space-y-1 text-center">
           <h2 className="text-2xl font-semibold text-white">
             Login to your account
           </h2>
@@ -17,18 +17,18 @@ export default function Auth() {
 
         <div className="space-y-4">
           <Button
-            className="w-full bg-white text-gray-900 hover:bg-gray-100 flex items-center justify-center gap-2"
+            className="flex w-full items-center justify-center gap-2 bg-white text-gray-900 hover:bg-gray-100"
             variant="outline"
           >
-            <FcGoogle className="w-5 h-5" />
+            <FcGoogle className="h-5 w-5" />
             Login with Google
           </Button>
 
           <Button
-            className="w-full bg-white text-gray-900 hover:bg-gray-100 flex items-center justify-center gap-2"
+            className="flex w-full items-center justify-center gap-2 bg-white text-gray-900 hover:bg-gray-100"
             variant="outline"
           >
-            <FaApple className="w-5 h-5" />
+            <FaApple className="h-5 w-5" />
             Login with Apple
           </Button>
         </div>
