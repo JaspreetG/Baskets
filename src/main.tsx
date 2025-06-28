@@ -5,7 +5,6 @@ import { createRoot } from "react-dom/client";
 import { StrictMode } from "react";
 
 import App from "./App";
-import Home from "@/pages/Home";
 import Auth from "@/pages/Auth";
 import Dashboard from "@/pages/Dashboard";
 import SearchBasket from "@/pages/SearchBasket";
@@ -18,9 +17,8 @@ const router = createBrowserRouter([
     path: "/",
     element: <App />,
     children: [
-      { index: true, element: <Home /> },
+      { index: true, element: <Dashboard /> },
       { path: "login", element: <Auth /> },
-      { path: "dashboard", element: <Dashboard /> },
       { path: "createBasket/search", element: <SearchBasket /> },
       { path: "createBasket/invest", element: <InvestBasket /> },
     ],
