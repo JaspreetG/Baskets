@@ -1,9 +1,9 @@
-import { Link, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
 export default function App() {
   return (
     <div className="container mx-auto py-8">
-      <nav className="mb-6 flex gap-4 justify-center">
+      {/* <nav className="mb-6 flex gap-4 justify-center">
         <Link to="/" className="text-blue-600 hover:underline">
           Home
         </Link>
@@ -25,7 +25,7 @@ export default function App() {
         >
           Invest Basket
         </Link>
-      </nav>
+      </nav> */}
       <Outlet />
     </div>
   );
