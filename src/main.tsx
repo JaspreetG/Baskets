@@ -10,6 +10,7 @@ import Auth from "@/pages/Auth";
 import Dashboard from "@/pages/Dashboard";
 import SearchBasket from "@/pages/SearchBasket";
 import InvestBasket from "@/pages/InvestBasket";
+import Basket from "./pages/Basket";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Dashboard /> },
       { path: "login", element: <Auth /> },
+      { path: "basket", element: <Basket /> },
       { path: "search", element: <SearchBasket /> },
       { path: "invest", element: <InvestBasket /> },
     ],

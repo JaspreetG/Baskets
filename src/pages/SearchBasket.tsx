@@ -1,12 +1,30 @@
+import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
 import { FaArrowLeft } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigationType } from "react-router-dom";
+import { motion } from "framer-motion";
 
 export default function SearchBasket() {
+  const navType = useNavigationType();
+  const hasMounted = useRef(false);
+
+  useEffect(() => {
+    hasMounted.current = true;
+  }, []);
+
+  const isBack = navType === "POP";
+  const shouldAnimate = !isBack && hasMounted.current;
+
   return (
-    <div className="mx-auto w-full max-w-2xl px-6 text-gray-700 md:px-8">
+    <motion.div
+      className="mx-auto w-full max-w-2xl px-6 text-gray-700 md:px-8"
+      initial={shouldAnimate ? { opacity: 0, y: 20 } : false}
+      animate={{ opacity: 1, y: 0 }}
+      exit={shouldAnimate ? { opacity: 0, y: 20 } : {}}
+      transition={{ duration: 0.35, ease: "easeInOut" }}
+    >
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2 text-base font-medium text-gray-500">
@@ -66,6 +84,6 @@ export default function SearchBasket() {
           </li>
         ))}
       </ul>
-    </div>
+    </motion.div>
   );
 }

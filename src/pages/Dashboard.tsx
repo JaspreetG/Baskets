@@ -1,8 +1,24 @@
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useNavigationType } from "react-router-dom";
+import { useEffect, useRef } from "react";
 
 export default function Dashboard() {
+  const isBack = useNavigationType() === "POP";
+  const hasMounted = useRef(false);
+
+  useEffect(() => {
+    hasMounted.current = true;
+  }, []);
+
   return (
-    <div className="mx-auto max-w-4xl space-y-8 px-4 py-6 sm:px-6 lg:px-8">
+    <motion.div
+      className="mx-auto max-w-4xl space-y-8 px-4 py-6 sm:px-6 lg:px-8"
+      initial={isBack || !hasMounted.current ? false : { opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={isBack || !hasMounted.current ? {} : { opacity: 0, y: 20 }}
+      transition={{ duration: 0.35, ease: "easeInOut" }}
+    >
       {/* Portfolio Summary */}
       <section className="space-y-4">
         <h1 className="text-xl font-bold text-gray-900">Portfolio Overview</h1>
@@ -43,30 +59,34 @@ export default function Dashboard() {
 
         <div className="space-y-4">
           {/* Basket Card 1 */}
-          <div className="flex items-center justify-between rounded-xl border border-gray-100 px-5 py-4 shadow-[0_4px_16px_rgba(0,0,0,0.05)] backdrop-blur-sm">
-            <div>
-              <h4 className="text-base font-medium text-gray-900">
-                Tech Titans
-              </h4>
+          <Link to="/basket">
+            <div className="flex items-center justify-between rounded-xl border border-gray-100 px-5 py-4 shadow-[0_4px_16px_rgba(0,0,0,0.05)] backdrop-blur-sm">
+              <div>
+                <h4 className="text-base font-medium text-gray-900">
+                  Tech Titans
+                </h4>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-semibold text-green-600">₹12,000</p>
+                <p className="text-xs text-gray-500">+24%</p>
+              </div>
             </div>
-            <div className="text-right">
-              <p className="text-sm font-semibold text-green-600">₹12,000</p>
-              <p className="text-xs text-gray-500">+24%</p>
-            </div>
-          </div>
+          </Link>
 
           {/* Basket Card 2 */}
-          <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 px-5 py-4 shadow-[0_4px_16px_rgba(0,0,0,0.05)] backdrop-blur-sm">
-            <div>
-              <h4 className="text-base font-medium text-gray-900">
-                Green Energy
-              </h4>
+          <Link to="/basket">
+            <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 px-5 py-4 shadow-[0_4px_16px_rgba(0,0,0,0.05)] backdrop-blur-sm">
+              <div>
+                <h4 className="text-base font-medium text-gray-900">
+                  Green Energy
+                </h4>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-semibold text-green-600">₹8,000</p>
+                <p className="text-xs text-gray-500">+16%</p>
+              </div>
             </div>
-            <div className="text-right">
-              <p className="text-sm font-semibold text-green-600">₹8,000</p>
-              <p className="text-xs text-gray-500">+16%</p>
-            </div>
-          </div>
+          </Link>
         </div>
 
         {/* Fallback if no baskets exist */}
@@ -78,6 +98,6 @@ export default function Dashboard() {
       >
         <span className="text-3xl leading-none">+</span>
       </Link>
-    </div>
+    </motion.div>
   );
 }

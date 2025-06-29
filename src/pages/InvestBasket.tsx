@@ -3,8 +3,21 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FaArrowLeft, FaRupeeSign } from "react-icons/fa";
+import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
+import { useNavigationType } from "react-router-dom";
 
 export default function InvestBasket() {
+  const navType = useNavigationType();
+  const hasMounted = useRef(false);
+
+  useEffect(() => {
+    hasMounted.current = true;
+  }, []);
+
+  const isBack = navType === "POP";
+  const shouldAnimate = !isBack && hasMounted.current;
+
   const stocks = [
     { code: "INFY", name: "Infosys Ltd", quantity: 2, price: 1500 },
     {
@@ -19,7 +32,13 @@ export default function InvestBasket() {
   const total = stocks.reduce((acc, s) => acc + s.quantity * s.price, 0);
 
   return (
-    <div className="flex h-screen flex-col justify-between bg-white text-gray-700">
+    <motion.div
+      className="flex h-screen flex-col justify-between bg-white text-gray-700"
+      initial={shouldAnimate ? { opacity: 0, y: 20 } : false}
+      animate={{ opacity: 1, y: 0 }}
+      exit={shouldAnimate ? { opacity: 0, y: 20 } : {}}
+      transition={{ duration: 0.35, ease: "easeInOut" }}
+    >
       {/* Header */}
       <div className="mx-auto w-full max-w-2xl px-6 md:px-8">
         <div className="mb-6 flex items-center justify-between">
@@ -92,6 +111,6 @@ export default function InvestBasket() {
           </Button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
