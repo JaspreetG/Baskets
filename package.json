@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate-pwa-assets": "pwa-assets-generator --preset minimal public/logo.svg"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.7",
@@ -23,7 +24,6 @@
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.6.3",
     "tailwind-merge": "^3.3.1",
-    "vite-plugin-pwa": "^1.0.0",
     "zustand": "^5.0.6"
   },
   "devDependencies": {
@@ -31,6 +31,7 @@
     "@types/node": "^24.0.7",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
+    "@vite-pwa/assets-generator": "^1.0.0",
     "@vitejs/plugin-react-swc": "^3.10.2",
     "eslint": "^9.29.0",
     "eslint-plugin-react-hooks": "^5.2.0",
@@ -42,6 +43,8 @@
     "tw-animate-css": "^1.3.4",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.34.1",
-    "vite": "^7.0.0"
+    "vite": "^6.3.5",
+    "vite-plugin-pwa": "^1.0.0",
+    "workbox-window": "^7.3.0"
   }
 }

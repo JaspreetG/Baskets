@@ -10,6 +10,11 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
+      injectRegister: "auto",
+      devOptions: {
+        enabled: true,
+        type: "module", // Enables service worker registration in dev mode
+      },
       includeAssets: ["favicon.svg"],
       manifest: {
         name: "Baskets",
@@ -18,6 +23,8 @@ export default defineConfig({
         theme_color: "#ffffff",
         background_color: "#ffffff",
         display: "standalone",
+        scope: "/",
+        start_url: "/",
         icons: [
           {
             src: "/pwa-192x192.png",
