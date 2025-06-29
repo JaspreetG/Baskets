@@ -13,7 +13,7 @@ export default defineConfig({
       injectRegister: "auto",
       devOptions: {
         enabled: true,
-        type: "module", // Enables service worker registration in dev mode
+        type: "module",
       },
       includeAssets: ["favicon.svg"],
       manifest: {
