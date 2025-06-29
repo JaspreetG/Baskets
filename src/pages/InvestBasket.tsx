@@ -69,7 +69,7 @@ export default function InvestBasket() {
         </div>
 
         {/* Stock List */}
-        <Card className="rounded-xl border border-gray-200 bg-gray-50/50 py-0 shadow-sm">
+        <Card className="rounded-xl border border-gray-200 py-0 shadow-sm">
           <ScrollArea className="max-h-[30vh]">
             <ul className="divide-y divide-gray-200">
               {stocks.map((stock) => (
