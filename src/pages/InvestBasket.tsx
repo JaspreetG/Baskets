@@ -21,7 +21,7 @@ export default function InvestBasket() {
   return (
     <div className="flex h-screen flex-col justify-between bg-white text-gray-700">
       {/* Header */}
-      <div className="mx-auto w-full max-w-2xl px-6 pt-10 md:px-8">
+      <div className="mx-auto w-full max-w-2xl px-6 md:px-8">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2 text-base font-medium text-gray-600">
             <FaArrowLeft className="h-4 w-4" />
@@ -51,7 +51,7 @@ export default function InvestBasket() {
 
         {/* Stock List */}
         <Card className="rounded-xl border border-gray-200 bg-gray-50/50 py-0 shadow-sm">
-          <ScrollArea className="max-h-[50vh]">
+          <ScrollArea className="max-h-[30vh]">
             <ul className="divide-y divide-gray-200">
               {stocks.map((stock) => (
                 <li
@@ -82,7 +82,7 @@ export default function InvestBasket() {
       </div>
 
       {/* Sticky Invest Button */}
-      <div className="sticky bottom-0 left-0 w-full border-t border-gray-200 bg-white p-4">
+      <div className="sticky bottom-0 left-0 w-full border-t border-gray-200 bg-white p-8">
         <div className="mx-auto flex max-w-2xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="rounded-md bg-gray-100 px-5 py-2.5 text-base text-gray-700">
             Total: ₹{total}

@@ -20,8 +20,8 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Dashboard /> },
       { path: "login", element: <Auth /> },
-      { path: "createBasket/search", element: <SearchBasket /> },
-      { path: "createBasket/invest", element: <InvestBasket /> },
+      { path: "search", element: <SearchBasket /> },
+      { path: "invest", element: <InvestBasket /> },
     ],
   },
 ]);

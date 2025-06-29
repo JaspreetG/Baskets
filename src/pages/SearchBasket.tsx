@@ -2,22 +2,25 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
 import { FaArrowLeft } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 export default function SearchBasket() {
   return (
-    <div className="mx-auto mt-10 w-full max-w-2xl px-6 text-gray-700 md:mt-14 md:px-8">
+    <div className="mx-auto w-full max-w-2xl px-6 text-gray-700 md:px-8">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2 text-base font-medium text-gray-500">
           <FaArrowLeft className="h-4 w-4" />
           <span>Add Stocks</span>
         </div>
-        <Button
-          variant="ghost"
-          className="h-auto px-4 py-1.5 text-base text-blue-600 hover:text-blue-700"
-        >
-          Done
-        </Button>
+        <Link to="/invest">
+          <Button
+            variant="ghost"
+            className="h-auto px-4 py-1.5 text-base text-blue-600 hover:text-blue-700"
+          >
+            Done
+          </Button>
+        </Link>
       </div>
 
       {/* Search Bar */}
