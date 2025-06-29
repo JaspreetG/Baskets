@@ -22,11 +22,11 @@ export default function SearchBasket() {
 
       {/* Search Bar */}
       <div className="relative mb-6">
-        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+        <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
         <Input
           type="text"
           placeholder="Search for stocks..."
-          className="w-full border border-gray-300 bg-white py-2.5 pr-4 pl-10 text-base shadow-[0_0_0_2px_rgba(59,130,246,0.25)] focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          className="w-full rounded-md border border-gray-300 bg-white px-10 py-3 text-base text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-300 focus:outline-none"
         />
       </div>
 
