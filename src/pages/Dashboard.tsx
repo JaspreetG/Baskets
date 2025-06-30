@@ -375,7 +375,7 @@ export default function Dashboard() {
               </Link>
             ))
           ) : (
-            <div className="flex flex-col items-center justify-center py-16">
+            <div className="flex flex-col items-center justify-center py-8">
               <div className="w-full max-w-md rounded-2xl border-2 border-dotted border-gray-300 bg-white/70 px-8 py-16 text-center shadow-sm">
                 <div className="mb-4 text-4xl text-gray-300">🧺</div>
                 <div className="mb-2 text-lg font-semibold text-gray-700">
