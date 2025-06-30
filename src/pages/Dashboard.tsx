@@ -45,11 +45,16 @@ function calculateXIRR(cashflows: { amount: number; date: string }[]): number {
   while (iter++ < maxIter) {
     const f = xnpv(rate);
     const df = dxnpv(rate);
-    if (Math.abs(f) < tol) return rate * 100;
+    if (Math.abs(f) < tol) return fixNegativeZero(rate * 100);
     if (df === 0) break;
     rate = rate - f / df;
   }
-  return rate * 100;
+  return fixNegativeZero(rate * 100);
+}
+
+// Utility to fix -0.00 to 0.00
+function fixNegativeZero(val: number): number {
+  return Object.is(val, -0) ? 0 : val;
 }
 
 export default function Dashboard() {
