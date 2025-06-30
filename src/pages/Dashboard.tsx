@@ -192,7 +192,7 @@ export default function Dashboard() {
                   Holding
                 </span>
                 <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-600">
-                  XIRR {xirr >= 0 ? "+" : "-"}
+                  XIRR{xirr === 0 ? "" : xirr > 0 ? " +" : " -"}
                   {Math.abs(xirr).toFixed(2)}%
                 </span>
               </div>
@@ -202,18 +202,28 @@ export default function Dashboard() {
               <div className="mt-4 flex items-center justify-between">
                 <p className="text-sm text-gray-500">Total return</p>
                 <p
-                  className={`text-sm font-semibold ${totalReturn >= 0 ? "text-green-600" : "text-red-500"}`}
+                  className={`text-sm font-semibold ${totalReturn > 0 ? "text-green-600" : totalReturn < 0 ? "text-red-500" : "text-gray-400"}`}
                 >
-                  {totalReturn >= 0 ? "+" : "-"}₹
+                  {totalReturn === 0 ? "" : totalReturn > 0 ? "+" : "-"}₹
                   {Math.abs(totalReturn).toLocaleString()} (
                   <span
                     className={
-                      (totalReturn / totalInvested) * 100 >= 0
-                        ? "text-green-600"
-                        : "text-red-500"
+                      totalInvested === 0
+                        ? "text-gray-400"
+                        : (totalReturn / totalInvested) * 100 > 0
+                          ? "text-green-600"
+                          : (totalReturn / totalInvested) * 100 < 0
+                            ? "text-red-500"
+                            : "text-gray-400"
                     }
                   >
-                    {totalReturn >= 0 ? "+" : "-"}
+                    {totalInvested === 0
+                      ? ""
+                      : (totalReturn / totalInvested) * 100 === 0
+                        ? ""
+                        : totalReturn >= 0
+                          ? "+"
+                          : "-"}
                     {totalInvested
                       ? Math.abs((totalReturn / totalInvested) * 100).toFixed(2)
                       : "0.00"}
@@ -288,35 +298,75 @@ export default function Dashboard() {
                                 (stock.quantity ?? 0) * (stock.buy_price ?? 0),
                               0,
                             ) || 1)) *
-                            100 >=
+                            100 >
                           0
                             ? "text-green-600"
-                            : "text-red-500"
+                            : ((basket.stocks.reduce(
+                                  (acc, stock) =>
+                                    acc +
+                                    (stock.quantity ?? 0) *
+                                      (stock.ltp ?? stock.buy_price ?? 0),
+                                  0,
+                                ) -
+                                  basket.stocks.reduce(
+                                    (acc, stock) =>
+                                      acc +
+                                      (stock.quantity ?? 0) *
+                                        (stock.buy_price ?? 0),
+                                    0,
+                                  )) /
+                                  (basket.stocks.reduce(
+                                    (acc, stock) =>
+                                      acc +
+                                      (stock.quantity ?? 0) *
+                                        (stock.buy_price ?? 0),
+                                    0,
+                                  ) || 1)) *
+                                  100 <
+                                0
+                              ? "text-red-500"
+                              : "text-gray-400"
                         }
                       >
-                        +
-                        {(
-                          ((basket.stocks.reduce(
+                        {(() => {
+                          const invested = basket.stocks.reduce(
+                            (acc, stock) =>
+                              acc +
+                              (stock.quantity ?? 0) * (stock.buy_price ?? 0),
+                            0,
+                          );
+                          const net = basket.stocks.reduce(
                             (acc, stock) =>
                               acc +
                               (stock.quantity ?? 0) *
                                 (stock.ltp ?? stock.buy_price ?? 0),
                             0,
-                          ) -
-                            basket.stocks.reduce(
-                              (acc, stock) =>
-                                acc +
-                                (stock.quantity ?? 0) * (stock.buy_price ?? 0),
-                              0,
-                            )) /
-                            (basket.stocks.reduce(
-                              (acc, stock) =>
-                                acc +
-                                (stock.quantity ?? 0) * (stock.buy_price ?? 0),
-                              0,
-                            ) || 1)) *
-                          100
-                        ).toFixed(1)}
+                          );
+                          if (invested === 0) return "";
+                          const percent = ((net - invested) / invested) * 100;
+                          if (percent === 0) return "";
+                          return percent > 0 ? "+" : "-";
+                        })()}
+                        {(() => {
+                          const invested = basket.stocks.reduce(
+                            (acc, stock) =>
+                              acc +
+                              (stock.quantity ?? 0) * (stock.buy_price ?? 0),
+                            0,
+                          );
+                          const net = basket.stocks.reduce(
+                            (acc, stock) =>
+                              acc +
+                              (stock.quantity ?? 0) *
+                                (stock.ltp ?? stock.buy_price ?? 0),
+                            0,
+                          );
+                          return invested
+                            ? Math.abs(
+                                ((net - invested) / invested) * 100,
+                              ).toFixed(1)
+                            : "0.0";
+                        })()}
                         %
                       </span>
                     </p>
@@ -325,7 +375,24 @@ export default function Dashboard() {
               </Link>
             ))
           ) : (
-            <p className="text-gray-500">No baskets yet. Create one!</p>
+            <div className="flex flex-col items-center justify-center py-16">
+              <div className="w-full max-w-md rounded-2xl border-2 border-dotted border-gray-300 bg-white/70 px-8 py-16 text-center shadow-sm">
+                <div className="mb-4 text-4xl text-gray-300">🧺</div>
+                <div className="mb-2 text-lg font-semibold text-gray-700">
+                  No baskets yet
+                </div>
+                <div className="mb-4 text-gray-500">
+                  Start by creating your first investment basket to track your
+                  portfolio performance.
+                </div>
+                <Link
+                  to="/search"
+                  className="inline-block rounded-lg border border-green-600 bg-green-50 px-6 py-2 text-green-700 transition hover:bg-green-100 hover:text-green-800"
+                >
+                  + Create Basket
+                </Link>
+              </div>
+            </div>
           )}
         </div>
       </section>

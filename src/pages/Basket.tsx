@@ -103,17 +103,25 @@ export default function Basket() {
             <p
               className={
                 "text-sm font-semibold " +
-                (totalReturn >= 0 ? "text-green-600" : "text-red-500")
+                (totalReturn === 0
+                  ? "text-gray-500"
+                  : totalReturn > 0
+                    ? "text-green-600"
+                    : "text-red-500")
               }
             >
-              {totalReturn >= 0 ? "+" : "-"}₹
+              {totalReturn === 0 ? "" : totalReturn > 0 ? "+" : "-"}₹
               {Math.abs(totalReturn).toLocaleString()} ({" "}
               <span
                 className={
-                  returnPercent >= 0 ? "text-green-600" : "text-red-500"
+                  returnPercent === 0
+                    ? "text-gray-500"
+                    : returnPercent > 0
+                      ? "text-green-600"
+                      : "text-red-500"
                 }
               >
-                {returnPercent >= 0 ? "+" : "-"}
+                {returnPercent === 0 ? "" : returnPercent > 0 ? "+" : "-"}
                 {Math.abs(returnPercent).toFixed(2)}%
               </span>{" "}
               )
@@ -137,6 +145,7 @@ export default function Basket() {
             const stockReturnPercent = stockInvested
               ? (stockReturn / stockInvested) * 100
               : 0;
+            // Color and sign logic: green for +, red for -, gray for 0; no sign for 0
             return (
               <li
                 key={stock.symbol}
@@ -149,21 +158,29 @@ export default function Basket() {
                 </span>
                 <span
                   className={
-                    stockReturnPercent < 0
-                      ? "text-right font-semibold text-red-500"
-                      : "text-right font-semibold text-green-600"
+                    stockReturnPercent === 0
+                      ? "text-right font-semibold text-gray-500"
+                      : stockReturnPercent > 0
+                        ? "text-right font-semibold text-green-600"
+                        : "text-right font-semibold text-red-500"
                   }
                 >
                   ₹{stockCurrent.toLocaleString()} <br />
                   <span className="text-xs font-normal">
                     <span
                       className={
-                        stockReturnPercent >= 0
-                          ? "text-green-600"
-                          : "text-red-500"
+                        stockReturnPercent === 0
+                          ? "text-gray-500"
+                          : stockReturnPercent > 0
+                            ? "text-green-600"
+                            : "text-red-500"
                       }
                     >
-                      {stockReturnPercent >= 0 ? "+" : "-"}
+                      {stockReturnPercent === 0
+                        ? ""
+                        : stockReturnPercent > 0
+                          ? "+"
+                          : "-"}
                       {Math.abs(stockReturnPercent).toFixed(2)}%
                     </span>
                   </span>
