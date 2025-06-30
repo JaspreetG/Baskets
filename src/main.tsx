@@ -49,8 +49,4 @@ function Providers() {
   );
 }
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <Providers />
-  </StrictMode>,
-);
+createRoot(document.getElementById("root")!).render(<Providers />);
