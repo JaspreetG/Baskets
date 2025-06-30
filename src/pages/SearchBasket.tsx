@@ -49,7 +49,7 @@ export default function SearchBasket() {
 
   return (
     <motion.div
-      className="mx-auto w-full max-w-2xl px-6 text-gray-700 md:px-8"
+      className="mx-auto w-full max-w-2xl px-6 pt-6 text-gray-700 md:px-8"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeInOut" }}
