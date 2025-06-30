@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { globalStore } from "@/store";
 
@@ -172,7 +173,12 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8 px-4 py-6 sm:px-6 lg:px-8">
+    <motion.div
+      className="mx-auto max-w-4xl space-y-8 px-4 py-6 sm:px-6 lg:px-8"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: "easeInOut" }}
+    >
       {/* Portfolio Summary */}
       <section className="space-y-4">
         <h1 className="text-xl font-bold text-gray-900">Portfolio Overview</h1>
@@ -398,6 +404,6 @@ export default function Dashboard() {
       >
         <span className="text-3xl leading-none">+</span>
       </Link>
-    </div>
+    </motion.div>
   );
 }

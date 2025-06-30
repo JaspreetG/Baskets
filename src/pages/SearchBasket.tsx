@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
 import { FaArrowLeft } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "@/lib/useDebounce";
 import { globalStore } from "@/store";
@@ -43,7 +43,12 @@ export default function SearchBasket() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-6 text-gray-700 md:px-8">
+    <motion.div
+      className="mx-auto w-full max-w-2xl px-6 text-gray-700 md:px-8"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: "easeInOut" }}
+    >
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <Link
@@ -127,6 +132,6 @@ export default function SearchBasket() {
           </motion.li>
         ))}
       </ul>
-    </div>
+    </motion.div>
   );
 }
