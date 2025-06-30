@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
-import { FaApple } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useEffect, useRef } from "react";
 import { useNavigationType } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
 
 export default function Auth() {
   const navType = useNavigationType();
@@ -15,6 +15,13 @@ export default function Auth() {
 
   const isBack = navType === "POP";
   const shouldAnimate = !isBack && hasMounted.current;
+
+  const handleGoogleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+    });
+    if (error) console.error("Login error:", error.message);
+  };
 
   return (
     <motion.div
@@ -36,19 +43,12 @@ export default function Auth() {
 
           <div className="space-y-4">
             <Button
+              onClick={handleGoogleLogin}
               className="flex w-full items-center justify-center gap-2 bg-white text-gray-900 hover:bg-gray-100"
               variant="outline"
             >
               <FcGoogle className="h-5 w-5" />
               Login with Google
-            </Button>
-
-            <Button
-              className="flex w-full items-center justify-center gap-2 bg-white text-gray-900 hover:bg-gray-100"
-              variant="outline"
-            >
-              <FaApple className="h-5 w-5" />
-              Login with Apple
             </Button>
           </div>
         </div>

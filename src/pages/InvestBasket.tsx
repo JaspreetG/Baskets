@@ -4,8 +4,9 @@ import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FaArrowLeft, FaRupeeSign } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigationType } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
 
 export default function InvestBasket() {
   const navType = useNavigationType();
@@ -30,6 +31,8 @@ export default function InvestBasket() {
   ];
 
   const total = stocks.reduce((acc, s) => acc + s.quantity * s.price, 0);
+
+  const [loading, setLoading] = useState(false);
 
   return (
     <motion.div
@@ -106,8 +109,23 @@ export default function InvestBasket() {
           <div className="rounded-md bg-gray-100 px-5 py-2.5 text-base text-gray-700">
             Total: ₹{total}
           </div>
-          <Button className="w-full bg-blue-600 px-4 py-6 text-base text-white hover:bg-blue-700 sm:w-auto sm:px-10">
-            Invest
+          <Button
+            onClick={async () => {
+              setLoading(true);
+              await supabase.rpc("create_basket_with_stocks", {
+                basket_name: "Dummy Basket",
+                stock_list: stocks.map((s) => ({
+                  symbol: s.code,
+                  quantity: s.quantity,
+                  buy_price: s.price,
+                })),
+              });
+              setLoading(false);
+            }}
+            disabled={loading}
+            className="w-full bg-blue-600 px-4 py-6 text-base text-white hover:bg-blue-700 disabled:opacity-50 sm:w-auto sm:px-10"
+          >
+            {loading ? "Investing..." : "Invest"}
           </Button>
         </div>
       </div>
