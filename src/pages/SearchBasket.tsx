@@ -65,8 +65,8 @@ export default function SearchBasket() {
         </Link>
         <Link to="/invest">
           <Button
-            variant="ghost"
-            className="h-auto px-4 py-1.5 text-base text-blue-600 hover:text-blue-700"
+            variant="default"
+            className="h-auto bg-blue-600 px-6 py-2 text-base font-semibold text-white shadow hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:outline-none"
           >
             Done
           </Button>
