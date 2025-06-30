@@ -54,7 +54,9 @@ function calculateXIRR(cashflows: { amount: number; date: string }[]): number {
 
 // Utility to fix -0.00 to 0.00
 function fixNegativeZero(val: number): number {
-  return Object.is(val, -0) ? 0 : val;
+  // Treat -0 and very small values as 0 for display
+  if (Object.is(val, -0) || Math.abs(val) < 0.005) return 0;
+  return val;
 }
 
 export default function Dashboard() {
@@ -196,11 +198,12 @@ export default function Dashboard() {
                 </span>
                 <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-600">
                   XIRR
-                  {xirr === 0
-                    ? " 0.00%"
-                    : xirr > 0
-                      ? ` +${Math.abs(xirr).toFixed(2)}%`
-                      : ` -${Math.abs(xirr).toFixed(2)}%`}
+                  {(() => {
+                    const displayXirr = fixNegativeZero(xirr);
+                    if (displayXirr === 0) return " 0.00%";
+                    if (displayXirr > 0) return ` +${displayXirr.toFixed(2)}%`;
+                    return ` -${Math.abs(displayXirr).toFixed(2)}%`;
+                  })()}
                 </span>
               </div>
               <p className="mb-6 text-2xl font-bold text-gray-900">
