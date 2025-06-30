@@ -68,13 +68,19 @@ export default function Basket() {
       transition={{ duration: 0.35, ease: "easeInOut" }}
     >
       {/* Back Button */}
-      <div className="mb-2">
+      <div className="mb-2 flex items-center justify-between">
         <Link
           to="/"
           className="flex items-center gap-2 text-base font-medium text-gray-600 hover:text-gray-900"
         >
           <FaArrowLeft className="h-4 w-4" />
           <span>Back</span>
+        </Link>
+        <Link
+          to="/"
+          className="inline-block rounded-lg bg-blue-600 px-5 py-2 text-base font-semibold text-white shadow hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:outline-none"
+        >
+          Done
         </Link>
       </div>
 
