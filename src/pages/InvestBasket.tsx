@@ -172,7 +172,7 @@ export default function InvestBasket() {
                         {stock.name}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-col items-end gap-1">
                       <span className="rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
                         quantity: {stock.quantity}
                       </span>
