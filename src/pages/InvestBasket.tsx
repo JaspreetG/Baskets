@@ -157,7 +157,7 @@ export default function InvestBasket() {
 
           {/* Stock List */}
           <Card className="rounded-xl border border-gray-200 py-0 shadow-sm">
-            <ScrollArea className="max-h-[30vh]">
+            <ScrollArea>
               <ul className="divide-y divide-gray-200">
                 {distributedStocks.map((stock, idx) => (
                   <li
