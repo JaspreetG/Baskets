@@ -12,10 +12,11 @@ import SearchBasket from "@/pages/SearchBasket";
 import InvestBasket from "@/pages/InvestBasket";
 import Basket from "./pages/Basket";
 import { Toaster } from "@/components/ui/sonner";
+import { useSupabaseAuthListener } from "@/hooks/useSupabaseAuthListener";
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
@@ -31,11 +32,18 @@ const router = createBrowserRouter([
 
 registerSW({ immediate: true });
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+function Providers() {
+  useSupabaseAuthListener();
+  return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
       <Toaster />
     </QueryClientProvider>
+  );
+}
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <Providers />
   </StrictMode>,
 );

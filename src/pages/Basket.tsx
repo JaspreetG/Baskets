@@ -108,8 +108,15 @@ export default function Basket() {
             >
               {totalReturn >= 0 ? "+" : "-"}₹
               {Math.abs(totalReturn).toLocaleString()} ({" "}
-              {returnPercent >= 0 ? "+" : "-"}
-              {Math.abs(returnPercent).toFixed(2)}% )
+              <span
+                className={
+                  returnPercent >= 0 ? "text-green-600" : "text-red-500"
+                }
+              >
+                {returnPercent >= 0 ? "+" : "-"}
+                {Math.abs(returnPercent).toFixed(2)}%
+              </span>{" "}
+              )
             </p>
           </div>
         </div>
@@ -149,8 +156,16 @@ export default function Basket() {
                 >
                   ₹{stockCurrent.toLocaleString()} <br />
                   <span className="text-xs font-normal">
-                    {stockReturnPercent >= 0 ? "+" : "-"}
-                    {Math.abs(stockReturnPercent).toFixed(2)}%
+                    <span
+                      className={
+                        stockReturnPercent >= 0
+                          ? "text-green-600"
+                          : "text-red-500"
+                      }
+                    >
+                      {stockReturnPercent >= 0 ? "+" : "-"}
+                      {Math.abs(stockReturnPercent).toFixed(2)}%
+                    </span>
                   </span>
                 </span>
               </li>

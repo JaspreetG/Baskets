@@ -1,6 +1,5 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigationType } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useNavigationType } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { globalStore } from "@/store";
@@ -62,35 +61,64 @@ export default function Dashboard() {
   const baskets = globalStore((s) => s.baskets);
   // removed unused loading
 
+  // --- Types ---
+  type Stock = {
+    symbol: string;
+    name: string;
+    ltp?: number;
+    buy_price?: number;
+    quantity?: number;
+    sell_price?: number;
+    sell_date?: string;
+  };
+  type Basket = {
+    id: string | number;
+    name: string;
+    created_at?: string;
+    stocks: Stock[];
+  };
+
+  // --- Fetch and set baskets and LTPs ---
   useEffect(() => {
+    let isMounted = true;
     hasMounted.current = true;
 
-    // Fetch all baskets for the user
-    (async () => {
+    async function fetchLTPForStock(basketId: string, stock: Stock) {
+      try {
+        const res = await fetch(
+          `https://zmvzrrggaergcqytqmil.supabase.co/functions/v1/ltp-api?symbol=${stock.symbol}`,
+          {
+            headers: {
+              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            },
+          },
+        );
+        const ltpData = await res.json();
+        if (isMounted) updateBasketLTP(basketId, stock.symbol, ltpData.ltp);
+      } catch {
+        // ignore
+      }
+    }
+
+    async function fetchAndSetBaskets() {
       const { data } = await supabase.rpc("get_all_baskets_with_stocks");
       if (data && Array.isArray(data)) {
         setBaskets(data);
-        // For each basket, fetch LTP for each stock
-        for (const basket of data) {
-          for (const stock of basket.stocks) {
-            try {
-              const res = await fetch(
-                `https://zmvzrrggaergcqytqmil.supabase.co/functions/v1/ltp-api?symbol=${stock.symbol}`,
-                {
-                  headers: {
-                    Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-                  },
-                },
-              );
-              const ltpData = await res.json();
-              updateBasketLTP(basket.id, stock.symbol, ltpData.ltp);
-            } catch {
-              // ignore
-            }
-          }
-        }
+        await Promise.all(
+          (data as Basket[]).map(async (basket) => {
+            await Promise.all(
+              basket.stocks.map(async (stock) =>
+                fetchLTPForStock(String(basket.id), stock),
+              ),
+            );
+          }),
+        );
       }
-    })();
+    }
+    fetchAndSetBaskets();
+    return () => {
+      isMounted = false;
+    };
   }, [setBaskets, updateBasketLTP]);
 
   // Calculate portfolio summary
@@ -100,7 +128,7 @@ export default function Dashboard() {
   let xirr = 0;
   // Aggregate all cashflows for XIRR
   const allCashflows: { amount: number; date: string }[] = [];
-  baskets.forEach((basket) => {
+  (baskets as Basket[]).forEach((basket) => {
     let basketNet = 0;
     let basketInvested = 0;
     const basketCashflows: { amount: number; date: string }[] = [];
@@ -164,7 +192,8 @@ export default function Dashboard() {
                   Holding
                 </span>
                 <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-600">
-                  XIRR {xirr.toFixed(2)}%
+                  XIRR {xirr >= 0 ? "+" : "-"}
+                  {Math.abs(xirr).toFixed(2)}%
                 </span>
               </div>
               <p className="mb-6 text-2xl font-bold text-gray-900">
@@ -177,11 +206,20 @@ export default function Dashboard() {
                 >
                   {totalReturn >= 0 ? "+" : "-"}₹
                   {Math.abs(totalReturn).toLocaleString()} (
-                  {totalReturn >= 0 ? "+" : "-"}
-                  {totalInvested
-                    ? Math.abs((totalReturn / totalInvested) * 100).toFixed(2)
-                    : "0.00"}
-                  % )
+                  <span
+                    className={
+                      (totalReturn / totalInvested) * 100 >= 0
+                        ? "text-green-600"
+                        : "text-red-500"
+                    }
+                  >
+                    {totalReturn >= 0 ? "+" : "-"}
+                    {totalInvested
+                      ? Math.abs((totalReturn / totalInvested) * 100).toFixed(2)
+                      : "0.00"}
+                    %
+                  </span>
+                  )
                 </p>
               </div>
               <div className="mt-4 flex items-center justify-between">
@@ -229,30 +267,58 @@ export default function Dashboard() {
                       ).toLocaleString()}
                     </p>
                     <p className="text-xs text-gray-500">
-                      +
-                      {(
-                        ((basket.stocks.reduce(
-                          (acc, stock) =>
-                            acc +
-                            (stock.quantity ?? 0) *
-                              (stock.ltp ?? stock.buy_price ?? 0),
-                          0,
-                        ) -
-                          basket.stocks.reduce(
+                      <span
+                        className={
+                          ((basket.stocks.reduce(
                             (acc, stock) =>
                               acc +
-                              (stock.quantity ?? 0) * (stock.buy_price ?? 0),
+                              (stock.quantity ?? 0) *
+                                (stock.ltp ?? stock.buy_price ?? 0),
                             0,
-                          )) /
-                          (basket.stocks.reduce(
+                          ) -
+                            basket.stocks.reduce(
+                              (acc, stock) =>
+                                acc +
+                                (stock.quantity ?? 0) * (stock.buy_price ?? 0),
+                              0,
+                            )) /
+                            (basket.stocks.reduce(
+                              (acc, stock) =>
+                                acc +
+                                (stock.quantity ?? 0) * (stock.buy_price ?? 0),
+                              0,
+                            ) || 1)) *
+                            100 >=
+                          0
+                            ? "text-green-600"
+                            : "text-red-500"
+                        }
+                      >
+                        +
+                        {(
+                          ((basket.stocks.reduce(
                             (acc, stock) =>
                               acc +
-                              (stock.quantity ?? 0) * (stock.buy_price ?? 0),
+                              (stock.quantity ?? 0) *
+                                (stock.ltp ?? stock.buy_price ?? 0),
                             0,
-                          ) || 1)) *
-                        100
-                      ).toFixed(1)}
-                      %
+                          ) -
+                            basket.stocks.reduce(
+                              (acc, stock) =>
+                                acc +
+                                (stock.quantity ?? 0) * (stock.buy_price ?? 0),
+                              0,
+                            )) /
+                            (basket.stocks.reduce(
+                              (acc, stock) =>
+                                acc +
+                                (stock.quantity ?? 0) * (stock.buy_price ?? 0),
+                              0,
+                            ) || 1)) *
+                          100
+                        ).toFixed(1)}
+                        %
+                      </span>
                     </p>
                   </div>
                 </div>

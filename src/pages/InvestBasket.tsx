@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { FaArrowLeft, FaRupeeSign } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import { useDebounce } from "@/lib/useDebounce";
 import { useMutation } from "@tanstack/react-query";
 import type { PostgrestSingleResponse } from "@supabase/postgrest-js";
 import { useNavigationType, useNavigate, Link } from "react-router-dom";
@@ -28,15 +29,8 @@ export default function InvestBasket() {
 
   const [basketName, setBasketName] = useState("");
   const [amount, setAmount] = useState("");
-  const [debouncedAmount, setDebouncedAmount] = useState("");
-
-  // Debounce amount input to avoid immediate calculations
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedAmount(amount);
-    }, 400); // 400ms debounce
-    return () => clearTimeout(handler);
-  }, [amount]);
+  // Debounce amount input to avoid immediate calculations (using custom hook)
+  const debouncedAmount = useDebounce(amount, 400);
 
   // Use all BasketStock fields for calculation
   const stocks = basketStocks.map((s) => ({
@@ -211,11 +205,13 @@ export default function InvestBasket() {
                 }
                 className="w-full bg-blue-600 px-4 py-6 text-base text-white hover:bg-blue-700 disabled:opacity-50 sm:w-auto sm:px-10"
               >
-                {investMutation.status === "pending"
-                  ? "Investing..."
-                  : distributedStocks.length === 0 || total <= 0
-                    ? "Add stocks to invest"
-                    : "Invest"}
+                {(() => {
+                  if (investMutation.status === "pending")
+                    return "Investing...";
+                  if (distributedStocks.length === 0 || total <= 0)
+                    return "Add stocks to invest";
+                  return "Invest";
+                })()}
               </Button>
             </div>
           </div>

@@ -116,7 +116,6 @@ export default function SearchBasket() {
                   },
                 );
                 const data = await res.json();
-                console.log("LTP API response for", stock.ticker, data);
                 globalStore.getState().addBasketStock({
                   symbol: stock.ticker,
                   name: stock.title,
