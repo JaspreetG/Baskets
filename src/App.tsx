@@ -1,7 +1,8 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 
 export default function App() {
+  const location = useLocation();
   return (
     <AnimatePresence mode="wait" initial={false}>
       <motion.div
