@@ -120,6 +120,8 @@ export default function SearchBasket() {
                 globalStore.getState().addBasketStock({
                   symbol: stock.ticker,
                   name: stock.title,
+                  quantity: 0, // default, user will set in InvestBasket
+                  buy_price: data.ltp, // treat ltp as buy price for now
                   ltp: data.ltp,
                 });
                 toast.success(

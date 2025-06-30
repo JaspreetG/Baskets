@@ -1,17 +1,68 @@
 import { motion } from "framer-motion";
-import { useEffect, useRef } from "react";
-import { useNavigationType } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigationType } from "react-router-dom";
+import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
+import { globalStore } from "@/store";
 
 export default function Basket() {
   const navType = useNavigationType();
   const hasMounted = useRef(false);
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const basketId = searchParams.get("id") ?? location.state?.basketId;
+  const baskets = globalStore((s) => s.baskets);
+  const basket = baskets.find((b) => b.id === basketId);
+
+  const isBack = navType === "POP";
+  const shouldAnimate = !isBack && hasMounted.current;
 
   useEffect(() => {
     hasMounted.current = true;
   }, []);
 
-  const isBack = navType === "POP";
-  const shouldAnimate = !isBack && hasMounted.current;
+  // Always call hooks at the top level
+  const [exited, setExited] = useState(false);
+
+  if (!basketId || !basket) {
+    return (
+      <motion.div className="mx-auto w-full max-w-2xl px-6 py-8 text-gray-800">
+        <div className="text-center text-gray-500">Basket not found.</div>
+      </motion.div>
+    );
+  }
+
+  // Calculate values
+  const invested = basket.stocks.reduce(
+    (acc, s) => acc + (s.quantity ?? 0) * (s.buy_price ?? 0),
+    0,
+  );
+  const currentValue = basket.stocks.reduce(
+    (acc, s) => acc + (s.quantity ?? 0) * (s.ltp ?? s.buy_price ?? 0),
+    0,
+  );
+  const totalReturn = currentValue - invested;
+  const returnPercent = invested ? (totalReturn / invested) * 100 : 0;
+  const hasUnexitedStock = basket.stocks.some((s) => s.sell_price === null);
+
+  async function handleExitBasket() {
+    const { error } = await supabase.rpc("exit_basket", {
+      exit_basket: {
+        basket_id: basket?.id,
+        sell_price: currentValue,
+        sell_date: new Date().toISOString().split("T")[0],
+      },
+    });
+
+    if (error) {
+      toast.error("Exit failed. Try again.");
+    } else {
+      toast.success("Basket exited.");
+      setExited(true);
+    }
+  }
 
   return (
     <motion.div
@@ -21,23 +72,44 @@ export default function Basket() {
       exit={shouldAnimate ? { opacity: 0, y: 20 } : {}}
       transition={{ duration: 0.35, ease: "easeInOut" }}
     >
+      {/* Back Button */}
+      <div className="mb-2">
+        <Link
+          to="/"
+          className="flex items-center gap-2 text-base font-medium text-gray-600 hover:text-gray-900"
+        >
+          <FaArrowLeft className="h-4 w-4" />
+          <span>Back</span>
+        </Link>
+      </div>
+
       {/* Performance Summary */}
       <div className="rounded-2xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-6 shadow-[0_12px_32px_rgba(0,0,0,0.06)] backdrop-blur">
         <h2 className="mb-1 text-lg font-semibold text-gray-800">
-          Green Energy
+          {basket.name}
         </h2>
         <p className="mb-4 text-xs font-medium text-gray-500">
-          Invested: Nov 18, 2023
+          Invested: {new Date(basket.created_at).toLocaleDateString()}
         </p>
         <div className="flex items-start justify-between">
           <div>
             <p className="text-xs text-gray-500">Current Value</p>
-            <p className="text-2xl font-bold text-gray-900">₹1,34,986</p>
+            <p className="text-2xl font-bold text-gray-900">
+              ₹{currentValue.toLocaleString()}
+            </p>
           </div>
           <div className="text-right">
             <p className="text-xs text-gray-500">Total Return</p>
-            <p className="text-sm font-semibold text-green-600">
-              +₹41,684 ( +1.23% )
+            <p
+              className={
+                "text-sm font-semibold " +
+                (totalReturn >= 0 ? "text-green-600" : "text-red-500")
+              }
+            >
+              {totalReturn >= 0 ? "+" : "-"}₹
+              {Math.abs(totalReturn).toLocaleString()} ({" "}
+              {returnPercent >= 0 ? "+" : "-"}
+              {Math.abs(returnPercent).toFixed(2)}% )
             </p>
           </div>
         </div>
@@ -49,36 +121,51 @@ export default function Basket() {
           Stock Composition
         </div>
         <ul className="divide-y divide-gray-100">
-          {[
-            ["Oil India Ltd", "₹18,000", "+103.42%"],
-            ["Power Grid Corp. of India", "₹9,500", "+43.89%"],
-            ["MMTC Ltd", "₹6,200", "+22.51%"],
-            ["Gujarat State Fert. & Chem.", "₹2,100", "+11.22%"],
-            ["Hindustan Oil Exploration", "-₹540", "-2.37%"],
-          ].map(([name, returnMoney, returnPercent]) => (
-            <li
-              key={name}
-              className="flex items-center justify-between px-5 py-4 text-sm"
-            >
-              <span className="font-medium text-gray-800">{name}</span>
-              <span
-                className={
-                  returnPercent.startsWith("-")
-                    ? "text-right font-semibold text-red-500"
-                    : "text-right font-semibold text-green-600"
-                }
+          {basket.stocks.map((stock) => {
+            const stockInvested =
+              (stock.quantity ?? 0) * (stock.buy_price ?? 0);
+            const stockCurrent =
+              (stock.quantity ?? 0) * (stock.ltp ?? stock.buy_price ?? 0);
+            const stockReturn = stockCurrent - stockInvested;
+            const stockReturnPercent = stockInvested
+              ? (stockReturn / stockInvested) * 100
+              : 0;
+            return (
+              <li
+                key={stock.symbol}
+                className="flex items-center justify-between px-5 py-4 text-sm"
               >
-                {returnMoney} <br />
-                <span className="text-xs font-normal">{returnPercent}</span>
-              </span>
-            </li>
-          ))}
+                <span className="font-medium text-gray-800">
+                  {stock.name && stock.name !== stock.symbol
+                    ? `${stock.name} (${stock.symbol})`
+                    : stock.symbol}
+                </span>
+                <span
+                  className={
+                    stockReturnPercent < 0
+                      ? "text-right font-semibold text-red-500"
+                      : "text-right font-semibold text-green-600"
+                  }
+                >
+                  ₹{stockCurrent.toLocaleString()} <br />
+                  <span className="text-xs font-normal">
+                    {stockReturnPercent >= 0 ? "+" : "-"}
+                    {Math.abs(stockReturnPercent).toFixed(2)}%
+                  </span>
+                </span>
+              </li>
+            );
+          })}
         </ul>
       </div>
 
       {/* Exit Basket button */}
       <div className="pt-4">
-        <button className="w-full rounded-lg bg-red-600 px-5 py-3 text-base font-semibold text-white transition hover:bg-red-700">
+        <button
+          onClick={handleExitBasket}
+          disabled={!hasUnexitedStock || exited}
+          className="w-full rounded-lg bg-red-600 px-5 py-3 text-base font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+        >
           Exit Basket
         </button>
       </div>
