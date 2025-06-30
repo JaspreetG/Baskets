@@ -12,7 +12,7 @@ export default function App() {
         exit={{ opacity: 0, y: 16 }}
         transition={{ duration: 0.35, ease: "easeInOut" }}
       >
-        <Outlet />
+        <Outlet location={location} />
       </motion.div>
     </AnimatePresence>
   );
