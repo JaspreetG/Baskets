@@ -18,6 +18,11 @@ export default function RequireAuth({
     }
   }, [isAuthenticated, loading, navigate, location]);
 
-  if (loading) return null;
+  if (loading)
+    return (
+      <div className="flex h-screen w-full items-center justify-center text-gray-500">
+        Loading...
+      </div>
+    );
   return isAuthenticated ? children : null;
 }

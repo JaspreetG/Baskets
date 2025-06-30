@@ -25,27 +25,23 @@ export function useSupabaseAuthListener() {
         setLoading(false);
       },
     );
-    // Set initial user
-    const userPromise = supabase.auth.getUser?.();
-    if (typeof userPromise?.then === "function") {
-      (userPromise as Promise<{ data: { user: User | null } }>).then((res) => {
-        if (res?.data?.user) {
-          const user = res.data.user;
-          setUser({
-            id: user.id,
-            email: user.email ?? "",
-            provider: user.app_metadata?.provider ?? "",
-            name: user.user_metadata?.name,
-            avatar_url: user.user_metadata?.avatar_url,
-          });
-        } else {
-          setUser(null);
-        }
-        setLoading(false);
-      });
-    } else {
+    // Set initial user (fix: always set loading true first, then update user, then set loading false)
+    setLoading(true);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        const user = session.user;
+        setUser({
+          id: user.id,
+          email: user.email ?? "",
+          provider: user.app_metadata?.provider ?? "",
+          name: user.user_metadata?.name,
+          avatar_url: user.user_metadata?.avatar_url,
+        });
+      } else {
+        setUser(null);
+      }
       setLoading(false);
-    }
+    });
     return () => {
       listener?.subscription.unsubscribe();
     };

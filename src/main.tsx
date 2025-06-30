@@ -6,6 +6,7 @@ import { StrictMode } from "react";
 import { registerSW } from "virtual:pwa-register";
 
 import App from "./App";
+import RequireAuth from "@/components/RequireAuth";
 import Auth from "@/pages/Auth";
 import Dashboard from "@/pages/Dashboard";
 import SearchBasket from "@/pages/SearchBasket";
@@ -14,15 +15,20 @@ import Basket from "./pages/Basket";
 import { Toaster } from "@/components/ui/sonner";
 import { useSupabaseAuthListener } from "@/hooks/useSupabaseAuthListener";
 
-export const queryClient = new QueryClient();
-
 export const router = createBrowserRouter([
   {
+    path: "/login",
+    element: <Auth />,
+  },
+  {
     path: "/",
-    element: <App />,
+    element: (
+      <RequireAuth>
+        <App />
+      </RequireAuth>
+    ),
     children: [
       { index: true, element: <Dashboard /> },
-      { path: "login", element: <Auth /> },
       { path: "basket", element: <Basket /> },
       { path: "search", element: <SearchBasket /> },
       { path: "invest", element: <InvestBasket /> },
@@ -30,6 +36,7 @@ export const router = createBrowserRouter([
   },
 ]);
 
+const queryClient = new QueryClient();
 registerSW({ immediate: true });
 
 function Providers() {
