@@ -1,10 +1,11 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
 import { FaArrowLeft } from "react-icons/fa";
 import { Link, useNavigationType } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 
 export default function SearchBasket() {
   const navType = useNavigationType();
@@ -16,6 +17,30 @@ export default function SearchBasket() {
 
   const isBack = navType === "POP";
   const shouldAnimate = !isBack && hasMounted.current;
+
+  const [query, setQuery] = useState("");
+
+  const { data } = useQuery({
+    queryKey: ["search", query],
+    queryFn: async () => {
+      if (!query.trim()) return [];
+      const res = await fetch(
+        `https://finnhub.io/api/v1/search?q=${encodeURIComponent(query)}&token=d1h7mu9r01qkdlvsb7dgd1h7mu9r01qkdlvsb7e0`,
+      );
+      const data = await res.json();
+      // Filter for NSE stocks only (symbol ends with '.NS')
+      const nseStocks = (data.result as Stock[]).filter((stock) =>
+        stock.symbol.endsWith(".NS"),
+      );
+      return nseStocks.slice(0, 5);
+    },
+    enabled: query.trim().length > 0,
+  });
+
+  type Stock = {
+    symbol: string;
+    description: string;
+  };
 
   return (
     <motion.div
@@ -48,30 +73,26 @@ export default function SearchBasket() {
           type="text"
           placeholder="Search for stocks..."
           className="w-full rounded-md border border-gray-300 bg-white px-10 py-3 text-base text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-300 focus:outline-none"
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+          }}
         />
       </div>
 
       {/* Stock List */}
       <ul className="divide-y divide-gray-200 overflow-hidden rounded-xl bg-white shadow-md">
-        {[
-          { code: "HINDUNILVR", name: "Hindustan Unilever Ltd" },
-          { code: "HAL", name: "Hindustan Aeronautics Ltd" },
-          { code: "HINDZINC", name: "Hindustan Zinc Ltd" },
-          { code: "HINDPETRO", name: "Hindustan Petroleum Corp Ltd" },
-          { code: "HINDCOPPER", name: "Hindustan Copper Ltd" },
-          { code: "HNDFDS", name: "Hindustan Foods Ltd" },
-          { code: "HCC", name: "Hindustan Construction Company Ltd" },
-        ].map((stock) => (
+        {(data ?? []).map((stock: Stock) => (
           <li
-            key={stock.code}
+            key={stock.symbol}
             className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-gray-50"
           >
             <div className="flex-1">
               <div className="text-sm font-semibold text-gray-700">
-                {stock.code}
+                {stock.symbol}
               </div>
               <div className="text-xs leading-snug text-gray-500">
-                {stock.name}
+                {stock.description}
               </div>
             </div>
             <Button
