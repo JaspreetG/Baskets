@@ -25,6 +25,7 @@ export interface Basket {
 interface GlobalStore {
   basketStocks: BasketStock[];
   addBasketStock: (stock: BasketStock) => void;
+  removeBasketStock: (symbol: string) => void;
   baskets: Basket[];
   setBaskets: (baskets: Basket[]) => void;
   updateBasketLTP: (basketId: string, symbol: string, ltp: number) => void;
@@ -34,6 +35,10 @@ export const globalStore = create<GlobalStore>((set) => ({
   basketStocks: [],
   addBasketStock: (stock) =>
     set((state) => ({ basketStocks: [...state.basketStocks, stock] })),
+  removeBasketStock: (symbol) =>
+    set((state) => ({
+      basketStocks: state.basketStocks.filter((s) => s.symbol !== symbol),
+    })),
   baskets: [],
   setBaskets: (baskets) => set({ baskets }),
   updateBasketLTP: (basketId, symbol, ltp) =>

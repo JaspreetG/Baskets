@@ -185,8 +185,8 @@ export default function InvestBasket() {
               </ul>
             </ScrollArea>
           </Card>
-          {/* Sticky Invest Button - always visible, disables if no stocks */}
-          <div className="sticky bottom-0 left-0 w-full border-t border-gray-200 bg-white p-8">
+          {/* Invest Button */}
+          <div className="mt-8">
             <div className="mx-auto flex max-w-2xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="rounded-md bg-gray-100 px-5 py-2.5 text-base text-gray-700">
                 Total: ₹{total.toFixed(2)}

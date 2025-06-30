@@ -42,6 +42,11 @@ export default function SearchBasket() {
     title: string;
   };
 
+  // Get selected stocks from zustand
+  const basketStocks = globalStore((state) => state.basketStocks);
+  const isStockSelected = (ticker: string) =>
+    basketStocks.some((s) => s.symbol === ticker);
+
   return (
     <motion.div
       className="mx-auto w-full max-w-2xl px-6 text-gray-700 md:px-8"
@@ -84,53 +89,73 @@ export default function SearchBasket() {
 
       {/* Stock List */}
       <ul className="divide-y divide-gray-200 overflow-hidden rounded-xl bg-white shadow-md">
-        {(data ?? []).map((stock: Stock, idx: number) => (
-          <motion.li
-            key={stock.ticker}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 12 }}
-            transition={{ duration: 0.25, delay: idx * 0.03, ease: "easeOut" }}
-            className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-gray-50"
-          >
-            <div className="flex-1">
-              <div className="text-sm font-semibold text-gray-700">
-                {stock.ticker}
-              </div>
-              <div className="text-xs leading-snug text-gray-500">
-                {stock.title}
-              </div>
-            </div>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="text-blue-600 hover:text-blue-700"
-              onClick={async () => {
-                const res = await fetch(
-                  `https://zmvzrrggaergcqytqmil.supabase.co/functions/v1/ltp-api?symbol=${stock.ticker}`,
-                  {
-                    headers: {
-                      Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-                    },
-                  },
-                );
-                const data = await res.json();
-                globalStore.getState().addBasketStock({
-                  symbol: stock.ticker,
-                  name: stock.title,
-                  quantity: 0, // default, user will set in InvestBasket
-                  buy_price: data.ltp, // treat ltp as buy price for now
-                  ltp: data.ltp,
-                });
-                toast.success(
-                  `${stock.ticker} (${stock.title}) added to basket!`,
-                );
+        {(data ?? []).map((stock: Stock, idx: number) => {
+          const selected = isStockSelected(stock.ticker);
+          return (
+            <motion.li
+              key={stock.ticker}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 12 }}
+              transition={{
+                duration: 0.25,
+                delay: idx * 0.03,
+                ease: "easeOut",
               }}
+              className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-gray-50"
             >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </motion.li>
-        ))}
+              <div className="flex-1">
+                <div className="text-sm font-semibold text-gray-700">
+                  {stock.ticker}
+                </div>
+                <div className="text-xs leading-snug text-gray-500">
+                  {stock.title}
+                </div>
+              </div>
+              <Button
+                size="sm"
+                variant={selected ? undefined : "ghost"}
+                className={
+                  selected
+                    ? "border border-blue-600 bg-blue-600 text-white hover:bg-blue-700"
+                    : "text-blue-600 hover:text-blue-700"
+                }
+                onClick={async () => {
+                  if (!selected) {
+                    // Add to basket
+                    const res = await fetch(
+                      `https://zmvzrrggaergcqytqmil.supabase.co/functions/v1/ltp-api?symbol=${stock.ticker}`,
+                      {
+                        headers: {
+                          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+                        },
+                      },
+                    );
+                    const data = await res.json();
+                    globalStore.getState().addBasketStock({
+                      symbol: stock.ticker,
+                      name: stock.title,
+                      quantity: 0, // default, user will set in InvestBasket
+                      buy_price: data.ltp, // treat ltp as buy price for now
+                      ltp: data.ltp,
+                    });
+                    toast.success(
+                      `${stock.ticker} (${stock.title}) added to basket!`,
+                    );
+                  } else {
+                    // Remove from basket
+                    globalStore.getState().removeBasketStock(stock.ticker);
+                    toast.success(
+                      `${stock.ticker} (${stock.title}) removed from basket!`,
+                    );
+                  }
+                }}
+              >
+                <Plus className={selected ? "h-4 w-4 text-white" : "h-4 w-4"} />
+              </Button>
+            </motion.li>
+          );
+        })}
       </ul>
     </motion.div>
   );
