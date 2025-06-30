@@ -59,13 +59,16 @@ function fixNegativeZero(val: number): number {
   return val;
 }
 
+import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+
 export default function Dashboard() {
   const hasMounted = useRef(false);
 
   const setBaskets = globalStore((s) => s.setBaskets);
   const updateBasketLTP = globalStore((s) => s.updateBasketLTP);
   const baskets = globalStore((s) => s.baskets);
-  // removed unused loading
+  const [loading, setLoading] = useState(true);
 
   // --- Types ---
   type Stock = {
@@ -120,6 +123,7 @@ export default function Dashboard() {
           }),
         );
       }
+      setLoading(false);
     }
     fetchAndSetBaskets();
     return () => {
@@ -177,6 +181,69 @@ export default function Dashboard() {
   if (allCashflows.length > 1) {
     xirr = calculateXIRR(allCashflows);
     if (!isFinite(xirr)) xirr = 0;
+  }
+
+  if (loading) {
+    // Skeleton loader for dashboard
+    return (
+      <motion.div
+        className="mx-auto max-w-4xl space-y-8 px-4 py-6 sm:px-6 lg:px-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: "easeInOut" }}
+      >
+        {/* Portfolio Skeleton */}
+        <section className="space-y-4">
+          <h1 className="text-xl font-bold text-gray-900">
+            Portfolio Overview
+          </h1>
+          <div className="relative">
+            <div className="before:animate-spin-slower before:absolute before:inset-0 before:-z-10 before:rounded-2xl before:border-2 before:border-transparent before:bg-[conic-gradient(at_top_left,_rgba(34,197,94,0.2),rgba(110,231,183,0.2),rgba(34,197,94,0.2))] before:blur">
+              <div className="rounded-2xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-5 shadow-[0_10px_40px_rgba(0,0,0,0.08)] backdrop-blur-md transition hover:shadow-[0_6px_24px_rgba(0,0,0,0.05)]">
+                <div className="mb-6 flex items-center justify-between">
+                  <Skeleton className="h-5 w-24 rounded-full" />
+                  <Skeleton className="h-5 w-16 rounded-full" />
+                </div>
+                <Skeleton className="mb-6 h-8 w-40 rounded" />
+                <div className="mt-4 flex items-center justify-between">
+                  <Skeleton className="h-4 w-20 rounded" />
+                  <Skeleton className="h-4 w-24 rounded" />
+                </div>
+                <div className="mt-4 flex items-center justify-between">
+                  <Skeleton className="h-4 w-20 rounded" />
+                  <Skeleton className="h-4 w-24 rounded" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        {/* Baskets Skeleton */}
+        <section className="mt-8 space-y-4">
+          <h2 className="text-xl font-semibold text-gray-800">
+            <span className="px-3 py-3 text-gray-500">baskets</span>
+          </h2>
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="mb-1.5 flex items-center justify-between rounded-xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 px-5 py-4 shadow-[0_4px_16px_rgba(0,0,0,0.05)] backdrop-blur-sm"
+              >
+                <div>
+                  <Skeleton className="h-5 w-32 rounded" />
+                </div>
+                <div className="text-right">
+                  <Skeleton className="mb-2 h-4 w-16 rounded" />
+                  <Skeleton className="h-3 w-12 rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+        <div className="fixed right-6 bottom-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-green-600/60 text-white shadow-lg">
+          <Skeleton className="h-10 w-10 rounded-full" />
+        </div>
+      </motion.div>
+    );
   }
 
   return (
