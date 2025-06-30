@@ -3,27 +3,22 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FaArrowLeft, FaRupeeSign } from "react-icons/fa";
-import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useDebounce } from "@/lib/useDebounce";
 import { useMutation } from "@tanstack/react-query";
 import type { PostgrestSingleResponse } from "@supabase/postgrest-js";
-import { useNavigationType, useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { globalStore } from "@/store";
 import { toast } from "sonner";
 
 export default function InvestBasket() {
-  const navType = useNavigationType();
   const hasMounted = useRef(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     hasMounted.current = true;
   }, []);
-
-  const isBack = navType === "POP";
-  const shouldAnimate = !isBack && hasMounted.current;
 
   const basketStocks = globalStore((state) => state.basketStocks);
 
@@ -91,13 +86,7 @@ export default function InvestBasket() {
   });
 
   return (
-    <motion.div
-      className="flex h-screen flex-col justify-between bg-white text-gray-700"
-      initial={shouldAnimate ? { opacity: 0, y: 20 } : false}
-      animate={{ opacity: 1, y: 0 }}
-      exit={shouldAnimate ? { opacity: 0, y: 20 } : {}}
-      transition={{ duration: 0.35, ease: "easeInOut" }}
-    >
+    <div className="flex h-screen flex-col justify-between bg-white text-gray-700">
       {/* Header */}
       <div className="mx-auto w-full max-w-2xl px-6 md:px-8">
         <div className="mb-6 flex items-center justify-between">
@@ -217,6 +206,6 @@ export default function InvestBasket() {
           </div>
         </form>
       </div>
-    </motion.div>
+    </div>
   );
 }

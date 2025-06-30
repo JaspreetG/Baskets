@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
 import { FaArrowLeft } from "react-icons/fa";
-import { Link, useNavigationType } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "@/lib/useDebounce";
@@ -11,15 +11,11 @@ import { globalStore } from "@/store";
 import { toast } from "sonner";
 
 export default function SearchBasket() {
-  const navType = useNavigationType();
   const hasMounted = useRef(false);
 
   useEffect(() => {
     hasMounted.current = true;
   }, []);
-
-  const isBack = navType === "POP";
-  const shouldAnimate = !isBack && hasMounted.current;
 
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 400);
@@ -47,13 +43,7 @@ export default function SearchBasket() {
   };
 
   return (
-    <motion.div
-      className="mx-auto w-full max-w-2xl px-6 text-gray-700 md:px-8"
-      initial={shouldAnimate ? { opacity: 0, y: 20 } : false}
-      animate={{ opacity: 1, y: 0 }}
-      exit={shouldAnimate ? { opacity: 0, y: 20 } : {}}
-      transition={{ duration: 0.35, ease: "easeInOut" }}
-    >
+    <div className="mx-auto w-full max-w-2xl px-6 text-gray-700 md:px-8">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <Link
@@ -89,9 +79,13 @@ export default function SearchBasket() {
 
       {/* Stock List */}
       <ul className="divide-y divide-gray-200 overflow-hidden rounded-xl bg-white shadow-md">
-        {(data ?? []).map((stock: Stock) => (
-          <li
+        {(data ?? []).map((stock: Stock, idx: number) => (
+          <motion.li
             key={stock.ticker}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
+            transition={{ duration: 0.25, delay: idx * 0.03, ease: "easeOut" }}
             className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-gray-50"
           >
             <div className="flex-1">
@@ -130,9 +124,9 @@ export default function SearchBasket() {
             >
               <Plus className="h-4 w-4" />
             </Button>
-          </li>
+          </motion.li>
         ))}
       </ul>
-    </motion.div>
+    </div>
   );
 }

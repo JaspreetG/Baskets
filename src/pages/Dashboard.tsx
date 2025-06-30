@@ -1,5 +1,4 @@
-import { Link, useNavigationType } from "react-router-dom";
-import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { globalStore } from "@/store";
@@ -53,7 +52,6 @@ function calculateXIRR(cashflows: { amount: number; date: string }[]): number {
 }
 
 export default function Dashboard() {
-  const isBack = useNavigationType() === "POP";
   const hasMounted = useRef(false);
 
   const setBaskets = globalStore((s) => s.setBaskets);
@@ -174,13 +172,7 @@ export default function Dashboard() {
   }
 
   return (
-    <motion.div
-      className="mx-auto max-w-4xl space-y-8 px-4 py-6 sm:px-6 lg:px-8"
-      initial={isBack || !hasMounted.current ? false : { opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={isBack || !hasMounted.current ? {} : { opacity: 0, y: 20 }}
-      transition={{ duration: 0.35, ease: "easeInOut" }}
-    >
+    <div className="mx-auto max-w-4xl space-y-8 px-4 py-6 sm:px-6 lg:px-8">
       {/* Portfolio Summary */}
       <section className="space-y-4">
         <h1 className="text-xl font-bold text-gray-900">Portfolio Overview</h1>
@@ -406,6 +398,6 @@ export default function Dashboard() {
       >
         <span className="text-3xl leading-none">+</span>
       </Link>
-    </motion.div>
+    </div>
   );
 }

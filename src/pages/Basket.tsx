@@ -1,23 +1,18 @@
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigationType } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { globalStore } from "@/store";
 
 export default function Basket() {
-  const navType = useNavigationType();
   const hasMounted = useRef(false);
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const basketId = searchParams.get("id") ?? location.state?.basketId;
   const baskets = globalStore((s) => s.baskets);
   const basket = baskets.find((b) => b.id === basketId);
-
-  const isBack = navType === "POP";
-  const shouldAnimate = !isBack && hasMounted.current;
 
   useEffect(() => {
     hasMounted.current = true;
@@ -28,9 +23,9 @@ export default function Basket() {
 
   if (!basketId || !basket) {
     return (
-      <motion.div className="mx-auto w-full max-w-2xl px-6 py-8 text-gray-800">
+      <div className="mx-auto w-full max-w-2xl px-6 py-8 text-gray-800">
         <div className="text-center text-gray-500">Basket not found.</div>
-      </motion.div>
+      </div>
     );
   }
 
@@ -65,13 +60,7 @@ export default function Basket() {
   }
 
   return (
-    <motion.div
-      className="mx-auto w-full max-w-2xl space-y-8 px-6 py-8 text-gray-800"
-      initial={shouldAnimate ? { opacity: 0, y: 20 } : false}
-      animate={{ opacity: 1, y: 0 }}
-      exit={shouldAnimate ? { opacity: 0, y: 20 } : {}}
-      transition={{ duration: 0.35, ease: "easeInOut" }}
-    >
+    <div className="mx-auto w-full max-w-2xl space-y-8 px-6 py-8 text-gray-800">
       {/* Back Button */}
       <div className="mb-2">
         <Link
@@ -201,6 +190,6 @@ export default function Basket() {
           Exit Basket
         </button>
       </div>
-    </motion.div>
+    </div>
   );
 }
