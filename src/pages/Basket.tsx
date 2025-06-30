@@ -5,6 +5,7 @@ import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { globalStore } from "@/store";
+import { motion } from "framer-motion";
 
 export default function Basket() {
   const hasMounted = useRef(false);
@@ -60,7 +61,12 @@ export default function Basket() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-8 px-6 py-8 text-gray-800">
+    <motion.div
+      className="mx-auto w-full max-w-2xl space-y-8 px-6 py-8 text-gray-800"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: "easeInOut" }}
+    >
       {/* Back Button */}
       <div className="mb-2">
         <Link
@@ -190,6 +196,6 @@ export default function Basket() {
           Exit Basket
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }
