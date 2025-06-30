@@ -1,57 +1,91 @@
-# Baskets – Smarter Investing, Effortless Portfolios
+Baskiit – Smarter Investing, Effortless Portfolios
 
-Live Demo: [https://baskiit.vercel.app](https://baskiit.vercel.app)
+Live Demo: https://baskiit.vercel.app
 
-## Overview
+⸻
 
-Baskets is a modern, production-ready web application that empowers users to build, track, and manage custom stock baskets with real-time prices, performance analytics, and seamless investing. Designed for both new and experienced investors, Baskets simplifies portfolio management with a beautiful, intuitive dashboard and actionable insights.
+📌 Overview
 
-**Key Features:**
+Baskiit is a modern portfolio management app that lets users create, invest in, and track custom stock baskets — all in one beautiful, responsive dashboard.
 
-- **Custom Stock Baskets:** Create and manage your own baskets of stocks, tailored to your investment strategy.
-- **Real-Time Data:** Live price updates and performance tracking for each stock and basket.
-- **Advanced Analytics:** XIRR, total returns, and percentage returns with clear color coding and sign logic.
-- **Effortless Exit:** One-click exit for baskets, with instant feedback and robust error handling.
-- **Authentication:** Secure login and session management powered by Supabase, with Google OAuth 2.0 support.
-- **PWA:** Installable, offline-capable, and mobile-friendly for a native app experience.
-- **Professional UX:** Empty states, onboarding, and all user-facing messaging are polished for a recruiter-ready demo.
+Whether you’re a long-term investor or testing stock themes, Baskiit helps simplify your investment strategy with real-time data and intelligent insights.
 
-## Tech Stack
+⸻
 
-- **Frontend:** React 19, Vite, TypeScript, Zustand (state), React Router
-- **UI/UX:** Tailwind CSS, shadcn/ui, sonner (toasts), Framer Motion
-- **Backend:** Supabase (auth, database, RPC)
-- **PWA:** Full installability, offline support, manifest, and icons
+✨ Features
+• 🧺 Create Custom Baskets
+Build thematic stock baskets and invest flexibly.
+• 📈 Real-Time Stock Prices
+Live price fetch via Groww APIs and Supabase edge functions.
+• 📊 Performance Tracking
+View current value, invested value, total return, and XIRR.
+• 🚪 Effortless Exit
+Exit entire baskets in one click, with real-time updates.
+• 🔐 Secure Auth
+Google OAuth 2.0 login via Supabase, with persistent sessions.
+• 📱 Progressive Web App (PWA)
+Installable, offline-capable, and mobile-optimized.
+• 💎 Polished UX
+Smooth animations, elegant UI, and clear messaging with empty & loading states.
 
-## Why Baskets?
+⸻
 
-> "Baskets helps you build, track, and manage custom stock baskets with real-time prices, performance analytics, and seamless investing. Simplify your wealth journey with a beautiful, intuitive dashboard."
+🛠 Tech Stack
 
-- Recruiter-friendly: Clean code, robust state management, and best practices throughout.
-- All edge cases handled: Loading, error, and empty states are thoughtfully designed.
-- Fast, responsive, and accessible on all devices.
+Layer Tools & Libraries
+Frontend React 19, Vite, React Router, Zustand
+UI/UX Tailwind CSS, shadcn/ui, Framer Motion, Sonner
+Backend Supabase (PostgreSQL, Edge Functions, Auth)
+Other PWA support (manifest, service worker, icons)
 
-## Getting Started
+⸻
 
-1. **Clone the repo:**
-   ```sh
-   git clone https://github.com/yourusername/baskets.git
-   cd baskets
-   ```
-2. **Install dependencies:**
-   ```sh
-   npm install
-   ```
-3. **Run locally:**
-   ```sh
-   npm run dev
-   ```
-4. **Visit:** [http://localhost:5173](http://localhost:5173)
+🚀 Getting Started
 
-## Credentials
+1. Clone the repository
 
-To experience the full app, sign up with your email or use Google login (OAuth 2.0), or use a test account if provided by the recruiter.
+git clone https://github.com/yourusername/baskiit.git
+cd baskiit
 
----
+2. Install dependencies
 
-**Made by Jaspreet Singh**
+npm install
+
+3. Add environment variables
+
+Create a .env file at the root and add:
+
+VITE_SUPABASE_URL=https://<your-project>.supabase.co
+VITE_SUPABASE_ANON_KEY=your-public-anon-key
+
+4. Run locally
+
+npm run dev
+
+Visit: http://localhost:5173
+
+⸻
+
+🔐 Authentication
+• Powered by Supabase Auth with Google OAuth 2.0
+• Auth state persisted using secure cookies
+• Uses dynamic redirectTo to support localhost and production seamlessly
+
+⸻
+
+📦 Project Structure
+
+src/
+├── components/ # Reusable UI elements (cards, buttons, layout)
+├── pages/ # Auth, Dashboard, Basket, Invest, Search
+├── lib/ # Supabase config, helper utils
+├── store/ # Zustand global state
+├── assets/ # Icons, logos, manifest
+
+⸻
+
+🌐 Live Demo
+
+Test out the full experience on https://baskiit.vercel.app
+
+No backend setup required — it’s fully functional with Supabase and Edge Functions deployed.
