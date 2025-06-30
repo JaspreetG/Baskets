@@ -25,21 +25,21 @@ export default function SearchBasket() {
     queryFn: async () => {
       if (!query.trim()) return [];
       const res = await fetch(
-        `https://finnhub.io/api/v1/search?q=${encodeURIComponent(query)}&token=d1h7mu9r01qkdlvsb7dgd1h7mu9r01qkdlvsb7e0`,
+        `https://zmvzrrggaergcqytqmil.supabase.co/functions/v1/search-api?q=${encodeURIComponent(query)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+        },
       );
-      const data = await res.json();
-      // Filter for NSE stocks only (symbol ends with '.NS')
-      const nseStocks = (data.result as Stock[]).filter((stock) =>
-        stock.symbol.endsWith(".NS"),
-      );
-      return nseStocks.slice(0, 5);
+      return res.json();
     },
     enabled: query.trim().length > 0,
   });
 
   type Stock = {
-    symbol: string;
-    description: string;
+    ticker: string;
+    title: string;
   };
 
   return (
@@ -84,15 +84,15 @@ export default function SearchBasket() {
       <ul className="divide-y divide-gray-200 overflow-hidden rounded-xl bg-white shadow-md">
         {(data ?? []).map((stock: Stock) => (
           <li
-            key={stock.symbol}
+            key={stock.ticker}
             className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-gray-50"
           >
             <div className="flex-1">
               <div className="text-sm font-semibold text-gray-700">
-                {stock.symbol}
+                {stock.ticker}
               </div>
               <div className="text-xs leading-snug text-gray-500">
-                {stock.description}
+                {stock.title}
               </div>
             </div>
             <Button
