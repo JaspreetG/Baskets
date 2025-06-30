@@ -192,8 +192,12 @@ export default function Dashboard() {
                   Holding
                 </span>
                 <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-600">
-                  XIRR{xirr === 0 ? "" : xirr > 0 ? " +" : " -"}
-                  {Math.abs(xirr).toFixed(2)}%
+                  XIRR
+                  {xirr === 0
+                    ? " 0.00%"
+                    : xirr > 0
+                      ? ` +${Math.abs(xirr).toFixed(2)}%`
+                      : ` -${Math.abs(xirr).toFixed(2)}%`}
                 </span>
               </div>
               <p className="mb-6 text-2xl font-bold text-gray-900">
