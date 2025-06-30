@@ -6,6 +6,9 @@ import { FaArrowLeft } from "react-icons/fa";
 import { Link, useNavigationType } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
+import { useDebounce } from "@/lib/useDebounce";
+import { globalStore } from "@/store";
+import { toast } from "sonner";
 
 export default function SearchBasket() {
   const navType = useNavigationType();
@@ -19,13 +22,14 @@ export default function SearchBasket() {
   const shouldAnimate = !isBack && hasMounted.current;
 
   const [query, setQuery] = useState("");
+  const debouncedQuery = useDebounce(query, 400);
 
   const { data } = useQuery({
-    queryKey: ["search", query],
+    queryKey: ["search", debouncedQuery],
     queryFn: async () => {
-      if (!query.trim()) return [];
+      if (!debouncedQuery.trim()) return [];
       const res = await fetch(
-        `https://zmvzrrggaergcqytqmil.supabase.co/functions/v1/search-api?q=${encodeURIComponent(query)}`,
+        `https://zmvzrrggaergcqytqmil.supabase.co/functions/v1/search-api?q=${encodeURIComponent(debouncedQuery)}`,
         {
           headers: {
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
@@ -34,7 +38,7 @@ export default function SearchBasket() {
       );
       return res.json();
     },
-    enabled: query.trim().length > 0,
+    enabled: debouncedQuery.trim().length > 0,
   });
 
   type Stock = {
@@ -52,10 +56,13 @@ export default function SearchBasket() {
     >
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-base font-medium text-gray-500">
+        <Link
+          to="/"
+          className="flex items-center gap-2 text-base font-medium text-gray-500"
+        >
           <FaArrowLeft className="h-4 w-4" />
           <span>Add Stocks</span>
-        </div>
+        </Link>
         <Link to="/invest">
           <Button
             variant="ghost"
@@ -99,6 +106,26 @@ export default function SearchBasket() {
               size="sm"
               variant="ghost"
               className="text-blue-600 hover:text-blue-700"
+              onClick={async () => {
+                const res = await fetch(
+                  `https://zmvzrrggaergcqytqmil.supabase.co/functions/v1/ltp-api?symbol=${stock.ticker}`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+                    },
+                  },
+                );
+                const data = await res.json();
+                console.log("LTP API response for", stock.ticker, data);
+                globalStore.getState().addBasketStock({
+                  symbol: stock.ticker,
+                  name: stock.title,
+                  ltp: data.ltp,
+                });
+                toast.success(
+                  `${stock.ticker} (${stock.title}) added to basket!`,
+                );
+              }}
             >
               <Plus className="h-4 w-4" />
             </Button>

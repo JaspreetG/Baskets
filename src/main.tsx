@@ -11,6 +11,7 @@ import Dashboard from "@/pages/Dashboard";
 import SearchBasket from "@/pages/SearchBasket";
 import InvestBasket from "@/pages/InvestBasket";
 import Basket from "./pages/Basket";
+import { Toaster } from "@/components/ui/sonner";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
+      <Toaster />
     </QueryClientProvider>
   </StrictMode>,
 );
