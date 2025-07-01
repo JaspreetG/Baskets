@@ -76,7 +76,9 @@ export default function InvestBasket() {
     onSuccess: (data: PostgrestSingleResponse<unknown>) => {
       if (!data.error) {
         toast.success("Investment successful!");
-        setTimeout(() => navigate("/"), 800);
+        // Clear basketStocks in zustand/globalStore before navigating
+        globalStore.setState({ basketStocks: [] });
+        navigate("/");
       } else {
         toast.error("Investment failed. Please try again.");
       }

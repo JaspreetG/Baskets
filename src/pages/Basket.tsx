@@ -7,7 +7,11 @@ import { supabase } from "@/lib/supabase";
 import { globalStore } from "@/store";
 import { motion } from "framer-motion";
 
+import { useState } from "react";
+
 export default function Basket() {
+  const [pendingExit, setPendingExit] = useState(false);
+  const [localExited, setLocalExited] = useState(false);
   const hasMounted = useRef(false);
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -48,15 +52,18 @@ export default function Basket() {
   const returnPercent = invested ? (totalReturn / invested) * 100 : 0;
   // Disable exit if all stocks have a non-null sell_date (all exited)
   const allExited =
-    basket.stocks.length > 0 &&
-    basket.stocks.every(
-      (s) =>
-        typeof s.sell_date === "string" &&
-        s.sell_date.trim() !== "" &&
-        !isNaN(Date.parse(s.sell_date)),
-    );
+    localExited ||
+    (basket.stocks.length > 0 &&
+      basket.stocks.every(
+        (s) =>
+          typeof s.sell_date === "string" &&
+          s.sell_date.trim() !== "" &&
+          !isNaN(Date.parse(s.sell_date)),
+      ));
 
   async function handleExitBasket() {
+    if (pendingExit || allExited) return;
+    setPendingExit(true);
     try {
       // Fetch LTP for each stock in the basket using the same API as dashboard
       const ltpData: Record<string, number> = {};
@@ -111,14 +118,17 @@ export default function Basket() {
 
       if (error) {
         toast.error("Exit failed. Try again.");
+        setPendingExit(false);
       } else {
         toast.success("Basket exited.");
-        // No need to set state, UI will update from zustand/globalStore
+        setLocalExited(true);
+        setPendingExit(false);
       }
     } catch (err: unknown) {
       const errorMsg =
         err instanceof Error ? err.message : "Failed to fetch latest prices.";
       toast.error(errorMsg);
+      setPendingExit(false);
     }
   }
 
@@ -262,10 +272,14 @@ export default function Basket() {
       <div className="pt-4">
         <button
           onClick={handleExitBasket}
-          disabled={allExited}
+          disabled={allExited || pendingExit}
           className="w-full rounded-lg bg-red-600 px-5 py-3 text-base font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
         >
-          {allExited ? "Exit taken" : "Exit Basket"}
+          {allExited
+            ? "Exit taken"
+            : pendingExit
+              ? "Exiting..."
+              : "Exit Basket"}
         </button>
       </div>
     </motion.div>

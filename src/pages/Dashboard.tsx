@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { useCallback, useEffect, useMemo, useState, memo } from "react";
+import { useCallback, useEffect, useMemo, memo } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { globalStore } from "@/store";
@@ -59,11 +60,8 @@ function fixNegativeZero(val: number): number {
   return val;
 }
 
-// Module-level flag: persists across SPA navigation, resets on hard reload
-let dashboardHasMounted = false;
-
 const Dashboard = memo(function Dashboard() {
-  const [ready, setReady] = useState(false);
+  const [loading, setLoading] = useState(() => true); // ensures loader is visible on first render
 
   const setBaskets = globalStore((s) => s.setBaskets);
   const updateBasketLTP = globalStore((s) => s.updateBasketLTP);
@@ -108,6 +106,7 @@ const Dashboard = memo(function Dashboard() {
   );
 
   const fetchAndSetBaskets = useCallback(async () => {
+    setLoading(true);
     const { data } = await supabase.rpc("get_all_baskets_with_stocks");
     if (data && Array.isArray(data)) {
       setBaskets(data);
@@ -121,18 +120,11 @@ const Dashboard = memo(function Dashboard() {
         }),
       );
     }
-    setReady(true);
+    setLoading(false);
   }, [setBaskets, fetchLTPForStock]);
 
-  // Only fetch baskets on first mount, not on every navigation (e.g. back)
   useEffect(() => {
-    // Only fetch on first mount after hard reload, never on SPA remounts
-    if (!dashboardHasMounted) {
-      dashboardHasMounted = true;
-      fetchAndSetBaskets();
-    } else {
-      setReady(true);
-    }
+    fetchAndSetBaskets();
     // No deps: only run on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -231,10 +223,17 @@ const Dashboard = memo(function Dashboard() {
 
   // (No duplicate XIRR/cashflow logic needed)
 
-  if (!ready) {
+  if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-green-500" />
+        <div
+          className="h-14 w-14 animate-spin rounded-full border-4 border-neutral-900 border-t-transparent shadow-lg"
+          style={{
+            background: "none",
+            boxShadow:
+              "0 2px 12px 0 rgba(0,0,0,0.10), 0 1.5px 4px 0 rgba(0,0,0,0.08)",
+          }}
+        />
       </div>
     );
   }
