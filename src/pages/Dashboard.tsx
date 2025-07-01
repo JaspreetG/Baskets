@@ -274,132 +274,145 @@ export default function Dashboard() {
 
         <div className="space-y-4">
           {baskets.length > 0 ? (
-            baskets.map((basket) => (
-              <Link
-                key={basket.id}
-                to={`/basket?id=${basket.id}`}
-                state={{ basketId: basket.id }}
-              >
-                <div className="mb-1.5 flex items-center justify-between rounded-xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 px-5 py-4 shadow-[0_4px_16px_rgba(0,0,0,0.05)] backdrop-blur-sm">
-                  <div>
-                    <h4 className="text-base font-medium text-gray-900">
-                      {basket.name}
-                    </h4>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-semibold text-green-600">
-                      ₹
-                      {Math.round(
-                        basket.stocks.reduce(
-                          (acc, stock) =>
-                            acc +
-                            (stock.quantity ?? 0) *
-                              (stock.sell_price != null &&
-                              !isNaN(Number(stock.sell_price))
-                                ? stock.sell_price
-                                : (stock.ltp ?? stock.buy_price ?? 0)),
-                          0,
-                        ),
-                      ).toLocaleString()}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      <span
-                        className={
-                          ((basket.stocks.reduce(
+            // Sort baskets by created_at descending (most recent first)
+            [...baskets]
+              .sort((a, b) => {
+                const aDate = a.created_at
+                  ? new Date(a.created_at).getTime()
+                  : 0;
+                const bDate = b.created_at
+                  ? new Date(b.created_at).getTime()
+                  : 0;
+                return bDate - aDate;
+              })
+              .map((basket) => (
+                <Link
+                  key={basket.id}
+                  to={`/basket?id=${basket.id}`}
+                  state={{ basketId: basket.id }}
+                >
+                  <div className="mb-1.5 flex items-center justify-between rounded-xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 px-5 py-4 shadow-[0_4px_16px_rgba(0,0,0,0.05)] backdrop-blur-sm">
+                    <div>
+                      <h4 className="text-base font-medium text-gray-900">
+                        {basket.name}
+                      </h4>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-green-600">
+                        ₹
+                        {Math.round(
+                          basket.stocks.reduce(
                             (acc, stock) =>
                               acc +
                               (stock.quantity ?? 0) *
-                                (stock.ltp ?? stock.buy_price ?? 0),
+                                (stock.sell_price != null &&
+                                !isNaN(Number(stock.sell_price))
+                                  ? stock.sell_price
+                                  : (stock.ltp ?? stock.buy_price ?? 0)),
                             0,
-                          ) -
-                            basket.stocks.reduce(
+                          ),
+                        ).toLocaleString()}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        <span
+                          className={
+                            ((basket.stocks.reduce(
+                              (acc, stock) =>
+                                acc +
+                                (stock.quantity ?? 0) *
+                                  (stock.ltp ?? stock.buy_price ?? 0),
+                              0,
+                            ) -
+                              basket.stocks.reduce(
+                                (acc, stock) =>
+                                  acc +
+                                  (stock.quantity ?? 0) *
+                                    (stock.buy_price ?? 0),
+                                0,
+                              )) /
+                              (basket.stocks.reduce(
+                                (acc, stock) =>
+                                  acc +
+                                  (stock.quantity ?? 0) *
+                                    (stock.buy_price ?? 0),
+                                0,
+                              ) || 1)) *
+                              100 >
+                            0
+                              ? "text-green-600"
+                              : ((basket.stocks.reduce(
+                                    (acc, stock) =>
+                                      acc +
+                                      (stock.quantity ?? 0) *
+                                        (stock.ltp ?? stock.buy_price ?? 0),
+                                    0,
+                                  ) -
+                                    basket.stocks.reduce(
+                                      (acc, stock) =>
+                                        acc +
+                                        (stock.quantity ?? 0) *
+                                          (stock.buy_price ?? 0),
+                                      0,
+                                    )) /
+                                    (basket.stocks.reduce(
+                                      (acc, stock) =>
+                                        acc +
+                                        (stock.quantity ?? 0) *
+                                          (stock.buy_price ?? 0),
+                                      0,
+                                    ) || 1)) *
+                                    100 <
+                                  0
+                                ? "text-red-500"
+                                : "text-gray-400"
+                          }
+                        >
+                          {(() => {
+                            const invested = basket.stocks.reduce(
                               (acc, stock) =>
                                 acc +
                                 (stock.quantity ?? 0) * (stock.buy_price ?? 0),
                               0,
-                            )) /
-                            (basket.stocks.reduce(
+                            );
+                            const net = basket.stocks.reduce(
+                              (acc, stock) =>
+                                acc +
+                                (stock.quantity ?? 0) *
+                                  (stock.ltp ?? stock.buy_price ?? 0),
+                              0,
+                            );
+                            if (invested === 0) return "";
+                            const percent = ((net - invested) / invested) * 100;
+                            if (percent === 0) return "";
+                            return percent > 0 ? "+" : "-";
+                          })()}
+                          {(() => {
+                            const invested = basket.stocks.reduce(
                               (acc, stock) =>
                                 acc +
                                 (stock.quantity ?? 0) * (stock.buy_price ?? 0),
                               0,
-                            ) || 1)) *
-                            100 >
-                          0
-                            ? "text-green-600"
-                            : ((basket.stocks.reduce(
-                                  (acc, stock) =>
-                                    acc +
-                                    (stock.quantity ?? 0) *
-                                      (stock.ltp ?? stock.buy_price ?? 0),
-                                  0,
-                                ) -
-                                  basket.stocks.reduce(
-                                    (acc, stock) =>
-                                      acc +
-                                      (stock.quantity ?? 0) *
-                                        (stock.buy_price ?? 0),
-                                    0,
-                                  )) /
-                                  (basket.stocks.reduce(
-                                    (acc, stock) =>
-                                      acc +
-                                      (stock.quantity ?? 0) *
-                                        (stock.buy_price ?? 0),
-                                    0,
-                                  ) || 1)) *
-                                  100 <
-                                0
-                              ? "text-red-500"
-                              : "text-gray-400"
-                        }
-                      >
-                        {(() => {
-                          const invested = basket.stocks.reduce(
-                            (acc, stock) =>
-                              acc +
-                              (stock.quantity ?? 0) * (stock.buy_price ?? 0),
-                            0,
-                          );
-                          const net = basket.stocks.reduce(
-                            (acc, stock) =>
-                              acc +
-                              (stock.quantity ?? 0) *
-                                (stock.ltp ?? stock.buy_price ?? 0),
-                            0,
-                          );
-                          if (invested === 0) return "";
-                          const percent = ((net - invested) / invested) * 100;
-                          if (percent === 0) return "";
-                          return percent > 0 ? "+" : "-";
-                        })()}
-                        {(() => {
-                          const invested = basket.stocks.reduce(
-                            (acc, stock) =>
-                              acc +
-                              (stock.quantity ?? 0) * (stock.buy_price ?? 0),
-                            0,
-                          );
-                          const net = basket.stocks.reduce(
-                            (acc, stock) =>
-                              acc +
-                              (stock.quantity ?? 0) *
-                                (stock.ltp ?? stock.buy_price ?? 0),
-                            0,
-                          );
-                          return invested
-                            ? Math.abs(
-                                ((net - invested) / invested) * 100,
-                              ).toFixed(1)
-                            : "0.0";
-                        })()}
-                        %
-                      </span>
-                    </p>
+                            );
+                            const net = basket.stocks.reduce(
+                              (acc, stock) =>
+                                acc +
+                                (stock.quantity ?? 0) *
+                                  (stock.ltp ?? stock.buy_price ?? 0),
+                              0,
+                            );
+                            return invested
+                              ? Math.abs(
+                                  ((net - invested) / invested) * 100,
+                                ).toFixed(1)
+                              : "0.0";
+                          })()}
+                          %
+                        </span>
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))
+                </Link>
+              ))
           ) : (
             <div className="flex flex-col items-center justify-center py-8">
               <div className="w-full max-w-md rounded-2xl border-2 border-dotted border-gray-300 bg-white/70 px-8 py-16 text-center shadow-sm">
