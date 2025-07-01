@@ -113,7 +113,7 @@ export default function Basket() {
         toast.error("Exit failed. Try again.");
       } else {
         toast.success("Basket exited.");
-        setExited(true);
+        // No need to set state, UI will update from zustand/globalStore
       }
     } catch (err: unknown) {
       const errorMsg =
