@@ -161,7 +161,7 @@ export default function Basket() {
         <div className="flex items-start justify-between">
           <div>
             <p className="text-xs text-gray-500">Current Value</p>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-3xl font-light text-gray-900">
               ₹{currentValue.toLocaleString()}
             </p>
           </div>
@@ -169,7 +169,7 @@ export default function Basket() {
             <p className="text-xs text-gray-500">Total Return</p>
             <p
               className={
-                "text-sm font-semibold " +
+                "text-sm font-medium " +
                 (totalReturn === 0
                   ? "text-gray-500"
                   : totalReturn > 0
@@ -223,6 +223,11 @@ export default function Basket() {
               ? (stockReturn / stockInvested) * 100
               : 0;
             // Color and sign logic: green for +, red for -, gray for 0; no sign for 0
+            let valueClass = "text-right font-light text-gray-500";
+            if (stockReturnPercent > 0)
+              valueClass = "text-right font-light text-green-600";
+            else if (stockReturnPercent < 0)
+              valueClass = "text-right font-light text-red-500";
             return (
               <li
                 key={stock.symbol}
@@ -233,15 +238,7 @@ export default function Basket() {
                     ? `${stock.name} (${stock.symbol})`
                     : stock.symbol}
                 </span>
-                <span
-                  className={
-                    stockReturnPercent === 0
-                      ? "text-right font-semibold text-gray-500"
-                      : stockReturnPercent > 0
-                        ? "text-right font-semibold text-green-600"
-                        : "text-right font-semibold text-red-500"
-                  }
-                >
+                <span className={valueClass}>
                   ₹{stockCurrent.toLocaleString()} <br />
                   <span className="text-xs font-normal">
                     <span
@@ -275,11 +272,11 @@ export default function Basket() {
           disabled={allExited || pendingExit}
           className="w-full rounded-lg bg-red-600 px-5 py-3 text-base font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
         >
-          {allExited
-            ? "Exit taken"
-            : pendingExit
-              ? "Exiting..."
-              : "Exit Basket"}
+          {(() => {
+            if (allExited) return "Exit taken";
+            if (pendingExit) return "Exiting...";
+            return "Exit Basket";
+          })()}
         </button>
       </div>
     </motion.div>

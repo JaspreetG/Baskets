@@ -247,12 +247,14 @@ const Dashboard = memo(function Dashboard() {
     >
       {/* Portfolio Summary */}
       <section className="space-y-4">
-        <h1 className="text-xl font-bold text-gray-900">Portfolio Overview</h1>
+        <h1 className="text-xl font-semibold text-gray-900">
+          Portfolio Overview
+        </h1>
         <div className="relative">
           <div className="before:animate-spin-slower before:absolute before:inset-0 before:-z-10 before:rounded-2xl before:border-2 before:border-transparent before:bg-[conic-gradient(at_top_left,_rgba(34,197,94,0.2),rgba(110,231,183,0.2),rgba(34,197,94,0.2))] before:blur">
             <div className="rounded-2xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-5 shadow-[0_10px_40px_rgba(0,0,0,0.08)] backdrop-blur-md transition hover:shadow-[0_6px_24px_rgba(0,0,0,0.05)]">
               <div className="mb-6 flex items-center justify-between">
-                <span className="text-sm font-semibold text-gray-800">
+                <span className="text-sm font-medium text-gray-800">
                   Holding
                 </span>
                 <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-600">
@@ -265,18 +267,18 @@ const Dashboard = memo(function Dashboard() {
                   })()}
                 </span>
               </div>
-              <p className="mb-6 text-2xl font-bold text-gray-900">
+              <p className="mb-6 text-3xl font-light text-gray-900">
                 ₹{totalNetValue.toLocaleString()}
               </p>
               <div className="mt-4 flex items-center justify-between">
                 <p className="text-sm text-gray-500">Total return</p>
                 {(() => {
                   // Extracted ternary logic for className and sign
-                  let returnClass = "text-sm font-semibold text-gray-400";
+                  let returnClass = "text-sm font-medium text-gray-400";
                   if (totalReturn > 0)
-                    returnClass = "text-sm font-semibold text-green-600";
+                    returnClass = "text-sm font-medium text-green-600";
                   else if (totalReturn < 0)
-                    returnClass = "text-sm font-semibold text-red-500";
+                    returnClass = "text-sm font-medium text-red-500";
                   let sign = "";
                   if (totalReturn > 0) sign = "+";
                   else if (totalReturn < 0) sign = "-";
@@ -373,12 +375,12 @@ const Dashboard = memo(function Dashboard() {
                   >
                     <div className="mb-1.5 flex items-center justify-between rounded-xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 px-5 py-4 shadow-[0_4px_16px_rgba(0,0,0,0.05)] backdrop-blur-sm">
                       <div>
-                        <h4 className="text-base font-medium text-gray-900">
+                        <h4 className="text-base font-semibold text-gray-900">
                           {basket.name}
                         </h4>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-semibold text-green-600">
+                        <p className="text-xl font-light text-green-600">
                           ₹{Math.round(basketSellValue).toLocaleString()}
                         </p>
                         <p className="text-xs text-gray-500">
@@ -416,9 +418,15 @@ const Dashboard = memo(function Dashboard() {
       </section>
       <Link
         to="/search"
-        className="fixed right-6 bottom-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-green-600 text-white shadow-lg transition hover:bg-green-700"
+        className="fixed right-6 bottom-8 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-green-600 text-white shadow-lg transition hover:bg-green-700"
+        style={{ lineHeight: 0 }}
       >
-        <span className="text-3xl leading-none">+</span>
+        <span
+          className="flex h-full w-full items-center justify-center text-3xl leading-none"
+          style={{ lineHeight: 1.15, marginTop: "-5px" }}
+        >
+          +
+        </span>
       </Link>
     </motion.div>
   );
