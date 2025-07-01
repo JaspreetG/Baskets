@@ -239,185 +239,192 @@ const Dashboard = memo(function Dashboard() {
   }
 
   return (
-    <motion.div
-      className="mx-auto max-w-4xl space-y-8 px-4 py-6 sm:px-6 lg:px-8"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: "easeInOut" }}
-    >
-      {/* Portfolio Summary */}
-      <section className="space-y-4">
-        <h1 className="text-xl font-semibold text-gray-900">
-          Portfolio Overview
-        </h1>
-        <div className="relative">
-          <div className="before:animate-spin-slower before:absolute before:inset-0 before:-z-10 before:rounded-2xl before:border-2 before:border-transparent before:bg-[conic-gradient(at_top_left,_rgba(34,197,94,0.2),rgba(110,231,183,0.2),rgba(34,197,94,0.2))] before:blur">
-            <div className="rounded-2xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-5 shadow-[0_10px_40px_rgba(0,0,0,0.08)] backdrop-blur-md transition hover:shadow-[0_6px_24px_rgba(0,0,0,0.05)]">
-              <div className="mb-6 flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-800">
-                  Holding
-                </span>
-                <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-600">
-                  XIRR
+    <>
+      <motion.div
+        className="mx-auto max-w-4xl space-y-8 px-4 py-6 sm:px-6 lg:px-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: "easeInOut" }}
+      >
+        {/* Portfolio Summary */}
+        <section className="space-y-4">
+          <h1 className="text-xl font-semibold text-gray-900">
+            Portfolio Overview
+          </h1>
+          <div className="relative">
+            <div className="before:animate-spin-slower before:absolute before:inset-0 before:-z-10 before:rounded-2xl before:border-2 before:border-transparent before:bg-[conic-gradient(at_top_left,_rgba(34,197,94,0.2),rgba(110,231,183,0.2),rgba(34,197,94,0.2))] before:blur">
+              <div className="rounded-2xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-5 shadow-[0_10px_40px_rgba(0,0,0,0.08)] backdrop-blur-md transition hover:shadow-[0_6px_24px_rgba(0,0,0,0.05)]">
+                <div className="mb-6 flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-800">
+                    Holding
+                  </span>
+                  <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-600">
+                    XIRR
+                    {(() => {
+                      const displayXirr = fixNegativeZero(xirr);
+                      if (displayXirr === 0) return " 0.00%";
+                      if (displayXirr > 0)
+                        return ` +${displayXirr.toFixed(2)}%`;
+                      return ` -${Math.abs(displayXirr).toFixed(2)}%`;
+                    })()}
+                  </span>
+                </div>
+                <p className="mb-6 text-3xl font-light text-gray-900">
+                  ₹{totalNetValue.toLocaleString()}
+                </p>
+                <div className="mt-4 flex items-center justify-between">
+                  <p className="text-sm text-gray-500">Total return</p>
                   {(() => {
-                    const displayXirr = fixNegativeZero(xirr);
-                    if (displayXirr === 0) return " 0.00%";
-                    if (displayXirr > 0) return ` +${displayXirr.toFixed(2)}%`;
-                    return ` -${Math.abs(displayXirr).toFixed(2)}%`;
+                    // Extracted ternary logic for className and sign
+                    let returnClass = "text-sm font-medium text-gray-400";
+                    if (totalReturn > 0)
+                      returnClass = "text-sm font-medium text-green-600";
+                    else if (totalReturn < 0)
+                      returnClass = "text-sm font-medium text-red-500";
+                    let sign = "";
+                    if (totalReturn > 0) sign = "+";
+                    else if (totalReturn < 0) sign = "-";
+                    // For percent
+                    const percent = totalInvested
+                      ? (totalReturn / totalInvested) * 100
+                      : 0;
+                    let percentClass = "text-gray-400";
+                    if (percent > 0) percentClass = "text-green-600";
+                    else if (percent < 0) percentClass = "text-red-500";
+                    let percentSign = "";
+                    if (totalInvested !== 0 && percent !== 0) {
+                      percentSign = percent >= 0 ? "+" : "-";
+                    }
+                    return (
+                      <p className={returnClass}>
+                        {sign}₹{Math.abs(totalReturn).toLocaleString()} (
+                        <span className={percentClass}>
+                          {percentSign}
+                          {totalInvested
+                            ? Math.abs(percent).toFixed(2)
+                            : "0.00"}
+                          %
+                        </span>
+                        )
+                      </p>
+                    );
                   })()}
-                </span>
+                </div>
+                <div className="mt-4 flex items-center justify-between">
+                  <p className="text-sm text-gray-500">Invested</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    ₹{totalInvested.toLocaleString()}
+                  </p>
+                </div>
               </div>
-              <p className="mb-6 text-3xl font-light text-gray-900">
-                ₹{totalNetValue.toLocaleString()}
-              </p>
-              <div className="mt-4 flex items-center justify-between">
-                <p className="text-sm text-gray-500">Total return</p>
-                {(() => {
-                  // Extracted ternary logic for className and sign
-                  let returnClass = "text-sm font-medium text-gray-400";
-                  if (totalReturn > 0)
-                    returnClass = "text-sm font-medium text-green-600";
-                  else if (totalReturn < 0)
-                    returnClass = "text-sm font-medium text-red-500";
-                  let sign = "";
-                  if (totalReturn > 0) sign = "+";
-                  else if (totalReturn < 0) sign = "-";
-                  // For percent
-                  const percent = totalInvested
-                    ? (totalReturn / totalInvested) * 100
+            </div>
+          </div>
+        </section>
+
+        {/* Baskets Section */}
+        <section className="mt-8 space-y-4">
+          <h2 className="text-xl font-semibold text-gray-800">
+            <span className="px-3 py-3 text-gray-500">baskets</span>
+          </h2>
+
+          <div className="space-y-4">
+            {baskets.length > 0 ? (
+              // Sort baskets by created_at descending (most recent first)
+              [...baskets]
+                .sort((a, b) => {
+                  const aDate = a.created_at
+                    ? new Date(a.created_at).getTime()
+                    : 0;
+                  const bDate = b.created_at
+                    ? new Date(b.created_at).getTime()
+                    : 0;
+                  return bDate - aDate;
+                })
+                .map((basket) => {
+                  // Per-basket: for each stock, use sell price if available, else LTP, else buy price
+                  let basketInvested = 0;
+                  let basketSellValue = 0;
+                  basket.stocks.forEach((stock) => {
+                    const qty = stock.quantity ?? 0;
+                    const buyPrice = stock.buy_price ?? 0;
+                    basketInvested += qty * buyPrice;
+                    const hasSell =
+                      stock.sell_price != null &&
+                      !isNaN(Number(stock.sell_price));
+                    const sellOrLtp = hasSell
+                      ? Number(stock.sell_price)
+                      : Number(stock.ltp ?? stock.buy_price ?? 0);
+                    basketSellValue += qty * sellOrLtp;
+                  });
+                  const percent = basketInvested
+                    ? ((basketSellValue - basketInvested) / basketInvested) *
+                      100
                     : 0;
                   let percentClass = "text-gray-400";
                   if (percent > 0) percentClass = "text-green-600";
                   else if (percent < 0) percentClass = "text-red-500";
+                  // Show percent with 2 decimals, no sign for near zero
                   let percentSign = "";
-                  if (totalInvested !== 0 && percent !== 0) {
-                    percentSign = percent >= 0 ? "+" : "-";
+                  const percentValue = basketInvested ? Math.abs(percent) : 0;
+                  const percentDisplay =
+                    percentValue < 0.005 ? "0.00" : percentValue.toFixed(2);
+                  // Only assign sign if percentDisplay is not 0.00
+                  if (basketInvested !== 0 && percentDisplay !== "0.00") {
+                    percentSign = percent > 0 ? "+" : "-";
                   }
+
                   return (
-                    <p className={returnClass}>
-                      {sign}₹{Math.abs(totalReturn).toLocaleString()} (
-                      <span className={percentClass}>
-                        {percentSign}
-                        {totalInvested ? Math.abs(percent).toFixed(2) : "0.00"}%
-                      </span>
-                      )
-                    </p>
+                    <Link
+                      key={basket.id}
+                      to={`/basket?id=${basket.id}`}
+                      state={{ basketId: basket.id }}
+                    >
+                      <div className="mb-1.5 flex items-center justify-between rounded-xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 px-5 py-4 shadow-[0_4px_16px_rgba(0,0,0,0.05)] backdrop-blur-sm">
+                        <div>
+                          <h4 className="text-base font-semibold text-gray-900">
+                            {basket.name}
+                          </h4>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xl font-light text-green-600">
+                            ₹{Math.round(basketSellValue).toLocaleString()}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            <span className={percentClass}>
+                              {percentSign}
+                              {percentDisplay}%
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+                    </Link>
                   );
-                })()}
-              </div>
-              <div className="mt-4 flex items-center justify-between">
-                <p className="text-sm text-gray-500">Invested</p>
-                <p className="text-sm font-medium text-gray-900">
-                  ₹{totalInvested.toLocaleString()}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Baskets Section */}
-      <section className="mt-8 space-y-4">
-        <h2 className="text-xl font-semibold text-gray-800">
-          <span className="px-3 py-3 text-gray-500">baskets</span>
-        </h2>
-
-        <div className="space-y-4">
-          {baskets.length > 0 ? (
-            // Sort baskets by created_at descending (most recent first)
-            [...baskets]
-              .sort((a, b) => {
-                const aDate = a.created_at
-                  ? new Date(a.created_at).getTime()
-                  : 0;
-                const bDate = b.created_at
-                  ? new Date(b.created_at).getTime()
-                  : 0;
-                return bDate - aDate;
-              })
-              .map((basket) => {
-                // Per-basket: for each stock, use sell price if available, else LTP, else buy price
-                let basketInvested = 0;
-                let basketSellValue = 0;
-                basket.stocks.forEach((stock) => {
-                  const qty = stock.quantity ?? 0;
-                  const buyPrice = stock.buy_price ?? 0;
-                  basketInvested += qty * buyPrice;
-                  const hasSell =
-                    stock.sell_price != null &&
-                    !isNaN(Number(stock.sell_price));
-                  const sellOrLtp = hasSell
-                    ? Number(stock.sell_price)
-                    : Number(stock.ltp ?? stock.buy_price ?? 0);
-                  basketSellValue += qty * sellOrLtp;
-                });
-                const percent = basketInvested
-                  ? ((basketSellValue - basketInvested) / basketInvested) * 100
-                  : 0;
-                let percentClass = "text-gray-400";
-                if (percent > 0) percentClass = "text-green-600";
-                else if (percent < 0) percentClass = "text-red-500";
-                // Show percent with 2 decimals, no sign for near zero
-                let percentSign = "";
-                const percentValue = basketInvested ? Math.abs(percent) : 0;
-                const percentDisplay =
-                  percentValue < 0.005 ? "0.00" : percentValue.toFixed(2);
-                // Only assign sign if percentDisplay is not 0.00
-                if (basketInvested !== 0 && percentDisplay !== "0.00") {
-                  percentSign = percent > 0 ? "+" : "-";
-                }
-
-                return (
+                })
+            ) : (
+              <div className="flex flex-col items-center justify-center py-8">
+                <div className="w-full max-w-md rounded-2xl border-2 border-dotted border-gray-300 bg-white/70 px-8 py-16 text-center shadow-sm">
+                  <div className="mb-4 text-4xl" style={{ color: "#FFD700" }}>
+                    💵
+                  </div>
+                  <div className="mb-2 text-lg font-semibold text-gray-700">
+                    No baskets yet
+                  </div>
+                  <div className="mb-4 text-gray-500">
+                    Start by creating your first investment basket to track your
+                    portfolio performance.
+                  </div>
                   <Link
-                    key={basket.id}
-                    to={`/basket?id=${basket.id}`}
-                    state={{ basketId: basket.id }}
+                    to="/search"
+                    className="inline-block rounded-lg border border-green-600 bg-green-50 px-6 py-2 text-green-700 transition hover:bg-green-100 hover:text-green-800"
                   >
-                    <div className="mb-1.5 flex items-center justify-between rounded-xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 px-5 py-4 shadow-[0_4px_16px_rgba(0,0,0,0.05)] backdrop-blur-sm">
-                      <div>
-                        <h4 className="text-base font-semibold text-gray-900">
-                          {basket.name}
-                        </h4>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xl font-light text-green-600">
-                          ₹{Math.round(basketSellValue).toLocaleString()}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          <span className={percentClass}>
-                            {percentSign}
-                            {percentDisplay}%
-                          </span>
-                        </p>
-                      </div>
-                    </div>
+                    + Create Basket
                   </Link>
-                );
-              })
-          ) : (
-            <div className="flex flex-col items-center justify-center py-8">
-              <div className="w-full max-w-md rounded-2xl border-2 border-dotted border-gray-300 bg-white/70 px-8 py-16 text-center shadow-sm">
-                <div className="mb-4 text-4xl" style={{ color: "#FFD700" }}>
-                  💵
                 </div>
-                <div className="mb-2 text-lg font-semibold text-gray-700">
-                  No baskets yet
-                </div>
-                <div className="mb-4 text-gray-500">
-                  Start by creating your first investment basket to track your
-                  portfolio performance.
-                </div>
-                <Link
-                  to="/search"
-                  className="inline-block rounded-lg border border-green-600 bg-green-50 px-6 py-2 text-green-700 transition hover:bg-green-100 hover:text-green-800"
-                >
-                  + Create Basket
-                </Link>
               </div>
-            </div>
-          )}
-        </div>
-      </section>
+            )}
+          </div>
+        </section>
+      </motion.div>
       <Link
         to="/search"
         className="fixed right-6 bottom-8 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-green-600 text-white shadow-lg transition hover:bg-green-700"
@@ -430,7 +437,7 @@ const Dashboard = memo(function Dashboard() {
           +
         </span>
       </Link>
-    </motion.div>
+    </>
   );
 });
 
