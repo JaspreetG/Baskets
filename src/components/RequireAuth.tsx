@@ -20,9 +20,10 @@ export default function RequireAuth({
 
   if (loading)
     return (
-      <div className="flex h-screen w-full items-center justify-center text-gray-500">
-        Loading...
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-green-500" />
       </div>
     );
+
   return isAuthenticated ? children : null;
 }
