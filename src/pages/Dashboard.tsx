@@ -140,12 +140,24 @@ export default function Dashboard() {
     let basketInvested = 0;
     const basketCashflows: { amount: number; date: string }[] = [];
     basket.stocks.forEach((stock) => {
-      // Use sell_price if available, else ltp, else buy_price
-      const effectivePrice =
-        stock.sell_price != null && !isNaN(Number(stock.sell_price))
-          ? stock.sell_price
-          : (stock.ltp ?? stock.buy_price);
-      basketNet += (stock.quantity ?? 0) * (effectivePrice ?? 0);
+      // Use sell_price if available (and sell_date is valid), else ltp, else buy_price
+      const hasSell =
+        stock.sell_price != null &&
+        !isNaN(Number(stock.sell_price)) &&
+        typeof stock.sell_date === "string" &&
+        stock.sell_date.trim() !== "" &&
+        !isNaN(Date.parse(stock.sell_date));
+      const effectivePrice = hasSell
+        ? Number(stock.sell_price)
+        : Number(stock.ltp ?? stock.buy_price ?? 0);
+      // Always ensure effectiveDate is a string
+      const effectiveDate =
+        hasSell &&
+        typeof stock.sell_date === "string" &&
+        stock.sell_date.trim() !== ""
+          ? stock.sell_date
+          : new Date().toISOString().split("T")[0];
+      basketNet += (stock.quantity ?? 0) * effectivePrice;
       basketInvested += (stock.quantity ?? 0) * (stock.buy_price ?? 0);
       // Buy cashflow
       if (stock.quantity && stock.buy_price && basket.created_at) {
@@ -155,21 +167,15 @@ export default function Dashboard() {
         });
       }
       // Sell cashflow if sold, else use current LTP and today
-      if (
-        stock.quantity &&
-        stock.sell_price != null &&
-        !isNaN(Number(stock.sell_price)) &&
-        stock.sell_date &&
-        !isNaN(Date.parse(stock.sell_date))
-      ) {
+      if (stock.quantity && hasSell) {
         basketCashflows.push({
-          amount: stock.quantity * stock.sell_price,
-          date: stock.sell_date,
+          amount: stock.quantity * Number(stock.sell_price),
+          date: effectiveDate, // always a string
         });
       } else if (stock.quantity && effectivePrice) {
         basketCashflows.push({
           amount: stock.quantity * effectivePrice,
-          date: new Date().toISOString().split("T")[0],
+          date: effectiveDate, // always a string
         });
       }
     });
@@ -224,36 +230,38 @@ export default function Dashboard() {
               </p>
               <div className="mt-4 flex items-center justify-between">
                 <p className="text-sm text-gray-500">Total return</p>
-                <p
-                  className={`text-sm font-semibold ${totalReturn > 0 ? "text-green-600" : totalReturn < 0 ? "text-red-500" : "text-gray-400"}`}
-                >
-                  {totalReturn === 0 ? "" : totalReturn > 0 ? "+" : "-"}₹
-                  {Math.abs(totalReturn).toLocaleString()} (
-                  <span
-                    className={
-                      totalInvested === 0
-                        ? "text-gray-400"
-                        : (totalReturn / totalInvested) * 100 > 0
-                          ? "text-green-600"
-                          : (totalReturn / totalInvested) * 100 < 0
-                            ? "text-red-500"
-                            : "text-gray-400"
-                    }
-                  >
-                    {totalInvested === 0
-                      ? ""
-                      : (totalReturn / totalInvested) * 100 === 0
-                        ? ""
-                        : totalReturn >= 0
-                          ? "+"
-                          : "-"}
-                    {totalInvested
-                      ? Math.abs((totalReturn / totalInvested) * 100).toFixed(2)
-                      : "0.00"}
-                    %
-                  </span>
-                  )
-                </p>
+                {(() => {
+                  // Extracted ternary logic for className and sign
+                  let returnClass = "text-sm font-semibold text-gray-400";
+                  if (totalReturn > 0)
+                    returnClass = "text-sm font-semibold text-green-600";
+                  else if (totalReturn < 0)
+                    returnClass = "text-sm font-semibold text-red-500";
+                  let sign = "";
+                  if (totalReturn > 0) sign = "+";
+                  else if (totalReturn < 0) sign = "-";
+                  // For percent
+                  const percent = totalInvested
+                    ? (totalReturn / totalInvested) * 100
+                    : 0;
+                  let percentClass = "text-gray-400";
+                  if (percent > 0) percentClass = "text-green-600";
+                  else if (percent < 0) percentClass = "text-red-500";
+                  let percentSign = "";
+                  if (totalInvested !== 0 && percent !== 0) {
+                    percentSign = percent >= 0 ? "+" : "-";
+                  }
+                  return (
+                    <p className={returnClass}>
+                      {sign}₹{Math.abs(totalReturn).toLocaleString()} (
+                      <span className={percentClass}>
+                        {percentSign}
+                        {totalInvested ? Math.abs(percent).toFixed(2) : "0.00"}%
+                      </span>
+                      )
+                    </p>
+                  );
+                })()}
               </div>
               <div className="mt-4 flex items-center justify-between">
                 <p className="text-sm text-gray-500">Invested</p>
@@ -285,134 +293,65 @@ export default function Dashboard() {
                   : 0;
                 return bDate - aDate;
               })
-              .map((basket) => (
-                <Link
-                  key={basket.id}
-                  to={`/basket?id=${basket.id}`}
-                  state={{ basketId: basket.id }}
-                >
-                  <div className="mb-1.5 flex items-center justify-between rounded-xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 px-5 py-4 shadow-[0_4px_16px_rgba(0,0,0,0.05)] backdrop-blur-sm">
-                    <div>
-                      <h4 className="text-base font-medium text-gray-900">
-                        {basket.name}
-                      </h4>
+              .map((basket) => {
+                // Per-basket: use sell_price if available (and sell_date is valid), else ltp, else buy_price
+                const basketInvested = basket.stocks.reduce(
+                  (acc, stock) =>
+                    acc + (stock.quantity ?? 0) * (stock.buy_price ?? 0),
+                  0,
+                );
+                const basketNet = basket.stocks.reduce((acc, stock) => {
+                  const hasSell =
+                    stock.sell_price != null &&
+                    !isNaN(Number(stock.sell_price)) &&
+                    typeof stock.sell_date === "string" &&
+                    stock.sell_date.trim() !== "" &&
+                    !isNaN(Date.parse(stock.sell_date));
+                  const price = hasSell
+                    ? Number(stock.sell_price)
+                    : Number(stock.ltp ?? stock.buy_price ?? 0);
+                  return acc + (stock.quantity ?? 0) * price;
+                }, 0);
+                const percent = basketInvested
+                  ? ((basketNet - basketInvested) / basketInvested) * 100
+                  : 0;
+                let percentClass = "text-gray-400";
+                if (percent > 0) percentClass = "text-green-600";
+                else if (percent < 0) percentClass = "text-red-500";
+                let percentSign = "";
+                if (basketInvested !== 0 && percent !== 0) {
+                  percentSign = percent > 0 ? "+" : "-";
+                }
+                return (
+                  <Link
+                    key={basket.id}
+                    to={`/basket?id=${basket.id}`}
+                    state={{ basketId: basket.id }}
+                  >
+                    <div className="mb-1.5 flex items-center justify-between rounded-xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 px-5 py-4 shadow-[0_4px_16px_rgba(0,0,0,0.05)] backdrop-blur-sm">
+                      <div>
+                        <h4 className="text-base font-medium text-gray-900">
+                          {basket.name}
+                        </h4>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-semibold text-green-600">
+                          ₹{Math.round(basketNet).toLocaleString()}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          <span className={percentClass}>
+                            {percentSign}
+                            {basketInvested
+                              ? Math.abs(percent).toFixed(1)
+                              : "0.0"}
+                            %
+                          </span>
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-semibold text-green-600">
-                        ₹
-                        {Math.round(
-                          basket.stocks.reduce(
-                            (acc, stock) =>
-                              acc +
-                              (stock.quantity ?? 0) *
-                                (stock.sell_price != null &&
-                                !isNaN(Number(stock.sell_price))
-                                  ? stock.sell_price
-                                  : (stock.ltp ?? stock.buy_price ?? 0)),
-                            0,
-                          ),
-                        ).toLocaleString()}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        <span
-                          className={
-                            ((basket.stocks.reduce(
-                              (acc, stock) =>
-                                acc +
-                                (stock.quantity ?? 0) *
-                                  (stock.ltp ?? stock.buy_price ?? 0),
-                              0,
-                            ) -
-                              basket.stocks.reduce(
-                                (acc, stock) =>
-                                  acc +
-                                  (stock.quantity ?? 0) *
-                                    (stock.buy_price ?? 0),
-                                0,
-                              )) /
-                              (basket.stocks.reduce(
-                                (acc, stock) =>
-                                  acc +
-                                  (stock.quantity ?? 0) *
-                                    (stock.buy_price ?? 0),
-                                0,
-                              ) || 1)) *
-                              100 >
-                            0
-                              ? "text-green-600"
-                              : ((basket.stocks.reduce(
-                                    (acc, stock) =>
-                                      acc +
-                                      (stock.quantity ?? 0) *
-                                        (stock.ltp ?? stock.buy_price ?? 0),
-                                    0,
-                                  ) -
-                                    basket.stocks.reduce(
-                                      (acc, stock) =>
-                                        acc +
-                                        (stock.quantity ?? 0) *
-                                          (stock.buy_price ?? 0),
-                                      0,
-                                    )) /
-                                    (basket.stocks.reduce(
-                                      (acc, stock) =>
-                                        acc +
-                                        (stock.quantity ?? 0) *
-                                          (stock.buy_price ?? 0),
-                                      0,
-                                    ) || 1)) *
-                                    100 <
-                                  0
-                                ? "text-red-500"
-                                : "text-gray-400"
-                          }
-                        >
-                          {(() => {
-                            const invested = basket.stocks.reduce(
-                              (acc, stock) =>
-                                acc +
-                                (stock.quantity ?? 0) * (stock.buy_price ?? 0),
-                              0,
-                            );
-                            const net = basket.stocks.reduce(
-                              (acc, stock) =>
-                                acc +
-                                (stock.quantity ?? 0) *
-                                  (stock.ltp ?? stock.buy_price ?? 0),
-                              0,
-                            );
-                            if (invested === 0) return "";
-                            const percent = ((net - invested) / invested) * 100;
-                            if (percent === 0) return "";
-                            return percent > 0 ? "+" : "-";
-                          })()}
-                          {(() => {
-                            const invested = basket.stocks.reduce(
-                              (acc, stock) =>
-                                acc +
-                                (stock.quantity ?? 0) * (stock.buy_price ?? 0),
-                              0,
-                            );
-                            const net = basket.stocks.reduce(
-                              (acc, stock) =>
-                                acc +
-                                (stock.quantity ?? 0) *
-                                  (stock.ltp ?? stock.buy_price ?? 0),
-                              0,
-                            );
-                            return invested
-                              ? Math.abs(
-                                  ((net - invested) / invested) * 100,
-                                ).toFixed(1)
-                              : "0.0";
-                          })()}
-                          %
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              ))
+                  </Link>
+                );
+              })
           ) : (
             <div className="flex flex-col items-center justify-center py-8">
               <div className="w-full max-w-md rounded-2xl border-2 border-dotted border-gray-300 bg-white/70 px-8 py-16 text-center shadow-sm">

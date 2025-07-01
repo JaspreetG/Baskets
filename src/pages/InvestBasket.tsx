@@ -32,11 +32,7 @@ export default function InvestBasket() {
   const stocks = basketStocks.map((s) => ({
     code: s.symbol,
     name: s.name,
-    // Use sell_price if available, else ltp, else buy_price
-    ltp:
-      s.sell_price != null && !isNaN(Number(s.sell_price))
-        ? s.sell_price
-        : s.ltp,
+    ltp: s.ltp ?? s.buy_price ?? 0,
     buy_price: s.buy_price,
     quantity: s.quantity,
   }));
