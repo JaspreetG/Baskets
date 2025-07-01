@@ -147,48 +147,61 @@ export default function Dashboard() {
     );
   }
 
+  // --- Improved XIRR cashflow logic: per-stock, robust to partial exits, correct dates ---
   (baskets as Basket[]).forEach((basket) => {
     let basketNet = 0;
     let basketInvested = 0;
-    const basketCashflows: { amount: number; date: string }[] = [];
     basket.stocks.forEach((stock) => {
       const qty = stock.quantity ?? 0;
       const buyPrice = stock.buy_price ?? 0;
       basketInvested += qty * buyPrice;
-      // Buy cashflow
+      // Buy cashflow (always at basket.created_at)
       if (qty && buyPrice && basket.created_at) {
-        basketCashflows.push({
+        allCashflows.push({
           amount: -1 * qty * buyPrice,
           date: basket.created_at,
         });
       }
-      if (isExited(stock)) {
-        // Exited: use sell_price and sell_date for value and cashflow
-        const sellPrice = Number(stock.sell_price);
-        basketNet += qty * sellPrice;
-        basketCashflows.push({
-          amount: qty * sellPrice,
-          date:
+      if (qty > 0) {
+        // If stock is partially exited, we need to split the quantity
+        let exitedQty = 0;
+        let holdingQty = qty;
+        let sellPrice = 0;
+        let sellDate = "";
+        if (isExited(stock)) {
+          exitedQty = qty; // If fully exited, all qty is exited
+          holdingQty = 0;
+          sellPrice = Number(stock.sell_price);
+          sellDate =
             typeof stock.sell_date === "string" && stock.sell_date.trim() !== ""
               ? stock.sell_date
-              : new Date().toISOString().split("T")[0],
-        });
-      } else {
-        // Not exited: use LTP or buy_price and today
-        const ltpOrBuy = Number(stock.ltp ?? stock.buy_price ?? 0);
-        basketNet += qty * ltpOrBuy;
-        if (qty && ltpOrBuy) {
-          basketCashflows.push({
-            amount: qty * ltpOrBuy,
+              : new Date().toISOString().split("T")[0];
+        }
+        // If exited, add positive cashflow for exitedQty
+        if (exitedQty > 0 && sellPrice && sellDate) {
+          allCashflows.push({
+            amount: exitedQty * sellPrice,
+            date: sellDate,
+          });
+        }
+        // For holding (not exited), add positive cashflow for remaining qty at LTP as of today
+        if (holdingQty > 0) {
+          const ltpOrBuy = Number(stock.ltp ?? stock.buy_price ?? 0);
+          allCashflows.push({
+            amount: holdingQty * ltpOrBuy,
             date: new Date().toISOString().split("T")[0],
           });
         }
+        // For value display, use sell price if exited, else LTP/buy
+        const value = isExited(stock)
+          ? qty * Number(stock.sell_price)
+          : qty * Number(stock.ltp ?? stock.buy_price ?? 0);
+        basketNet += value;
       }
     });
     totalNetValue += basketNet;
     totalInvested += basketInvested;
     totalReturn += basketNet - basketInvested;
-    allCashflows.push(...basketCashflows);
   });
   if (allCashflows.length > 1) {
     xirr = calculateXIRR(allCashflows);
@@ -299,31 +312,23 @@ export default function Dashboard() {
                 return bDate - aDate;
               })
               .map((basket) => {
-                // Per-basket: robust calculation, sum exited stocks by sell (if and only if ALL stocks are exited), otherwise use LTP/buy for all
+                // Per-basket: for each stock, use sell price if available, else LTP, else buy price
                 let basketInvested = 0;
-                let basketNet = 0;
-                const allExited =
-                  basket.stocks.length > 0 && basket.stocks.every(isExited);
-                if (allExited) {
-                  // All stocks exited: use sell_price for all
-                  basket.stocks.forEach((stock) => {
-                    const qty = stock.quantity ?? 0;
-                    const buyPrice = stock.buy_price ?? 0;
-                    basketInvested += qty * buyPrice;
-                    basketNet += qty * Number(stock.sell_price);
-                  });
-                } else {
-                  // Not all exited: use LTP/buy for all (showing current value, not mixed)
-                  basket.stocks.forEach((stock) => {
-                    const qty = stock.quantity ?? 0;
-                    const buyPrice = stock.buy_price ?? 0;
-                    basketInvested += qty * buyPrice;
-                    basketNet +=
-                      qty * Number(stock.ltp ?? stock.buy_price ?? 0);
-                  });
-                }
+                let basketSellValue = 0;
+                basket.stocks.forEach((stock) => {
+                  const qty = stock.quantity ?? 0;
+                  const buyPrice = stock.buy_price ?? 0;
+                  basketInvested += qty * buyPrice;
+                  const hasSell =
+                    stock.sell_price != null &&
+                    !isNaN(Number(stock.sell_price));
+                  const sellOrLtp = hasSell
+                    ? Number(stock.sell_price)
+                    : Number(stock.ltp ?? stock.buy_price ?? 0);
+                  basketSellValue += qty * sellOrLtp;
+                });
                 const percent = basketInvested
-                  ? ((basketNet - basketInvested) / basketInvested) * 100
+                  ? ((basketSellValue - basketInvested) / basketInvested) * 100
                   : 0;
                 let percentClass = "text-gray-400";
                 if (percent > 0) percentClass = "text-green-600";
@@ -346,7 +351,7 @@ export default function Dashboard() {
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-semibold text-green-600">
-                          ₹{Math.round(basketNet).toLocaleString()}
+                          ₹{Math.round(basketSellValue).toLocaleString()}
                         </p>
                         <p className="text-xs text-gray-500">
                           <span className={percentClass}>

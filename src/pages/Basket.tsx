@@ -32,17 +32,21 @@ export default function Basket() {
 
   // Calculate values
   // For each stock, use sell price if available, else LTP, else buy price
-  const invested = basket.stocks.reduce(
-    (acc, s) => acc + (s.quantity ?? 0) * (s.buy_price ?? 0),
-    0,
-  );
-  const currentValue = basket.stocks.reduce((acc, s) => {
+  // For each stock, use sell price if available, else LTP, else buy price
+  let totalBuyValue = 0;
+  let totalSellValue = 0;
+  basket.stocks.forEach((s) => {
+    const qty = s.quantity ?? 0;
+    const buyPrice = s.buy_price ?? 0;
+    totalBuyValue += qty * buyPrice;
     const hasSell = s.sell_price != null && !isNaN(Number(s.sell_price));
-    const price = hasSell
+    const sellOrLtp = hasSell
       ? Number(s.sell_price)
       : Number(s.ltp ?? s.buy_price ?? 0);
-    return acc + (s.quantity ?? 0) * price;
-  }, 0);
+    totalSellValue += qty * sellOrLtp;
+  });
+  const invested = totalBuyValue;
+  const currentValue = totalSellValue;
   const totalReturn = currentValue - invested;
   const returnPercent = invested ? (totalReturn / invested) * 100 : 0;
   const hasUnexitedStock = basket.stocks.some((s) => s.sell_price === null);
