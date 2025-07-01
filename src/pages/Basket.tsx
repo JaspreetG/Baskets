@@ -31,31 +31,18 @@ export default function Basket() {
   }
 
   // Calculate values
-  // If all stocks are exited, use sell_price for all; otherwise use LTP/buy for all
-  const allExited =
-    basket.stocks.length > 0 &&
-    basket.stocks.every((s) => {
-      return (
-        s.sell_price != null &&
-        !isNaN(Number(s.sell_price)) &&
-        typeof s.sell_date === "string" &&
-        s.sell_date.trim() !== "" &&
-        !isNaN(Date.parse(s.sell_date))
-      );
-    });
+  // For each stock, use sell price if available, else LTP, else buy price
   const invested = basket.stocks.reduce(
     (acc, s) => acc + (s.quantity ?? 0) * (s.buy_price ?? 0),
     0,
   );
-  const currentValue = allExited
-    ? basket.stocks.reduce(
-        (acc, s) => acc + (s.quantity ?? 0) * Number(s.sell_price),
-        0,
-      )
-    : basket.stocks.reduce(
-        (acc, s) => acc + (s.quantity ?? 0) * Number(s.ltp ?? s.buy_price ?? 0),
-        0,
-      );
+  const currentValue = basket.stocks.reduce((acc, s) => {
+    const hasSell = s.sell_price != null && !isNaN(Number(s.sell_price));
+    const price = hasSell
+      ? Number(s.sell_price)
+      : Number(s.ltp ?? s.buy_price ?? 0);
+    return acc + (s.quantity ?? 0) * price;
+  }, 0);
   const totalReturn = currentValue - invested;
   const returnPercent = invested ? (totalReturn / invested) * 100 : 0;
   const hasUnexitedStock = basket.stocks.some((s) => s.sell_price === null);
