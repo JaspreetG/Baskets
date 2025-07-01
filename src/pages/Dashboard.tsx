@@ -129,54 +129,60 @@ export default function Dashboard() {
   }, [setBaskets, updateBasketLTP]);
 
   // Calculate portfolio summary
+  // --- Robust portfolio summary calculation ---
   let totalNetValue = 0;
   let totalInvested = 0;
   let totalReturn = 0;
   let xirr = 0;
-  // Aggregate all cashflows for XIRR
   const allCashflows: { amount: number; date: string }[] = [];
+
+  // Helper: is stock exited?
+  function isExited(stock: any) {
+    return (
+      stock.sell_price != null &&
+      !isNaN(Number(stock.sell_price)) &&
+      typeof stock.sell_date === "string" &&
+      stock.sell_date.trim() !== "" &&
+      !isNaN(Date.parse(stock.sell_date))
+    );
+  }
+
   (baskets as Basket[]).forEach((basket) => {
     let basketNet = 0;
     let basketInvested = 0;
     const basketCashflows: { amount: number; date: string }[] = [];
     basket.stocks.forEach((stock) => {
-      // Use sell_price if available (and sell_date is valid), else ltp, else buy_price
-      const hasSell =
-        stock.sell_price != null &&
-        !isNaN(Number(stock.sell_price)) &&
-        typeof stock.sell_date === "string" &&
-        stock.sell_date.trim() !== "" &&
-        !isNaN(Date.parse(stock.sell_date));
-      const effectivePrice = hasSell
-        ? Number(stock.sell_price)
-        : Number(stock.ltp ?? stock.buy_price ?? 0);
-      // Always ensure effectiveDate is a string
-      const effectiveDate =
-        hasSell &&
-        typeof stock.sell_date === "string" &&
-        stock.sell_date.trim() !== ""
-          ? stock.sell_date
-          : new Date().toISOString().split("T")[0];
-      basketNet += (stock.quantity ?? 0) * effectivePrice;
-      basketInvested += (stock.quantity ?? 0) * (stock.buy_price ?? 0);
+      const qty = stock.quantity ?? 0;
+      const buyPrice = stock.buy_price ?? 0;
+      basketInvested += qty * buyPrice;
       // Buy cashflow
-      if (stock.quantity && stock.buy_price && basket.created_at) {
+      if (qty && buyPrice && basket.created_at) {
         basketCashflows.push({
-          amount: -1 * stock.quantity * stock.buy_price,
+          amount: -1 * qty * buyPrice,
           date: basket.created_at,
         });
       }
-      // Sell cashflow if sold, else use current LTP and today
-      if (stock.quantity && hasSell) {
+      if (isExited(stock)) {
+        // Exited: use sell_price and sell_date for value and cashflow
+        const sellPrice = Number(stock.sell_price);
+        basketNet += qty * sellPrice;
         basketCashflows.push({
-          amount: stock.quantity * Number(stock.sell_price),
-          date: effectiveDate, // always a string
+          amount: qty * sellPrice,
+          date:
+            typeof stock.sell_date === "string" && stock.sell_date.trim() !== ""
+              ? stock.sell_date
+              : new Date().toISOString().split("T")[0],
         });
-      } else if (stock.quantity && effectivePrice) {
-        basketCashflows.push({
-          amount: stock.quantity * effectivePrice,
-          date: effectiveDate, // always a string
-        });
+      } else {
+        // Not exited: use LTP or buy_price and today
+        const ltpOrBuy = Number(stock.ltp ?? stock.buy_price ?? 0);
+        basketNet += qty * ltpOrBuy;
+        if (qty && ltpOrBuy) {
+          basketCashflows.push({
+            amount: qty * ltpOrBuy,
+            date: new Date().toISOString().split("T")[0],
+          });
+        }
       }
     });
     totalNetValue += basketNet;
@@ -184,7 +190,6 @@ export default function Dashboard() {
     totalReturn += basketNet - basketInvested;
     allCashflows.push(...basketCashflows);
   });
-  // No need for extra positive cashflow, handled above per stock
   if (allCashflows.length > 1) {
     xirr = calculateXIRR(allCashflows);
     if (!isFinite(xirr)) xirr = 0;
@@ -294,24 +299,29 @@ export default function Dashboard() {
                 return bDate - aDate;
               })
               .map((basket) => {
-                // Per-basket: use sell_price if available (and sell_date is valid), else ltp, else buy_price
-                const basketInvested = basket.stocks.reduce(
-                  (acc, stock) =>
-                    acc + (stock.quantity ?? 0) * (stock.buy_price ?? 0),
-                  0,
-                );
-                const basketNet = basket.stocks.reduce((acc, stock) => {
-                  const hasSell =
-                    stock.sell_price != null &&
-                    !isNaN(Number(stock.sell_price)) &&
-                    typeof stock.sell_date === "string" &&
-                    stock.sell_date.trim() !== "" &&
-                    !isNaN(Date.parse(stock.sell_date));
-                  const price = hasSell
-                    ? Number(stock.sell_price)
-                    : Number(stock.ltp ?? stock.buy_price ?? 0);
-                  return acc + (stock.quantity ?? 0) * price;
-                }, 0);
+                // Per-basket: robust calculation, sum exited stocks by sell (if and only if ALL stocks are exited), otherwise use LTP/buy for all
+                let basketInvested = 0;
+                let basketNet = 0;
+                const allExited =
+                  basket.stocks.length > 0 && basket.stocks.every(isExited);
+                if (allExited) {
+                  // All stocks exited: use sell_price for all
+                  basket.stocks.forEach((stock) => {
+                    const qty = stock.quantity ?? 0;
+                    const buyPrice = stock.buy_price ?? 0;
+                    basketInvested += qty * buyPrice;
+                    basketNet += qty * Number(stock.sell_price);
+                  });
+                } else {
+                  // Not all exited: use LTP/buy for all (showing current value, not mixed)
+                  basket.stocks.forEach((stock) => {
+                    const qty = stock.quantity ?? 0;
+                    const buyPrice = stock.buy_price ?? 0;
+                    basketInvested += qty * buyPrice;
+                    basketNet +=
+                      qty * Number(stock.ltp ?? stock.buy_price ?? 0);
+                  });
+                }
                 const percent = basketInvested
                   ? ((basketNet - basketInvested) / basketInvested) * 100
                   : 0;
