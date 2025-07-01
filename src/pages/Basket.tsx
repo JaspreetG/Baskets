@@ -35,8 +35,14 @@ export default function Basket() {
     (acc, s) => acc + (s.quantity ?? 0) * (s.buy_price ?? 0),
     0,
   );
+  // Use sell_price if available, else ltp, else buy_price
   const currentValue = basket.stocks.reduce(
-    (acc, s) => acc + (s.quantity ?? 0) * (s.ltp ?? s.buy_price ?? 0),
+    (acc, s) =>
+      acc +
+      (s.quantity ?? 0) *
+        (s.sell_price != null && !isNaN(Number(s.sell_price))
+          ? s.sell_price
+          : (s.ltp ?? s.buy_price ?? 0)),
     0,
   );
   const totalReturn = currentValue - invested;
@@ -134,8 +140,12 @@ export default function Basket() {
           {basket.stocks.map((stock) => {
             const stockInvested =
               (stock.quantity ?? 0) * (stock.buy_price ?? 0);
+            // Use sell_price if available, else ltp, else buy_price
             const stockCurrent =
-              (stock.quantity ?? 0) * (stock.ltp ?? stock.buy_price ?? 0);
+              (stock.quantity ?? 0) *
+              (stock.sell_price != null && !isNaN(Number(stock.sell_price))
+                ? stock.sell_price
+                : (stock.ltp ?? stock.buy_price ?? 0));
             const stockReturn = stockCurrent - stockInvested;
             const stockReturnPercent = stockInvested
               ? (stockReturn / stockInvested) * 100

@@ -140,8 +140,12 @@ export default function Dashboard() {
     let basketInvested = 0;
     const basketCashflows: { amount: number; date: string }[] = [];
     basket.stocks.forEach((stock) => {
-      const ltp = stock.ltp ?? stock.buy_price;
-      basketNet += (stock.quantity ?? 0) * (ltp ?? 0);
+      // Use sell_price if available, else ltp, else buy_price
+      const effectivePrice =
+        stock.sell_price != null && !isNaN(Number(stock.sell_price))
+          ? stock.sell_price
+          : (stock.ltp ?? stock.buy_price);
+      basketNet += (stock.quantity ?? 0) * (effectivePrice ?? 0);
       basketInvested += (stock.quantity ?? 0) * (stock.buy_price ?? 0);
       // Buy cashflow
       if (stock.quantity && stock.buy_price && basket.created_at) {
@@ -153,18 +157,18 @@ export default function Dashboard() {
       // Sell cashflow if sold, else use current LTP and today
       if (
         stock.quantity &&
-        stock.sell_price &&
-        stock.sell_date &&
+        stock.sell_price != null &&
         !isNaN(Number(stock.sell_price)) &&
+        stock.sell_date &&
         !isNaN(Date.parse(stock.sell_date))
       ) {
         basketCashflows.push({
           amount: stock.quantity * stock.sell_price,
           date: stock.sell_date,
         });
-      } else if (stock.quantity && ltp) {
+      } else if (stock.quantity && effectivePrice) {
         basketCashflows.push({
-          amount: stock.quantity * ltp,
+          amount: stock.quantity * effectivePrice,
           date: new Date().toISOString().split("T")[0],
         });
       }
@@ -290,7 +294,10 @@ export default function Dashboard() {
                           (acc, stock) =>
                             acc +
                             (stock.quantity ?? 0) *
-                              (stock.ltp ?? stock.buy_price ?? 0),
+                              (stock.sell_price != null &&
+                              !isNaN(Number(stock.sell_price))
+                                ? stock.sell_price
+                                : (stock.ltp ?? stock.buy_price ?? 0)),
                           0,
                         ),
                       ).toLocaleString()}

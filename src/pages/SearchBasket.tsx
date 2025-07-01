@@ -138,6 +138,8 @@ export default function SearchBasket() {
                       quantity: 0, // default, user will set in InvestBasket
                       buy_price: data.ltp, // treat ltp as buy price for now
                       ltp: data.ltp,
+                      sell_price: null,
+                      sell_date: null,
                     });
                     toast.success(
                       `${stock.ticker} (${stock.title}) added to basket!`,
