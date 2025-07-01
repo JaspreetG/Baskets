@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
@@ -18,9 +18,6 @@ export default function Basket() {
   useEffect(() => {
     hasMounted.current = true;
   }, []);
-
-  // Always call hooks at the top level
-  const [exited, setExited] = useState(false);
 
   if (!basketId || !basket) {
     return (
@@ -49,22 +46,79 @@ export default function Basket() {
   const currentValue = totalSellValue;
   const totalReturn = currentValue - invested;
   const returnPercent = invested ? (totalReturn / invested) * 100 : 0;
-  const hasUnexitedStock = basket.stocks.some((s) => s.sell_price === null);
+  // Disable exit if all stocks have a non-null sell_date (all exited)
+  const allExited =
+    basket.stocks.length > 0 &&
+    basket.stocks.every(
+      (s) =>
+        typeof s.sell_date === "string" &&
+        s.sell_date.trim() !== "" &&
+        !isNaN(Date.parse(s.sell_date)),
+    );
 
   async function handleExitBasket() {
-    const { error } = await supabase.rpc("exit_basket", {
-      exit_basket: {
-        basket_id: basket?.id,
-        sell_price: currentValue,
-        sell_date: new Date().toISOString().split("T")[0],
-      },
-    });
+    try {
+      // Fetch LTP for each stock in the basket using the same API as dashboard
+      const ltpData: Record<string, number> = {};
+      await Promise.all(
+        basket!.stocks.map(async (stock) => {
+          try {
+            const res = await fetch(
+              `https://zmvzrrggaergcqytqmil.supabase.co/functions/v1/ltp-api?symbol=${stock.symbol}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+                },
+              },
+            );
+            const data = await res.json();
+            ltpData[stock.symbol] = data.ltp;
+          } catch {
+            // ignore
+          }
+        }),
+      );
 
-    if (error) {
-      toast.error("Exit failed. Try again.");
-    } else {
-      toast.success("Basket exited.");
-      setExited(true);
+      // Update LTPs in global store for this basket
+      globalStore.getState().setBaskets(
+        baskets.map((b) =>
+          b.id === basket!.id
+            ? {
+                ...b,
+                stocks: b.stocks.map((s) => ({
+                  ...s,
+                  ltp: ltpData[s.symbol] ?? s.ltp ?? s.buy_price ?? 0,
+                })),
+              }
+            : b,
+        ),
+      );
+
+      // Prepare array of stocks with their latest LTP as sell_price
+      const stocksToExit = basket!.stocks.map((s) => ({
+        symbol: s.symbol,
+        sell_price: ltpData[s.symbol] ?? s.ltp ?? s.buy_price ?? 0,
+      }));
+
+      // Call exit_basket with up-to-date prices
+      const { error } = await supabase.rpc("exit_basket", {
+        exit_basket: {
+          basket_id: basket!.id,
+          stocks: stocksToExit,
+          sell_date: new Date().toISOString().split("T")[0],
+        },
+      });
+
+      if (error) {
+        toast.error("Exit failed. Try again.");
+      } else {
+        toast.success("Basket exited.");
+        setExited(true);
+      }
+    } catch (err: unknown) {
+      const errorMsg =
+        err instanceof Error ? err.message : "Failed to fetch latest prices.";
+      toast.error(errorMsg);
     }
   }
 
@@ -208,10 +262,10 @@ export default function Basket() {
       <div className="pt-4">
         <button
           onClick={handleExitBasket}
-          disabled={!hasUnexitedStock || exited}
+          disabled={allExited}
           className="w-full rounded-lg bg-red-600 px-5 py-3 text-base font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
         >
-          Exit Basket
+          {allExited ? "Exit taken" : "Exit Basket"}
         </button>
       </div>
     </motion.div>

@@ -29,6 +29,8 @@ interface GlobalStore {
   baskets: Basket[];
   setBaskets: (baskets: Basket[]) => void;
   updateBasketLTP: (basketId: string, symbol: string, ltp: number) => void;
+  dashboardHasMounted?: boolean;
+  setDashboardHasMounted: (mounted: boolean) => void;
 }
 
 export const globalStore = create<GlobalStore>((set) => ({
@@ -54,4 +56,7 @@ export const globalStore = create<GlobalStore>((set) => ({
           : b,
       ),
     })),
+  dashboardHasMounted: false,
+  setDashboardHasMounted: (mounted: boolean) =>
+    set({ dashboardHasMounted: mounted }),
 }));

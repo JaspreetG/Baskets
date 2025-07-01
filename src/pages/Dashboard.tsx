@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, memo } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { globalStore } from "@/store";
@@ -59,8 +59,10 @@ function fixNegativeZero(val: number): number {
   return val;
 }
 
-export default function Dashboard() {
-  const hasMounted = useRef(false);
+// Module-level flag: persists across SPA navigation, resets on hard reload
+let dashboardHasMounted = false;
+
+const Dashboard = memo(function Dashboard() {
   const [ready, setReady] = useState(false);
 
   const setBaskets = globalStore((s) => s.setBaskets);
@@ -85,11 +87,8 @@ export default function Dashboard() {
   };
 
   // --- Fetch and set baskets and LTPs ---
-  useEffect(() => {
-    let isMounted = true;
-    hasMounted.current = true;
-
-    async function fetchLTPForStock(basketId: string, stock: Stock) {
+  const fetchLTPForStock = useCallback(
+    async (basketId: string, stock: Stock) => {
       try {
         const res = await fetch(
           `https://zmvzrrggaergcqytqmil.supabase.co/functions/v1/ltp-api?symbol=${stock.symbol}`,
@@ -100,44 +99,50 @@ export default function Dashboard() {
           },
         );
         const ltpData = await res.json();
-        if (isMounted) updateBasketLTP(basketId, stock.symbol, ltpData.ltp);
+        updateBasketLTP(basketId, stock.symbol, ltpData.ltp);
       } catch {
         // ignore
       }
-    }
+    },
+    [updateBasketLTP],
+  );
 
-    async function fetchAndSetBaskets() {
-      const { data } = await supabase.rpc("get_all_baskets_with_stocks");
-      if (data && Array.isArray(data)) {
-        setBaskets(data);
-        await Promise.all(
-          (data as Basket[]).map(async (basket) => {
-            await Promise.all(
-              basket.stocks.map(async (stock) =>
-                fetchLTPForStock(String(basket.id), stock),
-              ),
-            );
-          }),
-        );
-      }
+  const fetchAndSetBaskets = useCallback(async () => {
+    const { data } = await supabase.rpc("get_all_baskets_with_stocks");
+    if (data && Array.isArray(data)) {
+      setBaskets(data);
+      await Promise.all(
+        (data as Basket[]).map(async (basket) => {
+          await Promise.all(
+            basket.stocks.map(async (stock) =>
+              fetchLTPForStock(String(basket.id), stock),
+            ),
+          );
+        }),
+      );
+    }
+    setReady(true);
+  }, [setBaskets, fetchLTPForStock]);
+
+  // Only fetch baskets on first mount, not on every navigation (e.g. back)
+  useEffect(() => {
+    // Only fetch on first mount after hard reload, never on SPA remounts
+    if (!dashboardHasMounted) {
+      dashboardHasMounted = true;
+      fetchAndSetBaskets();
+    } else {
       setReady(true);
     }
-    fetchAndSetBaskets();
-    return () => {
-      isMounted = false;
-    };
-  }, [setBaskets, updateBasketLTP]);
+    // No deps: only run on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // Calculate portfolio summary
-  // --- Robust portfolio summary calculation ---
-  let totalNetValue = 0;
-  let totalInvested = 0;
-  let totalReturn = 0;
-  let xirr = 0;
-  const allCashflows: { amount: number; date: string }[] = [];
+  // Debug: Log when fetchAndSetBaskets is called
+  // (removed duplicate fetchAndSetBaskets declaration)
 
-  // Helper: is stock exited?
-  function isExited(stock: any) {
+  // Calculate portfolio summary and cashflows robustly, only once, and memoize
+  // Helper: is stock exited? (typed)
+  const isExited = useCallback((stock: Stock): boolean => {
     return (
       stock.sell_price != null &&
       !isNaN(Number(stock.sell_price)) &&
@@ -145,68 +150,86 @@ export default function Dashboard() {
       stock.sell_date.trim() !== "" &&
       !isNaN(Date.parse(stock.sell_date))
     );
-  }
+  }, []);
 
-  // --- Improved XIRR cashflow logic: per-stock, robust to partial exits, correct dates ---
-  (baskets as Basket[]).forEach((basket) => {
-    let basketNet = 0;
-    let basketInvested = 0;
-    basket.stocks.forEach((stock) => {
-      const qty = stock.quantity ?? 0;
-      const buyPrice = stock.buy_price ?? 0;
-      basketInvested += qty * buyPrice;
-      // Buy cashflow (always at basket.created_at)
-      if (qty && buyPrice && basket.created_at) {
-        allCashflows.push({
-          amount: -1 * qty * buyPrice,
-          date: basket.created_at,
-        });
-      }
-      if (qty > 0) {
-        // If stock is partially exited, we need to split the quantity
-        let exitedQty = 0;
-        let holdingQty = qty;
-        let sellPrice = 0;
-        let sellDate = "";
-        if (isExited(stock)) {
-          exitedQty = qty; // If fully exited, all qty is exited
-          holdingQty = 0;
-          sellPrice = Number(stock.sell_price);
-          sellDate =
-            typeof stock.sell_date === "string" && stock.sell_date.trim() !== ""
-              ? stock.sell_date
-              : new Date().toISOString().split("T")[0];
-        }
-        // If exited, add positive cashflow for exitedQty
-        if (exitedQty > 0 && sellPrice && sellDate) {
-          allCashflows.push({
-            amount: exitedQty * sellPrice,
-            date: sellDate,
+  const { totalNetValue, totalInvested, totalReturn, xirr } = useMemo(() => {
+    let netValue = 0;
+    let invested = 0;
+    let ret = 0;
+    const cashflows: { amount: number; date: string }[] = [];
+    (baskets as Basket[]).forEach((basket) => {
+      let basketNet = 0;
+      let basketInvested = 0;
+      basket.stocks.forEach((stock) => {
+        const qty = stock.quantity ?? 0;
+        const buyPrice = stock.buy_price ?? 0;
+        basketInvested += qty * buyPrice;
+        // Buy cashflow (always at basket.created_at)
+        if (qty && buyPrice && basket.created_at) {
+          cashflows.push({
+            amount: -1 * qty * buyPrice,
+            date: basket.created_at,
           });
         }
-        // For holding (not exited), add positive cashflow for remaining qty at LTP as of today
-        if (holdingQty > 0) {
-          const ltpOrBuy = Number(stock.ltp ?? stock.buy_price ?? 0);
-          allCashflows.push({
-            amount: holdingQty * ltpOrBuy,
-            date: new Date().toISOString().split("T")[0],
-          });
+        if (qty > 0) {
+          // If stock is partially exited, we need to split the quantity
+          let exitedQty = 0;
+          let holdingQty = qty;
+          let sellPrice = 0;
+          let sellDate = "";
+          if (isExited(stock)) {
+            exitedQty = qty; // If fully exited, all qty is exited
+            holdingQty = 0;
+            sellPrice = Number(stock.sell_price);
+            sellDate =
+              typeof stock.sell_date === "string" &&
+              stock.sell_date.trim() !== ""
+                ? stock.sell_date
+                : new Date().toISOString().split("T")[0];
+          }
+          // If exited, add positive cashflow for exitedQty
+          if (exitedQty > 0 && sellPrice && sellDate) {
+            cashflows.push({
+              amount: exitedQty * sellPrice,
+              date: sellDate,
+            });
+          }
+          // For holding (not exited), add positive cashflow for remaining qty at LTP as of today
+          if (holdingQty > 0) {
+            const ltpOrBuy = Number(stock.ltp ?? stock.buy_price ?? 0);
+            cashflows.push({
+              amount: holdingQty * ltpOrBuy,
+              date: new Date().toISOString().split("T")[0],
+            });
+          }
+          // For value display, use sell price if exited, else LTP/buy
+          const value = isExited(stock)
+            ? qty * Number(stock.sell_price)
+            : qty * Number(stock.ltp ?? stock.buy_price ?? 0);
+          basketNet += value;
         }
-        // For value display, use sell price if exited, else LTP/buy
-        const value = isExited(stock)
-          ? qty * Number(stock.sell_price)
-          : qty * Number(stock.ltp ?? stock.buy_price ?? 0);
-        basketNet += value;
-      }
+      });
+      netValue += basketNet;
+      invested += basketInvested;
+      ret += basketNet - basketInvested;
     });
-    totalNetValue += basketNet;
-    totalInvested += basketInvested;
-    totalReturn += basketNet - basketInvested;
-  });
-  if (allCashflows.length > 1) {
-    xirr = calculateXIRR(allCashflows);
-    if (!isFinite(xirr)) xirr = 0;
-  }
+    let xirr = 0;
+    if (cashflows.length > 1) {
+      xirr = calculateXIRR(cashflows);
+      if (!isFinite(xirr)) xirr = 0;
+    }
+    return {
+      totalNetValue: netValue,
+      totalInvested: invested,
+      totalReturn: ret,
+      xirr,
+    };
+    // isExited is a stable function, but to satisfy lint, include it in deps
+  }, [baskets, isExited]);
+
+  // (removed duplicate isExited declaration)
+
+  // (No duplicate XIRR/cashflow logic needed)
 
   if (!ready) {
     return (
@@ -333,10 +356,16 @@ export default function Dashboard() {
                 let percentClass = "text-gray-400";
                 if (percent > 0) percentClass = "text-green-600";
                 else if (percent < 0) percentClass = "text-red-500";
+                // Show percent with 2 decimals, no sign for near zero
                 let percentSign = "";
-                if (basketInvested !== 0 && percent !== 0) {
+                const percentValue = basketInvested ? Math.abs(percent) : 0;
+                const percentDisplay =
+                  percentValue < 0.005 ? "0.00" : percentValue.toFixed(2);
+                // Only assign sign if percentDisplay is not 0.00
+                if (basketInvested !== 0 && percentDisplay !== "0.00") {
                   percentSign = percent > 0 ? "+" : "-";
                 }
+
                 return (
                   <Link
                     key={basket.id}
@@ -356,10 +385,7 @@ export default function Dashboard() {
                         <p className="text-xs text-gray-500">
                           <span className={percentClass}>
                             {percentSign}
-                            {basketInvested
-                              ? Math.abs(percent).toFixed(1)
-                              : "0.0"}
-                            %
+                            {percentDisplay}%
                           </span>
                         </p>
                       </div>
@@ -397,4 +423,6 @@ export default function Dashboard() {
       </Link>
     </motion.div>
   );
-}
+});
+
+export default Dashboard;
