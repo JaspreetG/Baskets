@@ -107,14 +107,15 @@ export default function Basket() {
         sell_price: ltpData[s.symbol] ?? s.ltp ?? s.buy_price ?? 0,
       }));
 
-      // Call exit_basket with up-to-date prices
-      const { error } = await supabase.rpc("exit_basket", {
+      // Prepare payload and call exit_basket with up-to-date prices
+      const payload = {
         exit_basket: {
           basket_id: basket!.id,
           stocks: stocksToExit,
           sell_date: new Date().toISOString().split("T")[0],
         },
-      });
+      };
+      const { error } = await supabase.rpc("exit_basket", payload);
 
       if (error) {
         toast.error("Exit failed. Try again.");

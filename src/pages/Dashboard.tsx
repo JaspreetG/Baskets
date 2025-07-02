@@ -155,8 +155,7 @@ const Dashboard = memo(function Dashboard() {
       basket.stocks.forEach((stock) => {
         const qty = stock.quantity ?? 0;
         const buyPrice = stock.buy_price ?? 0;
-        basketInvested += qty * buyPrice;
-        // Buy cashflow (always at basket.created_at)
+        // Cashflow OUT: buy (always at basket.created_at)
         if (qty && buyPrice && basket.created_at) {
           cashflows.push({
             amount: -1 * qty * buyPrice,
@@ -164,41 +163,33 @@ const Dashboard = memo(function Dashboard() {
           });
         }
         if (qty > 0) {
-          // If stock is partially exited, we need to split the quantity
-          let exitedQty = 0;
-          let holdingQty = qty;
-          let sellPrice = 0;
-          let sellDate = "";
+          // Cashflow IN: sell or holding value
           if (isExited(stock)) {
-            exitedQty = qty; // If fully exited, all qty is exited
-            holdingQty = 0;
-            sellPrice = Number(stock.sell_price);
-            sellDate =
+            // Exited: use sell_price and sell_date
+            const sellPrice = Number(stock.sell_price);
+            const sellDate =
               typeof stock.sell_date === "string" &&
               stock.sell_date.trim() !== ""
                 ? stock.sell_date
                 : new Date().toISOString().split("T")[0];
-          }
-          // If exited, add positive cashflow for exitedQty
-          if (exitedQty > 0 && sellPrice && sellDate) {
-            cashflows.push({
-              amount: exitedQty * sellPrice,
-              date: sellDate,
-            });
-          }
-          // For holding (not exited), add positive cashflow for remaining qty at LTP as of today
-          if (holdingQty > 0) {
+            if (sellPrice && sellDate) {
+              cashflows.push({
+                amount: qty * sellPrice,
+                date: sellDate,
+              });
+            }
+            // For invested/return/holding: do NOT include exited stocks
+          } else {
+            // Not exited: use LTP as sell price, today as sell date for XIRR
             const ltpOrBuy = Number(stock.ltp ?? stock.buy_price ?? 0);
             cashflows.push({
-              amount: holdingQty * ltpOrBuy,
+              amount: qty * ltpOrBuy,
               date: new Date().toISOString().split("T")[0],
             });
+            // For invested/return/holding: only include non-exited stocks
+            basketInvested += qty * buyPrice;
+            basketNet += qty * ltpOrBuy;
           }
-          // For value display, use sell price if exited, else LTP/buy
-          const value = isExited(stock)
-            ? qty * Number(stock.sell_price)
-            : qty * Number(stock.ltp ?? stock.buy_price ?? 0);
-          basketNet += value;
         }
       });
       netValue += basketNet;
