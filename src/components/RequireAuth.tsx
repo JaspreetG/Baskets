@@ -21,7 +21,14 @@ export default function RequireAuth({
   if (loading)
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-green-500" />
+        <div
+          className="h-14 w-14 animate-spin rounded-full border-4 border-neutral-900 border-t-transparent shadow-lg"
+          style={{
+            background: "none",
+            boxShadow:
+              "0 2px 12px 0 rgba(0,0,0,0.10), 0 1.5px 4px 0 rgba(0,0,0,0.08)",
+          }}
+        />
       </div>
     );
 
