@@ -2,101 +2,102 @@
 
 ---
 
-**Live demo →** [https://baskiit.vercel.app](https://baskiit.vercel.app/)
+**🔗 Live Demo:** [https://baskiit.vercel.app](https://baskiit.vercel.app)
 
 ---
 
-### **Overview**
+## 📌 Overview
 
-**Baskiit** is a modern, production-ready web application for building and managing stock baskets with live price updates, portfolio analytics, and a polished user interface.
+**Baskiit** is a production-grade web application that allows users to create and manage thematic stock baskets with real-time pricing, portfolio analytics, and a clean, mobile-friendly interface.
 
-It’s designed to help users simplify their investment journey — whether you’re experimenting with themes or managing long-term strategies — with a focus on usability, responsiveness, and real-time performance.
-
----
-
-### **✨ What You Can Do**
-
-- **Create stock baskets**: Add multiple stocks under a single theme or idea.
-- **Track performance**: See how your baskets are doing in real time — including total value, returns, and XIRR.
-- **Live pricing**: Real-time LTP pulled via Groww APIs using Supabase Edge Functions.
-- **Exit anytime**: Close out a basket with a single tap, and the sell price/date is auto-tracked.
-- **Login with Google**: Secure Google OAuth 2.0 integration via Supabase.
-- **Install as PWA**: Baskiit is installable, offline-capable, and mobile-first.
-- **Smooth UX**: Modern transitions, empty states, loading screens, and clear value visibility.
+It is designed to simplify investing for everyone — from casual explorers to long-term strategists — with a focus on responsiveness, performance, and modern UX.
 
 ---
 
-### **Tech Stack**
+## ✨ Features
 
-**Frontend:** React 19, Vite, Zustand for state, React Router for routing
-
-**UI/UX:** Tailwind CSS, shadcn/ui components, Framer Motion (animations), Sonner (toasts)
-
-**Backend & Data:** Supabase – Auth (OAuth), Postgres DB, RPC functions, Edge Functions for 3rd-party API handling
-
-**Extras:** Full PWA support (installable, offline-ready), SEO-ready HTML
+- **Create stock baskets**: Group multiple stocks under a single investment idea.
+- **Track performance**: View live return metrics, total value, and XIRR.
+- **Real-time pricing**: Integrated securely via Supabase Edge Functions.
+- **Exit anytime**: Auto-record sell price/date on exit.
+- **Google Login**: Secure OAuth 2.0 login with persistent sessions.
+- **PWA Support**: Fully installable, mobile-first app with offline access.
+- **Modern UI**: Animations, toasts, transitions, empty states, and loaders.
 
 ---
 
-### **Local Development**
+## 🛠 Tech Stack
 
-1. **Clone the project**
+**Frontend**
 
-```
+- React 19, Vite, Zustand (global state), React Router
+
+**UI/UX**
+
+- Tailwind CSS, shadcn/ui, Framer Motion, Sonner
+
+**Backend & Data**
+
+- Supabase: Auth, Postgres, Edge Functions
+- PostgreSQL RPC functions for nested JSON retrieval from 3+ relational tables
+- Edge Functions for secure, performant third-party API access
+
+**Extras**
+
+- Full PWA support (installable/offline)
+- SEO-friendly HTML
+
+---
+
+## 🧪 Local Development
+
+```bash
+# 1. Clone the repo
 git clone https://github.com/JaspreetG/Baskets.git
 cd baskiit
-```
 
-1. **Install dependencies**
-
-```
+# 2. Install dependencies
 npm install
-```
 
-1. **Create .env file**
+# 3. Add your environment variables
+echo "VITE_SUPABASE_URL=https://<your-project-ref>.supabase.co" >> .env
+echo "VITE_SUPABASE_ANON_KEY=<your-anon-key>" >> .env
 
-```
-VITE_SUPABASE_URL=https://<your-project-ref>.supabase.co
-VITE_SUPABASE_ANON_KEY=<your-anon-key>
-```
-
-1. **Run locally**
-
-```
+# 4. Start dev server
 npm run dev
 ```
 
-App will be available at http://localhost:5173
+App runs at: `http://localhost:5173`
 
 ---
 
-### **Authentication**
+## 🔐 Authentication
 
-Baskiit uses Supabase Auth with Google OAuth.
-
-After login, the session is persisted securely using Supabase cookies.
-
-Login works across environments using dynamic redirect URLs.
+- Uses Supabase Auth with Google OAuth 2.0.
+- Sessions persist securely via Supabase cookies.
+- Supports dynamic redirect URLs for all environments.
 
 ---
 
-### **Folder Structure**
+## 📁 Folder Structure
 
 ```
 src/
-├─ components/   → Reusable UI elements
-├─ pages/        → App pages like Auth, Dashboard, Invest
-├─ lib/          → Supabase client setup, helpers
-├─ store/        → Global state (Zustand)
-├─ assets/       → Manifest, icons, logos
+├─ components/   # Reusable UI elements
+├─ pages/        # Main app pages (Dashboard, Invest, etc.)
+├─ lib/          # Supabase client and utility helpers
+├─ store/        # Zustand-based global state
+├─ assets/       # PWA manifest, icons, etc.
 ```
 
 ---
 
-### **Live Deployment**
+## 🚀 Live Deployment
 
-No server setup required — all Supabase backend + Edge Functions are already deployed.
+- No backend infra needed — Supabase handles all APIs and data.
+- Edge Functions and PostgreSQL RPC are deployed serverlessly.
 
-**Visit:** [https://baskiit.vercel.app](https://baskiit.vercel.app/)
+🔗 **Live App:** [https://baskiit.vercel.app](https://baskiit.vercel.app)  
+💻 **GitHub:** [https://github.com/JaspreetG/Baskets](https://github.com/JaspreetG/Baskets)
 
 ---
