@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { useCallback, useEffect, useMemo, memo } from "react";
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { globalStore } from "@/store";
 
@@ -231,12 +230,7 @@ const Dashboard = memo(function Dashboard() {
 
   return (
     <>
-      <motion.div
-        className="mx-auto max-w-4xl space-y-8 px-4 py-6 sm:px-6 lg:px-8"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, ease: "easeInOut" }}
-      >
+      <div className="mx-auto max-w-4xl space-y-8 px-4 py-6 sm:px-6 lg:px-8">
         {/* Portfolio Summary */}
         <section className="space-y-4">
           <h1 className="text-xl font-semibold text-gray-900">
@@ -415,7 +409,7 @@ const Dashboard = memo(function Dashboard() {
             )}
           </div>
         </section>
-      </motion.div>
+      </div>
       <Link
         to="/search"
         className="fixed right-6 bottom-8 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-green-600 text-white shadow-lg transition hover:bg-green-700"

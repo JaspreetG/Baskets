@@ -5,7 +5,6 @@ import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { globalStore } from "@/store";
-import { motion } from "framer-motion";
 
 import { useState } from "react";
 
@@ -134,12 +133,7 @@ export default function Basket() {
   }
 
   return (
-    <motion.div
-      className="mx-auto w-full max-w-2xl space-y-8 px-6 py-8 text-gray-800"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: "easeInOut" }}
-    >
+    <div className="mx-auto w-full max-w-2xl space-y-8 px-6 py-8 text-gray-800">
       {/* Back Button */}
       <div className="mb-2">
         <Link
@@ -168,32 +162,36 @@ export default function Basket() {
           </div>
           <div className="text-right">
             <p className="text-xs text-gray-500">Total Return</p>
-            <p
-              className={
-                "text-sm font-medium " +
-                (totalReturn === 0
-                  ? "text-gray-500"
-                  : totalReturn > 0
-                    ? "text-green-600"
-                    : "text-red-500")
+            {(() => {
+              let totalReturnClass = "text-sm font-medium ";
+              if (totalReturn === 0) {
+                totalReturnClass += "text-gray-500";
+              } else if (totalReturn > 0) {
+                totalReturnClass += "text-green-600";
+              } else {
+                totalReturnClass += "text-red-500";
               }
-            >
-              {totalReturn === 0 ? "" : totalReturn > 0 ? "+" : "-"}₹
-              {Math.abs(totalReturn).toLocaleString()} ({" "}
-              <span
-                className={
-                  returnPercent === 0
-                    ? "text-gray-500"
-                    : returnPercent > 0
-                      ? "text-green-600"
-                      : "text-red-500"
-                }
-              >
-                {returnPercent === 0 ? "" : returnPercent > 0 ? "+" : "-"}
-                {Math.abs(returnPercent).toFixed(2)}%
-              </span>{" "}
-              )
-            </p>
+              let totalReturnSign = "";
+              if (totalReturn > 0) totalReturnSign = "+";
+              else if (totalReturn < 0) totalReturnSign = "-";
+              let returnPercentClass = "";
+              if (returnPercent === 0) returnPercentClass = "text-gray-500";
+              else if (returnPercent > 0) returnPercentClass = "text-green-600";
+              else returnPercentClass = "text-red-500";
+              let returnPercentSign = "";
+              if (returnPercent > 0) returnPercentSign = "+";
+              else if (returnPercent < 0) returnPercentSign = "-";
+              return (
+                <p className={totalReturnClass}>
+                  {totalReturnSign}₹{Math.abs(totalReturn).toLocaleString()} ({" "}
+                  <span className={returnPercentClass}>
+                    {returnPercentSign}
+                    {Math.abs(returnPercent).toFixed(2)}%
+                  </span>{" "}
+                  )
+                </p>
+              );
+            })()}
           </div>
         </div>
       </div>
@@ -229,6 +227,14 @@ export default function Basket() {
               valueClass = "text-right font-light text-green-600";
             else if (stockReturnPercent < 0)
               valueClass = "text-right font-light text-red-500";
+            let stockReturnPercentClass = "text-gray-500";
+            if (stockReturnPercent > 0)
+              stockReturnPercentClass = "text-green-600";
+            else if (stockReturnPercent < 0)
+              stockReturnPercentClass = "text-red-500";
+            let stockReturnPercentSign = "";
+            if (stockReturnPercent > 0) stockReturnPercentSign = "+";
+            else if (stockReturnPercent < 0) stockReturnPercentSign = "-";
             return (
               <li
                 key={stock.symbol}
@@ -242,20 +248,8 @@ export default function Basket() {
                 <span className={valueClass}>
                   ₹{stockCurrent.toLocaleString()} <br />
                   <span className="text-xs font-normal">
-                    <span
-                      className={
-                        stockReturnPercent === 0
-                          ? "text-gray-500"
-                          : stockReturnPercent > 0
-                            ? "text-green-600"
-                            : "text-red-500"
-                      }
-                    >
-                      {stockReturnPercent === 0
-                        ? ""
-                        : stockReturnPercent > 0
-                          ? "+"
-                          : "-"}
+                    <span className={stockReturnPercentClass}>
+                      {stockReturnPercentSign}
                       {Math.abs(stockReturnPercent).toFixed(2)}%
                     </span>
                   </span>
@@ -280,6 +274,6 @@ export default function Basket() {
           })()}
         </button>
       </div>
-    </motion.div>
+    </div>
   );
 }

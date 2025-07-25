@@ -1,5 +1,5 @@
-import { Outlet } from "react-router-dom";
+import AnimatedLayout from "@/components/AnimatedLayout";
 
 export default function App() {
-  return <Outlet />;
+  return <AnimatedLayout />;
 }

@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -89,12 +88,7 @@ export default function InvestBasket() {
   });
 
   return (
-    <motion.div
-      className="flex h-screen flex-col justify-between bg-white text-gray-700"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: "easeInOut" }}
-    >
+    <div className="flex h-screen flex-col justify-between bg-white text-gray-700">
       {/* Header */}
       <div className="mx-auto w-full max-w-2xl px-6 md:px-8">
         <div className="mb-6 flex items-center justify-between">
@@ -214,6 +208,6 @@ export default function InvestBasket() {
           </div>
         </form>
       </div>
-    </motion.div>
+    </div>
   );
 }

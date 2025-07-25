@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
@@ -48,12 +47,7 @@ export default function SearchBasket() {
     basketStocks.some((s) => s.symbol === ticker);
 
   return (
-    <motion.div
-      className="mx-auto w-full max-w-2xl px-6 pt-6 text-gray-700 md:px-8"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: "easeInOut" }}
-    >
+    <div className="mx-auto w-full max-w-2xl px-6 pt-6 text-gray-700 md:px-8">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <Link
@@ -89,19 +83,11 @@ export default function SearchBasket() {
 
       {/* Stock List */}
       <ul className="divide-y divide-gray-200 overflow-hidden rounded-xl bg-white shadow-md">
-        {(data ?? []).map((stock: Stock, idx: number) => {
+        {(data ?? []).map((stock: Stock) => {
           const selected = isStockSelected(stock.ticker);
           return (
-            <motion.li
+            <li
               key={stock.ticker}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 12 }}
-              transition={{
-                duration: 0.25,
-                delay: idx * 0.03,
-                ease: "easeOut",
-              }}
               className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-gray-50"
             >
               <div className="flex-1">
@@ -155,10 +141,10 @@ export default function SearchBasket() {
               >
                 <Plus className={selected ? "h-4 w-4 text-white" : "h-4 w-4"} />
               </Button>
-            </motion.li>
+            </li>
           );
         })}
       </ul>
-    </motion.div>
+    </div>
   );
 }
