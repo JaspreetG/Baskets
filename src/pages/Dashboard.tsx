@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useState, useCallback, useEffect, useMemo, memo } from "react";
+import { useCallback, useEffect, useMemo, memo } from "react";
 
 import { supabase } from "@/lib/supabase";
 import { globalStore } from "@/store";
@@ -103,7 +103,6 @@ const Dashboard = memo(function Dashboard() {
   );
 
   const fetchAndSetBaskets = useCallback(async () => {
-    setLoading(true);
     const { data } = await supabase.rpc("get_all_baskets_with_stocks");
     if (data && Array.isArray(data)) {
       setBaskets(data);
@@ -117,7 +116,6 @@ const Dashboard = memo(function Dashboard() {
         }),
       );
     }
-    setLoading(false);
   }, [setBaskets, fetchLTPForStock]);
 
   useEffect(() => {
