@@ -230,102 +230,95 @@ const Dashboard = memo(function Dashboard() {
                       d="M3 7h18M3 12h18M3 17h18"
                     />
                   </svg>
-                  <span className="leading-snug">Overall Holding</span>
+                  <span className="leading-snug">Holding</span>
                 </div>
                 <div className="text-2xl font-medium tracking-tight text-gray-800 tabular-nums">
                   ₹{totalNetValue.toLocaleString()}
                 </div>
               </div>
 
-              {/* Invested, XIRR, Total Return (new order and icons) */}
-              <div className="flex flex-wrap justify-between gap-6 border-t border-gray-100 pt-4 text-sm sm:flex-nowrap">
+              {/* Invested, XIRR, Total Return (vertical grid layout) */}
+              <div className="grid w-full grid-cols-2 gap-x-4 gap-y-3 border-t border-gray-100 pt-4 text-sm sm:grid-cols-2">
                 {/* Invested */}
-                <div className="flex flex-1 flex-col items-start space-y-1 text-left">
-                  <div className="flex items-center gap-1 text-xs text-gray-500">
-                    <svg
-                      className="h-4 w-4 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M6 7V5a2 2 0 012-2h8a2 2 0 012 2v2M4 7h16v10a2 2 0 01-2 2H6a2 2 0 01-2-2V7z"
-                      />
-                    </svg>
-                    Invested
-                  </div>
-                  <div className="text-sm font-medium text-gray-800">
-                    ₹{totalInvested.toLocaleString()}
-                  </div>
+                <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <svg
+                    className="h-4 w-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 7V5a2 2 0 012-2h8a2 2 0 012 2v2M4 7h16v10a2 2 0 01-2 2H6a2 2 0 01-2-2V7z"
+                    />
+                  </svg>
+                  Invested
+                </div>
+                <div className="text-right text-sm font-medium text-gray-800">
+                  ₹{totalInvested.toLocaleString()}
                 </div>
 
                 {/* XIRR */}
-                <div className="flex flex-1 flex-col items-center space-y-1 text-center">
-                  <div className="flex items-center gap-1 text-xs text-gray-500">
-                    <svg
-                      className="h-4 w-4 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4 4v5h.582M20 20v-5h-.581M4.582 9A8 8 0 0112 4a8 8 0 017.418 5M19.418 15A8 8 0 0112 20a8 8 0 01-7.418-5"
-                      />
-                    </svg>
-                    XIRR
-                  </div>
-                  <div className="text-sm font-medium text-gray-800">
-                    {(() => {
-                      const displayXirr = fixNegativeZero(xirr);
-                      if (displayXirr === 0) return "0.00%";
-                      if (displayXirr > 0) return `+${displayXirr.toFixed(2)}%`;
-                      return `-${Math.abs(displayXirr).toFixed(2)}%`;
-                    })()}
-                  </div>
+                <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <svg
+                    className="h-4 w-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M4 4v5h.582M20 20v-5h-.581M4.582 9A8 8 0 0112 4a8 8 0 017.418 5M19.418 15A8 8 0 0112 20a8 8 0 01-7.418-5"
+                    />
+                  </svg>
+                  XIRR
+                </div>
+                <div className="text-right text-sm font-medium text-gray-800">
+                  {(() => {
+                    const displayXirr = fixNegativeZero(xirr);
+                    if (displayXirr === 0) return "0.00%";
+                    if (displayXirr > 0) return `+${displayXirr.toFixed(2)}%`;
+                    return `-${Math.abs(displayXirr).toFixed(2)}%`;
+                  })()}
                 </div>
 
                 {/* Total Return */}
-                <div className="flex flex-1 flex-col items-end space-y-1 text-right">
-                  <div className="flex items-center gap-1 text-xs leading-4 text-gray-500">
-                    <svg
-                      className="h-4 w-4 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      viewBox="0 0 24 24"
-                      style={{ marginTop: "1px" }}
-                    >
-                      {/* Upward trending arrow: professional, expressive */}
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M3 17l6-6 4 4 7-7M14 7h7v7"
-                      />
-                    </svg>
-                    Total Return
-                  </div>
-                  <div
-                    className={`text-sm font-medium ${
-                      totalReturn > 0
-                        ? "text-green-600"
-                        : totalReturn < 0
-                          ? "text-red-500"
-                          : "text-gray-500"
-                    }`}
+                <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <svg
+                    className="h-4 w-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    viewBox="0 0 24 24"
+                    style={{ marginTop: "1px" }}
                   >
-                    {totalReturn > 0 ? "+" : totalReturn < 0 ? "-" : ""}₹
-                    {Math.abs(totalReturn).toLocaleString()} (
-                    {totalInvested
-                      ? `${((totalReturn / totalInvested) * 100).toFixed(2)}%`
-                      : "0.00%"}
-                    )
-                  </div>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3 17l6-6 4 4 7-7M14 7h7v7"
+                    />
+                  </svg>
+                  <span>Total Return</span>
+                </div>
+                <div
+                  className={`text-right text-sm font-medium ${
+                    totalReturn > 0
+                      ? "text-green-600"
+                      : totalReturn < 0
+                        ? "text-red-500"
+                        : "text-gray-500"
+                  }`}
+                >
+                  {totalReturn > 0 ? "+" : totalReturn < 0 ? "-" : ""}₹
+                  {Math.abs(totalReturn).toLocaleString()} (
+                  {totalInvested
+                    ? `${((totalReturn / totalInvested) * 100).toFixed(2)}%`
+                    : "0.00%"}
+                  )
                 </div>
               </div>
             </div>
