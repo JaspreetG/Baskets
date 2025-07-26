@@ -325,17 +325,21 @@ export default function Basket() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex flex-row justify-end gap-2 px-6 pt-4 pb-6">
-            <Button variant="outline" onClick={() => setShowExitConfirm(false)}>
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setShowExitConfirm(false)}
+            >
               No
             </Button>
             <Button
-              className="bg-red-600 text-white hover:bg-red-700"
+              className="flex-1 bg-red-600 text-white hover:bg-red-700"
               onClick={async () => {
                 setShowExitConfirm(false);
                 await handleExitBasket();
               }}
             >
-              Yes, Exit
+              Yes
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -356,12 +360,13 @@ export default function Basket() {
           <DialogFooter className="flex flex-row justify-end gap-2 px-6 pt-4 pb-6">
             <Button
               variant="outline"
+              className="flex-1"
               onClick={() => setShowDeleteConfirm(false)}
             >
               No
             </Button>
             <Button
-              className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700 focus:ring-red-400"
+              className="flex-1 border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700 focus:ring-red-400"
               variant="outline"
               style={{ borderWidth: 1 }}
               onClick={async () => {
@@ -369,7 +374,7 @@ export default function Basket() {
                 await handleDeleteBasket();
               }}
             >
-              Yes, Delete
+              Yes
             </Button>
           </DialogFooter>
         </DialogContent>
