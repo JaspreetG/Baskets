@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { useCallback, useEffect, useMemo, memo } from "react";
+import { useState, useCallback, useEffect, useMemo, memo } from "react";
+
 import { supabase } from "@/lib/supabase";
 import { globalStore } from "@/store";
 
