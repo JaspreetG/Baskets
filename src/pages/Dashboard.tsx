@@ -398,7 +398,7 @@ const Dashboard = memo(function Dashboard() {
                       className="group block"
                     >
                       <div className="mb-3 flex items-center justify-between rounded-xl bg-white px-5 py-4 font-light shadow-sm ring-1 ring-gray-100 transition hover:shadow-sm">
-                        <div className="flex min-w-0 flex-col gap-1">
+                        <div className="flex w-2/3 min-w-0 flex-col gap-1">
                           <h4 className="truncate text-base font-medium text-gray-900">
                             {basket.name}
                           </h4>
@@ -419,35 +419,45 @@ const Dashboard = memo(function Dashboard() {
                             </svg>
                             Invested {daysSince} days ago
                           </span>
-                        </div>
-                        <div className="flex flex-col items-end space-y-0.5 text-right">
-                          <span className="text-xs text-gray-400">
-                            Current Value
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xl font-medium text-gray-800 tabular-nums">
-                              ₹{Math.round(basketSellValue).toLocaleString()}
-                            </span>
-                            <span className="text-sm font-light text-gray-500">
-                              (
-                              {basketInvested
-                                ? (
-                                    ((basketSellValue - basketInvested) /
-                                      basketInvested) *
-                                    100
-                                  ).toFixed(2)
-                                : "0.00"}
-                              %)
-                            </span>
-                          </div>
-                          <span className="text-xs text-gray-500">
-                            Avg. Monthly Return:{" "}
-                            {monthlyReturn >= 0 ? "+" : "-"}
+                          <span className="inline-flex items-center gap-1 text-xs text-gray-500">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-4 w-4 text-gray-400"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={1.5}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M13 16h-1v-4h-1m1-4h.01M12 20.5C6.753 20.5 2.5 16.247 2.5 11S6.753 1.5 12 1.5 21.5 5.753 21.5 11 17.247 20.5 12 20.5Z"
+                              />
+                            </svg>
+                            {monthlyReturn >= 0 ? "Growing " : "Losing "}
                             {Math.abs(
                               basketInvested
                                 ? (monthlyReturn / basketInvested) * 100
                                 : 0,
                             ).toFixed(2)}
+                            % monthly
+                          </span>
+                        </div>
+                        <div className="flex flex-col items-end space-y-1 text-right">
+                          <span className="text-xs text-gray-400">
+                            Current Value
+                          </span>
+                          <span className="text-xl font-medium text-gray-800 tabular-nums">
+                            ₹{Math.round(basketSellValue).toLocaleString()}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {basketInvested
+                              ? (
+                                  ((basketSellValue - basketInvested) /
+                                    basketInvested) *
+                                  100
+                                ).toFixed(2)
+                              : "0.00"}
                             %
                           </span>
                         </div>
