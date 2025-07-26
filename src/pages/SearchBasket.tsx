@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, CheckCircle } from "lucide-react";
 import { FaArrowLeft } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -59,9 +59,11 @@ export default function SearchBasket() {
         </Link>
         <Link to="/invest">
           <Button
-            variant="default"
-            className="h-auto bg-blue-600 px-6 py-2 text-base font-semibold text-white shadow hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:outline-none"
+            variant="outline"
+            className="flex h-auto items-center gap-2 rounded-2xl border-2 border-blue-600 bg-white px-6 py-0.5 text-base font-medium tracking-wide text-blue-600 shadow-sm hover:bg-blue-50 hover:text-blue-700 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:outline-none"
+            style={{ letterSpacing: "0.04em" }}
           >
+            <CheckCircle className="h-5 w-5 text-blue-600" />
             Done
           </Button>
         </Link>
@@ -73,7 +75,7 @@ export default function SearchBasket() {
         <Input
           type="text"
           placeholder="Search for stocks..."
-          className="w-full rounded-lg border border-gray-300 bg-white px-12 py-5 text-lg text-gray-800 shadow-md placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-300 focus:outline-none"
+          className="w-full rounded-full border border-stone-400 bg-white px-12 py-3 text-base text-gray-800 transition-all placeholder:text-gray-400 focus:border-stone-500 focus:bg-white focus:ring-1 focus:ring-stone-200 focus:outline-none"
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
