@@ -352,6 +352,19 @@ const Dashboard = memo(function Dashboard() {
                   let basketSellValue = 0;
                   let earliestDate: string | undefined = undefined;
 
+                  // Allow for null sell_price in type check
+                  const allExited =
+                    basket.stocks.length > 0 &&
+                    basket.stocks.every((stock) => {
+                      return (
+                        stock.sell_price != null &&
+                        !isNaN(Number(stock.sell_price)) &&
+                        typeof stock.sell_date === "string" &&
+                        stock.sell_date.trim() !== "" &&
+                        !isNaN(Date.parse(stock.sell_date))
+                      );
+                    });
+
                   basket.stocks.forEach((stock) => {
                     const qty = stock.quantity ?? 0;
                     const buyPrice = stock.buy_price ?? 0;
@@ -375,12 +388,12 @@ const Dashboard = memo(function Dashboard() {
                   });
 
                   // Days since investment
-                  let daysSince = 1;
+                  let daysSince = 0;
                   if (earliestDate) {
                     const days =
                       (Date.now() - new Date(earliestDate).getTime()) /
                       (1000 * 60 * 60 * 24);
-                    daysSince = Math.max(1, Math.floor(days));
+                    daysSince = Math.max(0, Math.floor(days));
                   }
 
                   // Monthly return
@@ -389,6 +402,14 @@ const Dashboard = memo(function Dashboard() {
                     months > 0
                       ? (basketSellValue - basketInvested) / months
                       : 0;
+
+                  // Determine label for monthly return
+                  let monthlyLabel = "";
+                  if (allExited) {
+                    monthlyLabel = monthlyReturn >= 0 ? "Grown " : "Lost ";
+                  } else {
+                    monthlyLabel = monthlyReturn >= 0 ? "Growing " : "Losing ";
+                  }
 
                   return (
                     <Link
@@ -417,7 +438,9 @@ const Dashboard = memo(function Dashboard() {
                                 d="M12 6v6l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                               />
                             </svg>
-                            Invested {daysSince} days ago
+                            {daysSince === 0
+                              ? "Invested today"
+                              : `Invested ${daysSince} days ago`}
                           </span>
                           <span className="inline-flex items-center gap-1 text-xs text-gray-500">
                             <svg
@@ -434,7 +457,7 @@ const Dashboard = memo(function Dashboard() {
                                 d="M13 16h-1v-4h-1m1-4h.01M12 20.5C6.753 20.5 2.5 16.247 2.5 11S6.753 1.5 12 1.5 21.5 5.753 21.5 11 17.247 20.5 12 20.5Z"
                               />
                             </svg>
-                            {monthlyReturn >= 0 ? "Growing " : "Losing "}
+                            {monthlyLabel}
                             {Math.abs(
                               basketInvested
                                 ? (monthlyReturn / basketInvested) * 100
