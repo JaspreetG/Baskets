@@ -47,41 +47,43 @@ export default function SearchBasket() {
     basketStocks.some((s) => s.symbol === ticker);
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-6 pt-6 text-gray-700 md:px-8">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <Link
-          to="/"
-          className="flex items-center gap-2 text-base font-medium text-gray-500"
-        >
-          <FaArrowLeft className="h-4 w-4" />
-          <span>Add Stocks</span>
-        </Link>
-        <Link to="/invest">
-          <Button
-            variant="outline"
-            className="flex h-auto items-center gap-2 rounded-2xl border-2 border-blue-600 bg-white px-6 py-0.5 text-base font-medium tracking-wide text-blue-600 shadow-sm hover:bg-blue-50 hover:text-blue-700 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:outline-none"
-            style={{ letterSpacing: "0.04em" }}
+    <div className="mx-auto w-full max-w-2xl px-6 pt-4 text-gray-700 md:px-8">
+      <section className="mb-8 space-y-4">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <Link
+            to="/"
+            className="flex items-center gap-2 text-base font-medium text-gray-500"
           >
-            <CheckCircle className="h-5 w-5 text-blue-600" />
-            Done
-          </Button>
-        </Link>
-      </div>
+            <FaArrowLeft className="h-4 w-4" />
+            <span>Add Stocks</span>
+          </Link>
+          <Link to="/invest">
+            <Button
+              variant="outline"
+              className="flex h-auto items-center gap-2 rounded-2xl border-2 border-blue-600 bg-white px-6 py-0.5 text-base font-medium tracking-wide text-blue-600 shadow-sm hover:bg-blue-50 hover:text-blue-700 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:outline-none"
+              style={{ letterSpacing: "0.04em" }}
+            >
+              <CheckCircle className="h-5 w-5 text-blue-600" />
+              Done
+            </Button>
+          </Link>
+        </div>
 
-      {/* Search Bar */}
-      <div className="relative mb-6">
-        <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-        <Input
-          type="text"
-          placeholder="Search for stocks..."
-          className="w-full rounded-full border border-stone-400 bg-white px-12 py-3 text-base text-gray-800 transition-all placeholder:text-gray-400 focus:border-stone-500 focus:bg-white focus:ring-1 focus:ring-stone-200 focus:outline-none"
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-          }}
-        />
-      </div>
+        {/* Search Bar */}
+        <div className="relative">
+          <Search className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-gray-400" />
+          <Input
+            type="text"
+            placeholder="Search for stocks..."
+            className="w-full rounded-xl border border-gray-300 bg-gray-50 py-3 pr-4 pl-12 text-base text-gray-800 placeholder:text-gray-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:outline-none"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+            }}
+          />
+        </div>
+      </section>
 
       {/* Stock List */}
       <ul className="divide-y divide-gray-200 overflow-hidden rounded-xl bg-white shadow-md">
@@ -106,7 +108,7 @@ export default function SearchBasket() {
                 className={
                   selected
                     ? "border border-blue-600 bg-blue-600 text-white hover:bg-blue-700"
-                    : "text-blue-600 hover:text-blue-700"
+                    : "font-medium text-blue-600 transition-colors hover:text-blue-700"
                 }
                 onClick={async () => {
                   if (!selected) {
