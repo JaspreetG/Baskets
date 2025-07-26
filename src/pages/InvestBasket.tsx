@@ -215,11 +215,13 @@ export default function InvestBasket() {
             </div>
           </Card>
           {/* Invest Button & Total Investment */}
-          <div className="mt-12 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-            <div className="flex items-center gap-2 text-base text-gray-600 sm:text-sm">
-              <FaBoxOpen className="text-gray-400" />
-              <span className="text-gray-500">Total Investment</span>
-              <span className="ml-1 font-semibold text-gray-800 tabular-nums">
+          <div className="mt-12 flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex w-full justify-between text-base text-gray-600 sm:text-sm">
+              <span className="flex items-center gap-2 text-gray-500">
+                <FaBoxOpen className="text-gray-400" />
+                Total Investment
+              </span>
+              <span className="font-semibold text-gray-800 tabular-nums">
                 ₹{total.toFixed(2)}
               </span>
             </div>
@@ -230,7 +232,7 @@ export default function InvestBasket() {
                 distributedStocks.length === 0 ||
                 total <= 0
               }
-              className="w-full max-w-xs rounded-lg bg-blue-600 px-6 py-4 text-base font-medium text-white shadow-md transition-all hover:bg-blue-700 hover:shadow-lg disabled:opacity-50"
+              className="w-full rounded-lg bg-blue-600 px-6 py-4 text-base font-medium text-white shadow-md transition-all hover:bg-blue-700 hover:shadow-lg disabled:opacity-50 sm:max-w-xs"
             >
               {(() => {
                 if (investMutation.status === "pending") return "Investing...";

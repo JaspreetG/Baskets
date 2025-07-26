@@ -238,9 +238,9 @@ const Dashboard = memo(function Dashboard() {
               </div>
 
               {/* Invested, XIRR, Total Return (new order and icons) */}
-              <div className="grid grid-cols-1 gap-4 border-t border-gray-100 pt-4 sm:grid-cols-3">
+              <div className="flex flex-wrap justify-between gap-6 border-t border-gray-100 pt-4 text-sm sm:flex-nowrap">
                 {/* Invested */}
-                <div className="flex flex-col items-start space-y-1 text-left">
+                <div className="flex flex-1 flex-col items-start space-y-1 text-left">
                   <div className="flex items-center gap-1 text-xs text-gray-500">
                     <svg
                       className="h-4 w-4 text-gray-400"
@@ -263,7 +263,7 @@ const Dashboard = memo(function Dashboard() {
                 </div>
 
                 {/* XIRR */}
-                <div className="flex flex-col items-center space-y-1 text-center">
+                <div className="flex flex-1 flex-col items-center space-y-1 text-center">
                   <div className="flex items-center gap-1 text-xs text-gray-500">
                     <svg
                       className="h-4 w-4 text-gray-400"
@@ -291,7 +291,7 @@ const Dashboard = memo(function Dashboard() {
                 </div>
 
                 {/* Total Return */}
-                <div className="flex flex-col items-end space-y-1 text-right">
+                <div className="flex flex-1 flex-col items-end space-y-1 text-right">
                   <div className="flex items-center gap-1 text-xs leading-4 text-gray-500">
                     <svg
                       className="h-4 w-4 text-gray-400"
