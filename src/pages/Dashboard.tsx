@@ -60,8 +60,6 @@ function fixNegativeZero(val: number): number {
 }
 
 const Dashboard = memo(function Dashboard() {
-  const [loading, setLoading] = useState(() => false); // no blocking loader, just background update
-
   const setBaskets = globalStore((s) => s.setBaskets);
   const updateBasketLTP = globalStore((s) => s.updateBasketLTP);
   const baskets = globalStore((s) => s.baskets);
