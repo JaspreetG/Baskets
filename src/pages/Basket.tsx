@@ -1,16 +1,24 @@
-import { Link } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
-import { useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { globalStore } from "@/store";
-
-import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export default function Basket() {
   const [pendingExit, setPendingExit] = useState(false);
   const [localExited, setLocalExited] = useState(false);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const hasMounted = useRef(false);
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -31,8 +39,6 @@ export default function Basket() {
   }
 
   // Calculate values
-  // For each stock, use sell price if available, else LTP, else buy price
-  // For each stock, use sell price if available, else LTP, else buy price
   let totalBuyValue = 0;
   let totalSellValue = 0;
   basket.stocks.forEach((s) => {
@@ -132,6 +138,30 @@ export default function Basket() {
     }
   }
 
+  // Delete basket logic using delete_basket function
+  async function handleDeleteBasket() {
+    try {
+      // Call the backend delete_basket function with basket id
+      const { error } = await supabase.rpc("delete_basket", {
+        basket_id: basket!.id,
+      });
+      if (error) {
+        toast.error("Failed to delete basket. Try again.");
+        return;
+      }
+      // Remove from local store
+      globalStore
+        .getState()
+        .setBaskets(baskets.filter((b) => b.id !== basket!.id));
+      toast.success("Basket deleted.");
+      window.location.href = "/";
+    } catch (err: unknown) {
+      const errorMsg =
+        err instanceof Error ? err.message : "Failed to delete basket.";
+      toast.error(errorMsg);
+    }
+  }
+
   return (
     <div className="mx-auto w-full max-w-2xl space-y-8 px-6 py-8 text-gray-800">
       {/* Back Button */}
@@ -146,7 +176,18 @@ export default function Basket() {
       </div>
 
       {/* Performance Summary */}
-      <div className="rounded-2xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-6 shadow-[0_12px_32px_rgba(0,0,0,0.06)] backdrop-blur">
+      <div className="relative rounded-2xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-6 shadow-[0_12px_32px_rgba(0,0,0,0.06)] backdrop-blur">
+        {/* Delete Basket Button: Only show if exit is taken */}
+        {allExited && (
+          <Button
+            variant="outline"
+            className="absolute top-6 right-6 h-8 rounded-full border-red-500 px-3 py-1 text-xs font-semibold text-red-600 shadow-sm hover:bg-red-50 hover:text-red-700 focus:ring-red-400"
+            style={{ borderWidth: 1, minWidth: 0 }}
+            onClick={() => setShowDeleteConfirm(true)}
+          >
+            Delete
+          </Button>
+        )}
         <h2 className="mb-1 text-lg font-semibold text-gray-800">
           {basket.name}
         </h2>
@@ -262,18 +303,81 @@ export default function Basket() {
 
       {/* Exit Basket button */}
       <div className="pt-4">
-        <button
-          onClick={handleExitBasket}
+        <Button
+          onClick={() => setShowExitConfirm(true)}
           disabled={allExited || pendingExit}
-          className="w-full rounded-lg bg-red-600 px-5 py-3 text-base font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+          className="w-full bg-red-600 px-5 py-3 text-base font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
         >
           {(() => {
             if (allExited) return "Exit taken";
             if (pendingExit) return "Exiting...";
             return "Exit Basket";
           })()}
-        </button>
+        </Button>
       </div>
+
+      {/* Exit Confirmation Dialog */}
+      <Dialog open={showExitConfirm} onOpenChange={setShowExitConfirm}>
+        <DialogContent className="max-w-sm rounded-2xl border border-gray-200 bg-white p-0 shadow-xl">
+          <DialogHeader className="px-6 pt-6">
+            <DialogTitle className="text-lg font-semibold text-gray-900">
+              Are you sure you want to exit this basket?
+            </DialogTitle>
+            <DialogDescription className="pt-1 text-sm text-gray-500">
+              This action will exit all stocks in this basket at the latest
+              prices. This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex flex-row justify-end gap-2 px-6 pt-4 pb-6">
+            <Button variant="outline" onClick={() => setShowExitConfirm(false)}>
+              No
+            </Button>
+            <Button
+              className="bg-red-600 text-white hover:bg-red-700"
+              onClick={async () => {
+                setShowExitConfirm(false);
+                await handleExitBasket();
+              }}
+            >
+              Yes, Exit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent className="max-w-sm rounded-2xl border border-gray-200 bg-white p-0 shadow-xl">
+          <DialogHeader className="px-6 pt-6">
+            <DialogTitle className="text-lg font-semibold text-gray-900">
+              Are you sure you want to delete this basket?
+            </DialogTitle>
+            <DialogDescription className="pt-1 text-sm text-gray-500">
+              This action will permanently delete this basket and all its data.
+              This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex flex-row justify-end gap-2 px-6 pt-4 pb-6">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteConfirm(false)}
+            >
+              No
+            </Button>
+            <Button
+              className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700 focus:ring-red-400"
+              variant="outline"
+              style={{ borderWidth: 1 }}
+              onClick={async () => {
+                setShowDeleteConfirm(false);
+                await handleDeleteBasket();
+              }}
+            >
+              Yes, Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
