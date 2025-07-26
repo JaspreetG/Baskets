@@ -31,11 +31,7 @@ export default function Basket() {
   }, []);
 
   if (!basketId || !basket) {
-    return (
-      <div className="mx-auto w-full max-w-2xl px-6 py-8 text-gray-800">
-        <div className="text-center text-gray-500">Basket not found.</div>
-      </div>
-    );
+    return null;
   }
 
   // Calculate values
