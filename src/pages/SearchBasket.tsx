@@ -47,16 +47,17 @@ export default function SearchBasket() {
     basketStocks.some((s) => s.symbol === ticker);
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-6 pt-4 text-gray-700 md:px-8">
+    <div className="mx-auto w-full max-w-2xl px-6 text-gray-700 md:px-8">
       <section className="mb-8 space-y-4">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="mt-3 mb-6 flex items-center justify-between">
           <Link
             to="/"
-            className="flex items-center gap-2 text-base font-medium text-gray-500"
+            className="flex items-center gap-2 text-base font-medium text-gray-600 transition-colors hover:text-gray-800"
+            style={{ marginLeft: 0 }}
           >
             <FaArrowLeft className="h-4 w-4" />
-            <span>Add Stocks</span>
+            <span>add stocks</span>
           </Link>
           <Link to="/invest">
             <Button
@@ -75,7 +76,7 @@ export default function SearchBasket() {
           <Search className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-gray-400" />
           <Input
             type="text"
-            placeholder="Search for stocks..."
+            placeholder="search for stocks"
             className="w-full rounded-xl border border-gray-300 bg-gray-50 py-3 pr-4 pl-12 text-base text-gray-800 placeholder:text-gray-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:outline-none"
             value={query}
             onChange={(e) => {

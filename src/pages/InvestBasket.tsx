@@ -100,13 +100,13 @@ export default function InvestBasket() {
     <div className="flex min-h-screen flex-col justify-between bg-white text-gray-700">
       {/* Header */}
       <div className="mx-auto w-full max-w-2xl px-6 md:px-8">
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mt-3 mb-6 flex items-center justify-between">
           <Link
             to="/search"
-            className="flex items-center gap-2 text-base font-medium text-gray-600 transition-colors hover:text-gray-800"
+            className="mt-1 flex items-center gap-2 text-base font-medium text-gray-600 transition-colors hover:text-gray-800"
           >
             <FaArrowLeft className="h-4 w-4" />
-            <span>Basket</span>
+            <span>basket</span>
           </Link>
         </div>
 
@@ -132,7 +132,7 @@ export default function InvestBasket() {
               <Input
                 id="basketName"
                 type="text"
-                placeholder="e.g., Tech Picks"
+                placeholder="write basket name"
                 value={basketName}
                 onChange={(e) => setBasketName(e.target.value)}
                 className="flex-1 rounded-lg border border-gray-200 bg-white px-4 py-3 text-base placeholder:text-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
@@ -151,7 +151,7 @@ export default function InvestBasket() {
                 <Input
                   id="amount"
                   type="number"
-                  placeholder="Enter amount..."
+                  placeholder="enter amount"
                   min="1"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
