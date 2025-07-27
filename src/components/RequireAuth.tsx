@@ -21,14 +21,66 @@ export default function RequireAuth({
   if (loading)
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div
-          className="h-14 w-14 animate-spin rounded-full border-4 border-neutral-900 border-t-transparent shadow-lg"
+        <svg
+          width="44"
+          height="44"
+          viewBox="0 0 44 44"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
           style={{
-            background: "none",
-            boxShadow:
-              "0 2px 12px 0 rgba(0,0,0,0.10), 0 1.5px 4px 0 rgba(0,0,0,0.08)",
+            display: "inline-block",
+            filter: "drop-shadow(0 2px 12px rgba(99,102,241,0.08))",
+            animation: "jira-spin 2.2s linear infinite",
           }}
-        />
+        >
+          <defs>
+            <linearGradient
+              id="jira-gradient"
+              x1="0"
+              y1="0"
+              x2="44"
+              y2="44"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop stopColor="#2563eb" />
+              <stop offset="0.5" stopColor="#6366f1" />
+              <stop offset="1" stopColor="#2563eb" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M22 8
+            a14 14 0 0 1 0 28
+            a14 14 0 0 1 0 -28"
+            stroke="url(#jira-gradient)"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            fill="none"
+            style={{
+              strokeDasharray: "90 110",
+              strokeDashoffset: 0,
+              animation: "jira-dash 1.2s linear infinite",
+            }}
+          />
+        </svg>
+        <style>{`
+        @keyframes jira-spin {
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes jira-dash {
+          0% {
+            stroke-dasharray: 70 130;
+            stroke-dashoffset: 0;
+          }
+          50% {
+            stroke-dasharray: 110 90;
+            stroke-dashoffset: -100;
+          }
+          100% {
+            stroke-dasharray: 70 130;
+            stroke-dashoffset: -200;
+          }
+        }
+      `}</style>
       </div>
     );
 
