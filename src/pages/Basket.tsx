@@ -180,7 +180,7 @@ export default function Basket() {
       </div>
 
       {/* Performance Summary */}
-      <div className="relative rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <div className="relative rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
         {allExited && (
           <Button
             variant="outline"
@@ -192,14 +192,20 @@ export default function Basket() {
             Delete
           </Button>
         )}
-        <h2 className="mb-1 text-lg font-semibold text-gray-900">
+        <h2 className="mb-1 text-base font-semibold text-gray-900 sm:text-lg">
           {basket.name}
         </h2>
-        <p className="mb-4 flex items-center gap-1 text-xs font-medium text-gray-500">
-          <FaCalendarAlt className="h-3 w-3 text-gray-400" />
-          Invested on: {new Date(basket.created_at).toLocaleDateString()}
-        </p>
-        <div className="flex flex-col text-sm text-gray-700 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+        <div className="mb-4 text-xs font-medium text-gray-500">
+          <div className="flex items-center gap-1">
+            <FaCalendarAlt className="h-3 w-3 text-gray-400" />
+            <span>Invested on:</span>
+          </div>
+          <div className="pt-0.5 pl-4 text-sm font-normal text-gray-800">
+            {new Date(basket.created_at).toLocaleDateString()}
+          </div>
+          <div className="mt-4 h-px w-full bg-gray-200" />
+        </div>
+        <div className="flex flex-wrap justify-between gap-x-6 gap-y-4 text-sm text-gray-700">
           <div className="flex-1 space-y-4">
             <div>
               <p className="flex items-center gap-1 text-xs text-gray-500">
@@ -246,9 +252,11 @@ export default function Basket() {
               </div>
             )}
           </div>
-          <div className="flex-1 space-y-4 border-t border-gray-100 pt-4 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-6 sm:text-right">
+          {/* Divider for large enough space */}
+          <div className="mx-1 hidden h-auto w-px self-stretch bg-gray-200 lg:flex" />
+          <div className="flex-1 space-y-4 text-right">
             <div>
-              <p className="flex items-center justify-start gap-1 text-xs text-gray-500 sm:justify-end">
+              <p className="flex items-center justify-end gap-1 text-xs text-gray-500">
                 <FaRupeeSign className="h-3 w-3 text-gray-400" />
                 Current Value
               </p>
@@ -257,7 +265,7 @@ export default function Basket() {
               </p>
             </div>
             <div>
-              <p className="flex items-center justify-start gap-1 text-xs text-gray-500 sm:justify-end">
+              <p className="flex items-center justify-end gap-1 text-xs text-gray-500">
                 <FaPercentage className="h-3 w-3 text-gray-400" />
                 Return
               </p>
@@ -276,7 +284,7 @@ export default function Basket() {
             </div>
             {allExited && (
               <div>
-                <p className="flex items-center justify-start gap-1 text-xs text-gray-500 sm:justify-end">
+                <p className="flex items-center justify-end gap-1 text-xs text-gray-500">
                   <FaCalendarAlt className="h-3 w-3 text-gray-400" />
                   Days Invested
                 </p>
@@ -369,7 +377,7 @@ export default function Basket() {
       </div>
 
       {/* Exit Basket button */}
-      <div className="pt-4">
+      <div className="mb-12 pt-4">
         <Button
           onClick={() => setShowExitConfirm(true)}
           disabled={allExited || pendingExit}
