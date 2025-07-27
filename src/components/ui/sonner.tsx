@@ -12,7 +12,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       visibleToasts={1}
       style={
         {
-          "--normal-bg": "var(--popover)",
+          "--normal-bg": "white",
           "--normal-text": "var(--popover-foreground)",
           "--normal-border": "var(--border)",
           top: "3.5rem", // move down from top (56px)
