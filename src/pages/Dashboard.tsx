@@ -352,7 +352,7 @@ const Dashboard = memo(function Dashboard() {
         </section>
 
         {/* Baskets Section */}
-        <section className="mt-8 space-y-4">
+        <section className="mt-8 mb-12 space-y-4">
           <div className="my-8 flex items-center gap-4">
             <hr className="flex-grow border-t border-gray-200" />
             <span className="text-xs font-medium tracking-wide text-gray-500 uppercase">
