@@ -323,7 +323,7 @@ export default function InvestBasket() {
             </span>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-8 mb-16">
             <Button
               type="submit"
               disabled={

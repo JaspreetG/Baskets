@@ -156,7 +156,7 @@ export default function SearchBasket() {
       <div className="pointer-events-none fixed bottom-6 left-0 z-10 w-full px-6 md:px-8">
         <div className="pointer-events-auto mx-auto max-w-2xl">
           <Link to="/invest">
-            <Button className="mb-10 inline-flex h-[40px] w-full items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700">
+            <Button className="mb-12 inline-flex h-[40px] w-full items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700">
               <FaCheckCircle className="h-4 w-4" />
               Done
             </Button>
