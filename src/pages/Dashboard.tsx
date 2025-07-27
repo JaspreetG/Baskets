@@ -387,13 +387,15 @@ const Dashboard = memo(function Dashboard() {
                     }
                   });
 
-                  // Days since investment
+                  // Days since investment (calendar days, ignore time)
                   let daysSince = 0;
                   if (earliestDate) {
-                    const days =
-                      (Date.now() - new Date(earliestDate).getTime()) /
-                      (1000 * 60 * 60 * 24);
-                    daysSince = Math.max(0, Math.floor(days));
+                    const today = new Date();
+                    const createdAt = new Date(
+                      new Date(earliestDate).toDateString(),
+                    );
+                    const diffInMs = today.getTime() - createdAt.getTime();
+                    daysSince = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
                   }
 
                   // Monthly return

@@ -97,7 +97,12 @@ export default function InvestBasket() {
   );
 
   // React Query mutation for investing
-  type InvestStock = { code: string; quantity: number; ltp: number };
+  type InvestStock = {
+    code: string;
+    name: string;
+    quantity: number;
+    ltp: number;
+  };
   type InvestParams = { basketName: string; distributedStocks: InvestStock[] };
   const investMutation = useMutation({
     mutationFn: async (params: InvestParams) => {
@@ -105,6 +110,7 @@ export default function InvestBasket() {
         basket_name: params.basketName,
         stock_list: params.distributedStocks.map((s: InvestStock) => ({
           symbol: s.code,
+          name: s.name,
           quantity: s.quantity,
           buy_price: s.ltp,
         })),
@@ -257,9 +263,11 @@ export default function InvestBasket() {
                               <div className="font-medium text-gray-900">
                                 {stock.code}
                               </div>
-                              <div className="max-w-[120px] truncate text-xs text-gray-500 sm:max-w-[180px] sm:whitespace-nowrap">
-                                {stock.name}
-                              </div>
+                              {stock.name && stock.name !== stock.code && (
+                                <div className="max-w-[120px] truncate text-xs text-gray-500 sm:max-w-[180px] sm:whitespace-nowrap">
+                                  {stock.name}
+                                </div>
+                              )}
                             </td>
                             <td className="px-5 py-4 text-center whitespace-nowrap tabular-nums">
                               {quantity}

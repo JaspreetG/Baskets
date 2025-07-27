@@ -14,6 +14,7 @@ begin
         select jsonb_agg(
           jsonb_build_object(
             'symbol', s.symbol,
+            'name', s.name,
             'quantity', s.quantity,
             'buy_price', s.buy_price,
             'sell_price', s.sell_price,

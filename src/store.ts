@@ -36,7 +36,15 @@ interface GlobalStore {
 export const globalStore = create<GlobalStore>((set) => ({
   basketStocks: [],
   addBasketStock: (stock) =>
-    set((state) => ({ basketStocks: [...state.basketStocks, stock] })),
+    set((state) => ({
+      basketStocks: [
+        ...state.basketStocks,
+        {
+          ...stock,
+          name: stock.name || "",
+        },
+      ],
+    })),
   removeBasketStock: (symbol) =>
     set((state) => ({
       basketStocks: state.basketStocks.filter((s) => s.symbol !== symbol),

@@ -172,8 +172,7 @@ export default function Basket() {
       </div>
 
       {/* Performance Summary */}
-      <div className="relative rounded-2xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-6 shadow-[0_12px_32px_rgba(0,0,0,0.06)] backdrop-blur">
-        {/* Delete Basket Button: Only show if exit is taken */}
+      <div className="relative rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         {allExited && (
           <Button
             variant="outline"
@@ -184,51 +183,96 @@ export default function Basket() {
             Delete
           </Button>
         )}
-        <h2 className="mb-1 text-lg font-semibold text-gray-800">
+        <h2 className="mb-1 text-lg font-semibold text-gray-900">
           {basket.name}
         </h2>
         <p className="mb-4 text-xs font-medium text-gray-500">
-          Invested: {new Date(basket.created_at).toLocaleDateString()}
+          Invested on: {new Date(basket.created_at).toLocaleDateString()}
         </p>
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-xs text-gray-500">Current Value</p>
-            <p className="text-3xl font-light text-gray-900">
-              ₹{currentValue.toLocaleString()}
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-xs text-gray-500">Total Return</p>
-            {(() => {
-              let totalReturnClass = "text-sm font-medium ";
-              if (totalReturn === 0) {
-                totalReturnClass += "text-gray-500";
-              } else if (totalReturn > 0) {
-                totalReturnClass += "text-green-600";
-              } else {
-                totalReturnClass += "text-red-500";
-              }
-              let totalReturnSign = "";
-              if (totalReturn > 0) totalReturnSign = "+";
-              else if (totalReturn < 0) totalReturnSign = "-";
-              let returnPercentClass = "";
-              if (returnPercent === 0) returnPercentClass = "text-gray-500";
-              else if (returnPercent > 0) returnPercentClass = "text-green-600";
-              else returnPercentClass = "text-red-500";
-              let returnPercentSign = "";
-              if (returnPercent > 0) returnPercentSign = "+";
-              else if (returnPercent < 0) returnPercentSign = "-";
-              return (
-                <p className={totalReturnClass}>
-                  {totalReturnSign}₹{Math.abs(totalReturn).toLocaleString()} ({" "}
-                  <span className={returnPercentClass}>
-                    {returnPercentSign}
-                    {Math.abs(returnPercent).toFixed(2)}%
-                  </span>{" "}
-                  )
+        <div className="flex flex-col text-sm text-gray-700 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+          <div className="flex-1 space-y-4">
+            <div>
+              <p className="text-xs text-gray-500">Invested</p>
+              <p className="text-base font-medium text-gray-900">
+                ₹{invested.toLocaleString()}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">Total Return</p>
+              <p
+                className={`text-base font-medium ${
+                  totalReturn > 0
+                    ? "text-green-600"
+                    : totalReturn < 0
+                      ? "text-red-500"
+                      : "text-gray-500"
+                }`}
+              >
+                {totalReturn > 0 ? "+" : totalReturn < 0 ? "-" : ""}₹
+                {Math.abs(totalReturn).toLocaleString()}
+              </p>
+            </div>
+            {allExited && (
+              <div>
+                <p className="text-xs text-gray-500">Exited on</p>
+                <p className="text-sm font-medium text-gray-800">
+                  {(() => {
+                    const dates = basket.stocks
+                      .map((s) => s.sell_date)
+                      .filter((d) => d && typeof d === "string");
+                    const latest = dates.sort().at(-1);
+                    return latest ? new Date(latest).toLocaleDateString() : "-";
+                  })()}
                 </p>
-              );
-            })()}
+              </div>
+            )}
+          </div>
+          <div className="flex-1 space-y-4 border-t border-gray-100 sm:border-t-0 sm:border-l sm:pl-6">
+            <div className="sm:text-right">
+              <p className="text-xs text-gray-500">Current Value</p>
+              <p className="text-base font-medium text-gray-900">
+                ₹{currentValue.toLocaleString()}
+              </p>
+            </div>
+            <div className="sm:text-right">
+              <p className="text-xs text-gray-500">Return %</p>
+              <p
+                className={`text-base font-medium ${
+                  returnPercent > 0
+                    ? "text-green-600"
+                    : returnPercent < 0
+                      ? "text-red-500"
+                      : "text-gray-500"
+                }`}
+              >
+                {returnPercent > 0 ? "+" : returnPercent < 0 ? "-" : ""}
+                {Math.abs(returnPercent).toFixed(2)}%
+              </p>
+            </div>
+            {allExited && (
+              <div className="sm:text-right">
+                <p className="text-xs text-gray-500">Days Invested</p>
+                <p className="text-sm font-medium text-gray-800">
+                  {(() => {
+                    const investDate = new Date(
+                      new Date(basket.created_at).toDateString(),
+                    );
+                    const dates = basket.stocks
+                      .map((s) => s.sell_date)
+                      .filter((d) => d && typeof d === "string");
+                    const latest = dates.sort().at(-1);
+                    const exitDate = latest
+                      ? new Date(new Date(latest).toDateString())
+                      : new Date();
+                    const diffInMs = exitDate.getTime() - investDate.getTime();
+                    const diffInDays = Math.floor(
+                      diffInMs / (1000 * 60 * 60 * 24),
+                    );
+                    return `${diffInDays} days`;
+                  })()}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -277,10 +321,11 @@ export default function Basket() {
                 key={stock.symbol}
                 className="flex items-center justify-between px-5 py-4 text-sm"
               >
-                <span className="font-medium text-gray-800">
-                  {stock.name && stock.name !== stock.symbol
-                    ? `${stock.name} (${stock.symbol})`
-                    : stock.symbol}
+                <span className="block font-medium text-gray-800">
+                  {stock.symbol}
+                  <span className="mt-0.5 block text-xs text-gray-500">
+                    {stock.name}
+                  </span>
                 </span>
                 <span className={valueClass}>
                   ₹{stockCurrent.toLocaleString()} <br />

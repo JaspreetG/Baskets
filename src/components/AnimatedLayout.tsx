@@ -27,7 +27,6 @@ const AnimatedLayout = () => {
         position: "relative",
         width: "100vw",
         minHeight: "100vh",
-        overflow: "hidden",
       }}
     >
       <AnimatePresence mode="wait" initial={false}>

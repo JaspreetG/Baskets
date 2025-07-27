@@ -13,6 +13,7 @@ CREATE TABLE stocks (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   basket_id UUID REFERENCES baskets(id) ON DELETE CASCADE,
   symbol TEXT NOT NULL,
+  name TEXT NOT NULL,
   quantity INTEGER NOT NULL,
   buy_price NUMERIC NOT NULL,
   sell_price NUMERIC, -- NEW
