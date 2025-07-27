@@ -413,14 +413,24 @@ const Dashboard = memo(function Dashboard() {
                     }
                   });
 
-                  // Days since investment (calendar days, ignore time)
+                  // Helper to get YYYY-MM-DD in IST
+                  function getISTDateString(date: Date): string {
+                    return new Date(
+                      date.toLocaleString("en-US", {
+                        timeZone: "Asia/Kolkata",
+                      }),
+                    )
+                      .toISOString()
+                      .split("T")[0];
+                  }
+                  // Days since investment (calendar days, ignore time, in IST)
                   let daysSince = 0;
                   if (earliestDate) {
-                    const today = new Date();
-                    const createdAt = new Date(
-                      new Date(earliestDate).toDateString(),
-                    );
-                    const diffInMs = today.getTime() - createdAt.getTime();
+                    const istToday = getISTDateString(new Date());
+                    const istCreated = getISTDateString(new Date(earliestDate));
+                    const d1 = new Date(istCreated);
+                    const d2 = new Date(istToday);
+                    const diffInMs = d2.getTime() - d1.getTime();
                     daysSince = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
                   }
 

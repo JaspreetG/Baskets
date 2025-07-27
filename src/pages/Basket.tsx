@@ -1,3 +1,15 @@
+// Helper to format date in IST and output as "dd/mm/yyyy"
+function getISTDateString(date: Date): string {
+  const ist = new Date(
+    date.toLocaleString("en-US", {
+      timeZone: "Asia/Kolkata",
+    }),
+  );
+  const dd = String(ist.getDate()).padStart(2, "0");
+  const mm = String(ist.getMonth() + 1).padStart(2, "0");
+  const yyyy = ist.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+}
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -167,7 +179,7 @@ export default function Basket() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-8 px-6 py-8 text-gray-800">
+    <div className="mx-auto w-full max-w-2xl space-y-8 px-6 py-8 text-sm text-gray-800">
       {/* Back Button */}
       <div className="mb-2">
         <Link
@@ -200,8 +212,8 @@ export default function Basket() {
             <FaCalendarAlt className="h-3 w-3 text-gray-400" />
             <span>
               Invested on:{" "}
-              <span className="text-sm font-normal text-gray-800">
-                {new Date(basket.created_at).toLocaleDateString()}
+              <span className="text-xs font-normal text-gray-800">
+                {getISTDateString(new Date(basket.created_at))}
               </span>
             </span>
           </div>
@@ -242,13 +254,13 @@ export default function Basket() {
                   <FaCalendarAlt className="h-3 w-3 text-gray-400" />
                   Exited on
                 </p>
-                <p className="text-sm font-medium text-gray-800">
+                <p className="font-normal text-gray-800">
                   {(() => {
                     const dates = basket.stocks
                       .map((s) => s.sell_date)
                       .filter((d) => d && typeof d === "string");
                     const latest = dates.sort().at(-1);
-                    return latest ? new Date(latest).toLocaleDateString() : "-";
+                    return latest ? getISTDateString(new Date(latest)) : "-";
                   })()}
                 </p>
               </div>
@@ -291,16 +303,27 @@ export default function Basket() {
                 </p>
                 <p className="text-sm font-medium text-gray-800">
                   {(() => {
-                    const investDate = new Date(
-                      new Date(basket.created_at).toDateString(),
+                    function getISTDateString(date: Date): string {
+                      return new Date(
+                        date.toLocaleString("en-US", {
+                          timeZone: "Asia/Kolkata",
+                        }),
+                      )
+                        .toISOString()
+                        .split("T")[0];
+                    }
+                    const investIST = getISTDateString(
+                      new Date(basket.created_at),
                     );
                     const dates = basket.stocks
                       .map((s) => s.sell_date)
                       .filter((d) => d && typeof d === "string");
                     const latest = dates.sort().at(-1);
-                    const exitDate = latest
-                      ? new Date(new Date(latest).toDateString())
-                      : new Date();
+                    const exitIST = latest
+                      ? getISTDateString(new Date(latest))
+                      : getISTDateString(new Date());
+                    const investDate = new Date(investIST);
+                    const exitDate = new Date(exitIST);
                     const diffInMs = exitDate.getTime() - investDate.getTime();
                     const diffInDays = Math.floor(
                       diffInMs / (1000 * 60 * 60 * 24),
