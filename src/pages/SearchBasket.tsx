@@ -79,7 +79,7 @@ export default function SearchBasket() {
           <Input
             type="text"
             placeholder="Search your favorite stocks..."
-            className="w-full rounded-lg border border-gray-200 bg-white py-3 pr-4 pl-12 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 focus:outline-none"
+            className="w-full rounded-lg border border-gray-200 bg-white py-3 pr-4 pl-12 text-base text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 focus:outline-none"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
