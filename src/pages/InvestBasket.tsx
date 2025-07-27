@@ -48,19 +48,48 @@ export default function InvestBasket() {
   // Parse amount as a number safely for calculations
   const parsedAmount = parseFloat(debouncedAmount) || 0;
 
-  const distributedStocks = stocks.map((s) => {
-    // Defensive: If ltp is 0 or falsy, avoid division by zero
-    const ltp = Number(s.ltp) || 0;
-    const equalShare = stocks.length > 0 ? parsedAmount / stocks.length : 0;
-    const quantity = ltp > 0 ? Math.floor(equalShare / ltp) : 0;
-    // Use ltp as buy_price for new stocks
-    return {
-      ...s,
-      ltp: Number(ltp.toFixed(2)),
-      buy_price: Number(ltp.toFixed(2)),
-      quantity,
-    };
-  });
+  const distributedStocks = (() => {
+    const n = stocks.length;
+    if (n === 0 || parsedAmount <= 0) return [];
+
+    const baseAmount = parsedAmount / n;
+    const allocated = stocks.map((s) => {
+      const ltp = Number(s.ltp) || 0;
+      const quantity = ltp > 0 ? Math.floor(baseAmount / ltp) : 0;
+      return {
+        ...s,
+        ltp: Number(ltp.toFixed(2)),
+        buy_price: Number(ltp.toFixed(2)),
+        quantity,
+        cost: quantity * ltp,
+      };
+    });
+
+    let remaining =
+      parsedAmount - allocated.reduce((acc, s) => acc + s.cost, 0);
+
+    while (remaining > 0.01) {
+      // Sort by lowest allocation first
+      allocated.sort((a, b) => a.quantity * a.ltp - b.quantity * b.ltp);
+      let allocatedFlag = false;
+
+      for (let i = 0; i < n; i++) {
+        const stock = allocated[i];
+        if (stock.ltp <= 0) continue;
+        if (remaining >= stock.ltp) {
+          stock.quantity += 1;
+          stock.cost += stock.ltp;
+          remaining -= stock.ltp;
+          allocatedFlag = true;
+          break;
+        }
+      }
+
+      if (!allocatedFlag) break;
+    }
+
+    return allocated;
+  })();
 
   const total = distributedStocks.reduce(
     (acc, s) => acc + s.quantity * (Number(s.ltp) || 0),
@@ -161,59 +190,95 @@ export default function InvestBasket() {
             </div>
           </div>
 
-          <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700">
-            <FaChartBar className="text-gray-400" />
-            Allocated Stocks
-          </h3>
-          {/* Stock List */}
-          <Card className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm ring-1 ring-gray-100">
-            <div className="overflow-x-auto">
-              <table className="min-w-full table-auto divide-y divide-gray-200">
-                <thead className="bg-white">
-                  <tr className="text-left text-xs font-semibold text-gray-500">
-                    <th className="w-full max-w-xs truncate px-5 py-3">
-                      <div className="flex items-center gap-2">
-                        <FaBarcode className="text-gray-400" />
-                        Stock
-                      </div>
-                    </th>
-                    <th className="px-5 py-3 text-center whitespace-nowrap">
-                      <div className="flex items-center justify-center gap-2">
-                        <FaHashtag className="text-gray-400" />
-                        Quantity
-                      </div>
-                    </th>
-                    <th className="px-5 py-3 text-center whitespace-nowrap">
-                      <div className="flex items-center justify-center gap-2">
-                        <FaTag className="text-gray-400" />
-                        Price
-                      </div>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 text-sm text-gray-700">
-                  {distributedStocks.map((stock, idx) => (
-                    <tr key={stock.code + "-" + idx} className="align-middle">
-                      <td className="max-w-xs truncate px-5 py-4">
-                        <div className="truncate font-medium text-gray-900">
-                          {stock.code}
-                        </div>
-                        <div className="truncate text-sm text-gray-500">
-                          {stock.name}
-                        </div>
-                      </td>
-                      <td className="px-5 py-4 text-center whitespace-nowrap tabular-nums">
-                        {stock.quantity}
-                      </td>
-                      <td className="px-5 py-4 text-center whitespace-nowrap tabular-nums">
-                        ₹{stock.ltp.toFixed(2)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+          {stocks.length === 0 ? (
+            <Card className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center text-gray-500 shadow-sm ring-1 ring-gray-100">
+              <div className="flex flex-col items-center justify-center gap-3">
+                <FaBoxOpen className="h-8 w-8 text-gray-400" />
+                <div className="text-base font-medium">
+                  Add stocks to invest
+                </div>
+              </div>
+            </Card>
+          ) : (
+            <>
+              <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700">
+                <FaChartBar className="text-gray-400" />
+                Allocated Stocks
+              </h3>
+              {/* Stock List */}
+              <Card className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm ring-1 ring-gray-100">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full table-auto divide-y divide-gray-200">
+                    <thead className="bg-white">
+                      <tr className="text-left text-xs font-semibold text-gray-500">
+                        <th className="w-full max-w-xs truncate px-5 py-3">
+                          <div className="flex items-center gap-2">
+                            <FaBarcode className="text-gray-400" />
+                            Symbol
+                          </div>
+                        </th>
+                        <th className="px-5 py-3 text-center whitespace-nowrap">
+                          <div className="flex items-center justify-center gap-2">
+                            <FaHashtag className="text-gray-400" />
+                            Quantity
+                          </div>
+                        </th>
+                        <th className="px-5 py-3 text-center whitespace-nowrap">
+                          <div className="flex items-center justify-center gap-2">
+                            <FaTag className="text-gray-400" />
+                            Price
+                          </div>
+                        </th>
+                        <th className="px-5 py-3 text-center whitespace-nowrap">
+                          <div className="flex items-center justify-center gap-2">
+                            % Allocation
+                          </div>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 text-sm text-gray-700">
+                      {stocks.map((stock, idx) => {
+                        const dist = distributedStocks.find(
+                          (s) => s.code === stock.code,
+                        );
+                        const quantity = dist
+                          ? dist.quantity
+                          : (stock.quantity ?? 0);
+                        const ltp = Number(stock.ltp) || 0;
+                        const allocation =
+                          total > 0 ? ((quantity * ltp) / total) * 100 : 0;
+
+                        return (
+                          <tr
+                            key={stock.code + "-" + idx}
+                            className="align-middle"
+                          >
+                            <td className="max-w-xs truncate px-5 py-4">
+                              <div className="font-medium text-gray-900">
+                                {stock.code}
+                              </div>
+                              <div className="max-w-[120px] truncate text-xs text-gray-500 sm:max-w-[180px] sm:whitespace-nowrap">
+                                {stock.name}
+                              </div>
+                            </td>
+                            <td className="px-5 py-4 text-center whitespace-nowrap tabular-nums">
+                              {quantity}
+                            </td>
+                            <td className="px-5 py-4 text-center whitespace-nowrap tabular-nums">
+                              ₹{ltp.toFixed(2)}
+                            </td>
+                            <td className="px-5 py-4 text-center whitespace-nowrap tabular-nums">
+                              {allocation.toFixed(2)}%
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+            </>
+          )}
           {/* Invest Button & Total Investment */}
           <div className="mt-12 flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex w-full justify-between text-base text-gray-600 sm:text-sm">
