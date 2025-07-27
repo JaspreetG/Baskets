@@ -184,7 +184,7 @@ export default function Basket() {
         {allExited && (
           <Button
             variant="outline"
-            className="absolute top-6 right-6 flex h-8 items-center gap-2 rounded-xl border-red-400 px-3 py-1 text-xs font-semibold text-red-500 shadow-sm transition-colors duration-200 hover:bg-red-50 hover:text-red-600 focus:ring-red-400"
+            className="absolute top-3 right-3 flex h-8 items-center gap-2 rounded-xl border-red-400 px-3 py-1 text-xs font-semibold text-red-500 shadow-sm transition-colors duration-200 hover:bg-red-50 hover:text-red-600 focus:ring-red-400"
             style={{ borderWidth: 1, minWidth: 0 }}
             onClick={() => setShowDeleteConfirm(true)}
           >
@@ -198,10 +198,12 @@ export default function Basket() {
         <div className="mb-4 text-xs font-medium text-gray-500">
           <div className="flex items-center gap-1">
             <FaCalendarAlt className="h-3 w-3 text-gray-400" />
-            <span>Invested on:</span>
-          </div>
-          <div className="pt-0.5 pl-4 text-sm font-normal text-gray-800">
-            {new Date(basket.created_at).toLocaleDateString()}
+            <span>
+              Invested on:{" "}
+              <span className="text-sm font-normal text-gray-800">
+                {new Date(basket.created_at).toLocaleDateString()}
+              </span>
+            </span>
           </div>
           <div className="mt-4 h-px w-full bg-gray-200" />
         </div>
@@ -253,7 +255,6 @@ export default function Basket() {
             )}
           </div>
           {/* Divider for large enough space */}
-          <div className="mx-1 hidden h-auto w-px self-stretch bg-gray-200 lg:flex" />
           <div className="flex-1 space-y-4 text-right">
             <div>
               <p className="flex items-center justify-end gap-1 text-xs text-gray-500">
