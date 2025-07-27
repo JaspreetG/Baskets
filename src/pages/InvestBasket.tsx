@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+
 import {
-  FaArrowLeft,
+  FaChevronLeft,
   FaRupeeSign,
   FaBox,
   FaMoneyBillWave,
@@ -11,6 +12,7 @@ import {
   FaBarcode,
   FaHashtag,
   FaTag,
+  FaPercentage,
 } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
 import { useDebounce } from "@/lib/useDebounce";
@@ -135,14 +137,20 @@ export default function InvestBasket() {
     <div className="flex min-h-screen flex-col justify-between bg-white text-gray-700">
       {/* Header */}
       <div className="mx-auto w-full max-w-2xl px-6 md:px-8">
-        <div className="mt-3 mb-6 flex items-center justify-between">
+        <div className="mt-3 mb-4 flex items-center justify-between">
           <Link
             to="/search"
-            className="mt-1 flex items-center gap-2 text-base font-medium text-gray-600 transition-colors hover:text-gray-800"
+            className="mt-1 flex items-center gap-2 text-base text-gray-500 hover:text-gray-700"
           >
-            <FaArrowLeft className="h-4 w-4" />
-            <span>basket</span>
+            <FaChevronLeft className="h-4 w-4" />
+            <span className="text-base text-gray-500">Create Basket</span>
           </Link>
+        </div>
+        <div className="mb-6 text-sm text-gray-600">
+          <p>
+            Enter your basket name and the amount you want to invest. We'll help
+            you distribute the amount across selected stocks.
+          </p>
         </div>
 
         <form
@@ -196,16 +204,9 @@ export default function InvestBasket() {
             </div>
           </div>
 
-          {stocks.length === 0 ? (
-            <Card className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center text-gray-500 shadow-sm ring-1 ring-gray-100">
-              <div className="flex flex-col items-center justify-center gap-3">
-                <FaBoxOpen className="h-8 w-8 text-gray-400" />
-                <div className="text-base font-medium">
-                  Add stocks to invest
-                </div>
-              </div>
-            </Card>
-          ) : (
+          <hr className="my-6 border-t border-gray-200" />
+
+          {stocks.length > 0 && (
             <>
               <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700">
                 <FaChartBar className="text-gray-400" />
@@ -237,7 +238,8 @@ export default function InvestBasket() {
                         </th>
                         <th className="px-5 py-3 text-center whitespace-nowrap">
                           <div className="flex items-center justify-center gap-2">
-                            % Allocation
+                            <FaPercentage className="h-3 w-3 text-gray-400" />
+                            Allocation
                           </div>
                         </th>
                       </tr>
@@ -285,19 +287,43 @@ export default function InvestBasket() {
                   </table>
                 </div>
               </Card>
+              <div className="mt-6 text-sm text-gray-600">
+                <p>
+                  Buy the suggested quantities from your preferred broker app,
+                  then return and click{" "}
+                  <span className="font-medium text-blue-600">Invest</span> to
+                  track your basket's performance.
+                </p>
+              </div>
             </>
           )}
-          {/* Invest Button & Total Investment */}
-          <div className="mt-12 flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex w-full justify-between text-base text-gray-600 sm:text-sm">
-              <span className="flex items-center gap-2 text-gray-500">
-                <FaBoxOpen className="text-gray-400" />
-                Total Investment
-              </span>
-              <span className="font-semibold text-gray-800 tabular-nums">
-                ₹{total.toFixed(2)}
-              </span>
+
+          {stocks.length === 0 && (
+            <div className="mt-8">
+              <Card className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center text-gray-500 shadow-sm ring-1 ring-gray-100">
+                <div className="flex flex-col items-center justify-center gap-3">
+                  <FaBoxOpen className="h-8 w-8 text-gray-400" />
+                  <div className="text-base font-medium">
+                    Add stocks to invest
+                  </div>
+                </div>
+              </Card>
             </div>
+          )}
+
+          <hr className="my-6 border-t border-gray-200" />
+
+          <div className="mt-8 flex items-center justify-between px-2 text-base font-medium text-gray-700 sm:px-4 sm:text-sm">
+            <span className="flex items-center gap-2 text-gray-600">
+              <FaBoxOpen className="text-gray-400" />
+              Total Investment
+            </span>
+            <span className="text-gray-900 tabular-nums">
+              ₹{total.toFixed(2)}
+            </span>
+          </div>
+
+          <div className="mt-8">
             <Button
               type="submit"
               disabled={
@@ -305,7 +331,7 @@ export default function InvestBasket() {
                 distributedStocks.length === 0 ||
                 total <= 0
               }
-              className="w-full rounded-lg bg-blue-600 px-6 py-4 text-base font-medium text-white shadow-md transition-all hover:bg-blue-700 hover:shadow-lg disabled:opacity-50 sm:max-w-xs"
+              className="w-full rounded-lg bg-blue-600 px-6 py-4 text-base font-medium text-white shadow-md transition-all hover:bg-blue-700 hover:shadow-lg disabled:opacity-50"
             >
               {(() => {
                 if (investMutation.status === "pending") return "Investing...";

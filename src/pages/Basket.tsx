@@ -1,6 +1,14 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaArrowLeft } from "react-icons/fa";
+import {
+  FaChevronLeft,
+  FaTrash,
+  FaCalendarAlt,
+  FaRupeeSign,
+  FaPercentage,
+  FaChartPie,
+  FaSignOutAlt,
+} from "react-icons/fa";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { globalStore } from "@/store";
@@ -164,10 +172,10 @@ export default function Basket() {
       <div className="mb-2">
         <Link
           to="/"
-          className="flex items-center gap-2 text-base font-medium text-gray-600 hover:text-gray-900"
+          className="mt-1 flex items-center gap-2 text-base text-gray-500 hover:text-gray-700"
         >
-          <FaArrowLeft className="h-4 w-4" />
-          <span>Back</span>
+          <FaChevronLeft className="h-4 w-4" />
+          <span className="text-base text-gray-500">Back</span>
         </Link>
       </div>
 
@@ -176,29 +184,37 @@ export default function Basket() {
         {allExited && (
           <Button
             variant="outline"
-            className="absolute top-6 right-6 h-8 rounded-full border-red-500 px-3 py-1 text-xs font-semibold text-red-600 shadow-sm hover:bg-red-50 hover:text-red-700 focus:ring-red-400"
+            className="absolute top-6 right-6 flex h-8 items-center gap-2 rounded-xl border-red-400 px-3 py-1 text-xs font-semibold text-red-500 shadow-sm transition-colors duration-200 hover:bg-red-50 hover:text-red-600 focus:ring-red-400"
             style={{ borderWidth: 1, minWidth: 0 }}
             onClick={() => setShowDeleteConfirm(true)}
           >
+            <FaTrash className="h-3 w-3" />
             Delete
           </Button>
         )}
         <h2 className="mb-1 text-lg font-semibold text-gray-900">
           {basket.name}
         </h2>
-        <p className="mb-4 text-xs font-medium text-gray-500">
+        <p className="mb-4 flex items-center gap-1 text-xs font-medium text-gray-500">
+          <FaCalendarAlt className="h-3 w-3 text-gray-400" />
           Invested on: {new Date(basket.created_at).toLocaleDateString()}
         </p>
         <div className="flex flex-col text-sm text-gray-700 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
           <div className="flex-1 space-y-4">
             <div>
-              <p className="text-xs text-gray-500">Invested</p>
+              <p className="flex items-center gap-1 text-xs text-gray-500">
+                <FaRupeeSign className="h-3 w-3 text-gray-400" />
+                Invested
+              </p>
               <p className="text-base font-medium text-gray-900">
                 ₹{invested.toLocaleString()}
               </p>
             </div>
             <div>
-              <p className="text-xs text-gray-500">Total Return</p>
+              <p className="flex items-center gap-1 text-xs text-gray-500">
+                <FaRupeeSign className="h-3 w-3 text-gray-400" />
+                Total Return
+              </p>
               <p
                 className={`text-base font-medium ${
                   totalReturn > 0
@@ -214,7 +230,10 @@ export default function Basket() {
             </div>
             {allExited && (
               <div>
-                <p className="text-xs text-gray-500">Exited on</p>
+                <p className="flex items-center gap-1 text-xs text-gray-500">
+                  <FaCalendarAlt className="h-3 w-3 text-gray-400" />
+                  Exited on
+                </p>
                 <p className="text-sm font-medium text-gray-800">
                   {(() => {
                     const dates = basket.stocks
@@ -227,15 +246,21 @@ export default function Basket() {
               </div>
             )}
           </div>
-          <div className="flex-1 space-y-4 border-t border-gray-100 sm:border-t-0 sm:border-l sm:pl-6">
-            <div className="sm:text-right">
-              <p className="text-xs text-gray-500">Current Value</p>
+          <div className="flex-1 space-y-4 border-t border-gray-100 pt-4 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-6 sm:text-right">
+            <div>
+              <p className="flex items-center justify-start gap-1 text-xs text-gray-500 sm:justify-end">
+                <FaRupeeSign className="h-3 w-3 text-gray-400" />
+                Current Value
+              </p>
               <p className="text-base font-medium text-gray-900">
                 ₹{currentValue.toLocaleString()}
               </p>
             </div>
-            <div className="sm:text-right">
-              <p className="text-xs text-gray-500">Return %</p>
+            <div>
+              <p className="flex items-center justify-start gap-1 text-xs text-gray-500 sm:justify-end">
+                <FaPercentage className="h-3 w-3 text-gray-400" />
+                Return
+              </p>
               <p
                 className={`text-base font-medium ${
                   returnPercent > 0
@@ -250,8 +275,11 @@ export default function Basket() {
               </p>
             </div>
             {allExited && (
-              <div className="sm:text-right">
-                <p className="text-xs text-gray-500">Days Invested</p>
+              <div>
+                <p className="flex items-center justify-start gap-1 text-xs text-gray-500 sm:justify-end">
+                  <FaCalendarAlt className="h-3 w-3 text-gray-400" />
+                  Days Invested
+                </p>
                 <p className="text-sm font-medium text-gray-800">
                   {(() => {
                     const investDate = new Date(
@@ -279,7 +307,8 @@ export default function Basket() {
 
       {/* Stock Breakdown */}
       <div className="rounded-2xl border border-gray-100 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.04)]">
-        <div className="border-b border-gray-100 px-5 py-4 text-base font-semibold text-gray-700">
+        <div className="flex items-center gap-2 border-b border-gray-100 px-5 py-4 text-base font-semibold text-gray-700">
+          <FaChartPie className="h-4 w-4 text-gray-500" />
           Stock Composition
         </div>
         <ul className="divide-y divide-gray-100">
@@ -302,20 +331,17 @@ export default function Basket() {
             const stockReturnPercent = stockInvested
               ? (stockReturn / stockInvested) * 100
               : 0;
-            // Color and sign logic: green for +, red for -, gray for 0; no sign for 0
-            let valueClass = "text-right font-light text-gray-500";
-            if (stockReturnPercent > 0)
-              valueClass = "text-right font-light text-green-600";
-            else if (stockReturnPercent < 0)
-              valueClass = "text-right font-light text-red-500";
+            // Always neutral color for value; only return percent is color-coded
+            const valueClass = "text-right font-light text-gray-800";
             let stockReturnPercentClass = "text-gray-500";
-            if (stockReturnPercent > 0)
+            // Use direct >= and <= logic for precision checks
+            if (stockReturnPercent >= 0.01)
               stockReturnPercentClass = "text-green-600";
-            else if (stockReturnPercent < 0)
+            else if (stockReturnPercent <= -0.01)
               stockReturnPercentClass = "text-red-500";
             let stockReturnPercentSign = "";
-            if (stockReturnPercent > 0) stockReturnPercentSign = "+";
-            else if (stockReturnPercent < 0) stockReturnPercentSign = "-";
+            if (stockReturnPercent >= 0.01) stockReturnPercentSign = "+";
+            else if (stockReturnPercent <= -0.01) stockReturnPercentSign = "-";
             return (
               <li
                 key={stock.symbol}
@@ -347,12 +373,29 @@ export default function Basket() {
         <Button
           onClick={() => setShowExitConfirm(true)}
           disabled={allExited || pendingExit}
-          className="w-full bg-red-600 px-5 py-3 text-base font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+          className="w-full bg-red-500 px-5 py-3 text-base font-semibold text-white transition hover:bg-red-600 disabled:opacity-50"
         >
           {(() => {
-            if (allExited) return "Exit taken";
-            if (pendingExit) return "Exiting...";
-            return "Exit Basket";
+            if (allExited)
+              return (
+                <span className="flex items-center justify-center gap-2">
+                  <FaSignOutAlt className="h-4 w-4" />
+                  Exit taken
+                </span>
+              );
+            if (pendingExit)
+              return (
+                <span className="flex items-center justify-center gap-2">
+                  <FaSignOutAlt className="h-4 w-4 animate-pulse" />
+                  Exiting...
+                </span>
+              );
+            return (
+              <span className="flex items-center justify-center gap-2">
+                <FaSignOutAlt className="h-4 w-4" />
+                Exit Basket
+              </span>
+            );
           })()}
         </Button>
       </div>

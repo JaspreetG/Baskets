@@ -277,12 +277,22 @@ const Dashboard = memo(function Dashboard() {
                   </svg>
                   XIRR
                 </div>
-                <div className="text-right text-sm font-medium text-gray-800">
+                <div
+                  className={`text-right text-sm font-medium ${
+                    xirr >= 0.01
+                      ? "text-green-600"
+                      : xirr <= -0.01
+                        ? "text-red-500"
+                        : "text-gray-500"
+                  }`}
+                >
                   {(() => {
                     const displayXirr = fixNegativeZero(xirr);
-                    if (displayXirr === 0) return "0.00%";
-                    if (displayXirr > 0) return `+${displayXirr.toFixed(2)}%`;
-                    return `-${Math.abs(displayXirr).toFixed(2)}%`;
+                    if (displayXirr >= 0.01)
+                      return `+${displayXirr.toFixed(2)}%`;
+                    if (displayXirr <= -0.01)
+                      return `-${Math.abs(displayXirr).toFixed(2)}%`;
+                    return "0.00%";
                   })()}
                 </div>
 
@@ -315,9 +325,25 @@ const Dashboard = memo(function Dashboard() {
                 >
                   {totalReturn > 0 ? "+" : totalReturn < 0 ? "-" : ""}₹
                   {Math.abs(totalReturn).toLocaleString()} (
-                  {totalInvested
-                    ? `${((totalReturn / totalInvested) * 100).toFixed(2)}%`
-                    : "0.00%"}
+                  <span
+                    className={
+                      totalReturn > 0
+                        ? "text-green-600"
+                        : totalReturn < 0
+                          ? "text-red-500"
+                          : "text-gray-500"
+                    }
+                  >
+                    {(() => {
+                      const percent = totalInvested
+                        ? (totalReturn / totalInvested) * 100
+                        : 0;
+                      if (percent >= 0.01) return `+${percent.toFixed(2)}%`;
+                      if (percent <= -0.01)
+                        return `-${Math.abs(percent).toFixed(2)}%`;
+                      return "0.00%";
+                    })()}
+                  </span>
                   )
                 </div>
               </div>
@@ -475,16 +501,31 @@ const Dashboard = memo(function Dashboard() {
                           <span className="text-xl font-medium text-gray-800 tabular-nums">
                             ₹{Math.round(basketSellValue).toLocaleString()}
                           </span>
-                          <span className="text-xs text-gray-500">
-                            {basketInvested
-                              ? (
-                                  ((basketSellValue - basketInvested) /
-                                    basketInvested) *
-                                  100
-                                ).toFixed(2)
-                              : "0.00"}
-                            %
-                          </span>
+                          {(() => {
+                            const percent = basketInvested
+                              ? ((basketSellValue - basketInvested) /
+                                  basketInvested) *
+                                100
+                              : 0;
+                            const percentColor =
+                              percent >= 0.01
+                                ? "text-green-600"
+                                : percent <= -0.01
+                                  ? "text-red-500"
+                                  : "text-gray-500";
+                            const sign =
+                              percent >= 0.01
+                                ? "+"
+                                : percent <= -0.01
+                                  ? "-"
+                                  : "";
+                            return (
+                              <span className={`text-xs ${percentColor}`}>
+                                {sign}
+                                {Math.abs(percent).toFixed(2)}%
+                              </span>
+                            );
+                          })()}
                         </div>
                       </div>
                     </Link>

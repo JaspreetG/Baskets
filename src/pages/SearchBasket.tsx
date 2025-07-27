@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, CheckCircle } from "lucide-react";
-import { FaArrowLeft } from "react-icons/fa";
+import { Plus } from "lucide-react";
+import { FaSearch, FaCheckCircle } from "react-icons/fa";
+import { FaChevronLeft } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "@/lib/useDebounce";
@@ -50,34 +51,35 @@ export default function SearchBasket() {
     <div className="mx-auto w-full max-w-2xl px-6 text-gray-700 md:px-8">
       <section className="mb-8 space-y-4">
         {/* Header */}
-        <div className="mt-3 mb-6 flex items-center justify-between">
+        <div className="mt-3 mb-6 flex items-center justify-start">
           <Link
             to="/"
-            className="flex items-center gap-2 text-base font-medium text-gray-600 transition-colors hover:text-gray-800"
-            style={{ marginLeft: 0 }}
+            className="mt-1 flex items-center gap-2 text-base text-gray-500 hover:text-gray-700"
           >
-            <FaArrowLeft className="h-4 w-4" />
-            <span>add stocks</span>
-          </Link>
-          <Link to="/invest">
-            <Button
-              variant="outline"
-              className="flex h-auto items-center gap-2 rounded-2xl border-2 border-blue-600 bg-white px-6 py-0.5 text-base font-medium tracking-wide text-blue-600 shadow-sm hover:bg-blue-50 hover:text-blue-700 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:outline-none"
-              style={{ letterSpacing: "0.04em" }}
-            >
-              <CheckCircle className="h-5 w-5 text-blue-600" />
-              Done
-            </Button>
+            <FaChevronLeft className="h-4 w-4" />
+            <span className="text-base text-gray-500">Add Stocks</span>
           </Link>
         </div>
+        <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-800">
+          <span className="text-blue-600">
+            <FaSearch className="inline-block h-5 w-5" />
+          </span>
+          Find & Add Stocks
+        </h2>
+        <p className="text-sm text-gray-500">
+          Search your favorite companies and tap the{" "}
+          <strong className="text-blue-600">+</strong> button to add them to
+          your basket. When you’re ready, hit{" "}
+          <strong className="text-blue-600">Done</strong> below to continue.
+        </p>
 
         {/* Search Bar */}
         <div className="relative">
-          <Search className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-gray-400" />
+          <FaSearch className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input
             type="text"
-            placeholder="search for stocks"
-            className="w-full rounded-xl border border-gray-300 bg-gray-50 py-3 pr-4 pl-12 text-base text-gray-800 placeholder:text-gray-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:outline-none"
+            placeholder="Search your favorite stocks..."
+            className="w-full rounded-lg border border-gray-200 bg-white py-3 pr-4 pl-12 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 focus:outline-none"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -87,7 +89,7 @@ export default function SearchBasket() {
       </section>
 
       {/* Stock List */}
-      <ul className="divide-y divide-gray-200 overflow-hidden rounded-xl bg-white shadow-md">
+      <ul className="relative z-20 divide-y divide-gray-200 overflow-hidden rounded-xl bg-white shadow-md">
         {(data ?? []).map((stock: Stock) => {
           const selected = isStockSelected(stock.ticker);
           return (
@@ -150,6 +152,17 @@ export default function SearchBasket() {
           );
         })}
       </ul>
+      {/* Sticky Done Button */}
+      <div className="pointer-events-none fixed bottom-6 left-0 z-10 w-full px-6 md:px-8">
+        <div className="pointer-events-auto mx-auto max-w-2xl">
+          <Link to="/invest">
+            <Button className="mb-10 inline-flex h-[40px] w-full items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700">
+              <FaCheckCircle className="h-4 w-4" />
+              Done
+            </Button>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
