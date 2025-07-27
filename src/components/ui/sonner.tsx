@@ -8,14 +8,19 @@ const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
-      className="toaster group"
+      className="toaster group slide-up"
       visibleToasts={1}
+      closeButton={false}
+      duration={3000}
       style={
         {
           "--normal-bg": "white",
           "--normal-text": "var(--popover-foreground)",
           "--normal-border": "var(--border)",
-          top: "3.5rem", // move down from top (56px)
+          position: "fixed",
+          top: "6rem",
+          bottom: "auto",
+          boxSizing: "border-box",
         } as React.CSSProperties
       }
       {...props}
