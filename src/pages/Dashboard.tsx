@@ -1,16 +1,15 @@
+import { Link } from "react-router-dom";
+import { useCallback, useEffect, useMemo, memo } from "react";
+
+import { supabase } from "@/lib/supabase";
+import { globalStore } from "@/store";
+
 // Helper to convert any date (string or Date) to IST ISO string (yyyy-mm-ddTHH:mm:ss.sssZ)
 function toISTISOString(date: Date | string): string {
   return new Date(
     new Date(date).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
   ).toISOString();
 }
-
-// Removed unused getISTDateString function
-import { Link } from "react-router-dom";
-import { useCallback, useEffect, useMemo, memo } from "react";
-
-import { supabase } from "@/lib/supabase";
-import { globalStore } from "@/store";
 
 // Utility for XIRR calculation
 // cashflows: array of { amount: number, date: string }, negative for investment, positive for return
@@ -25,7 +24,7 @@ function calculateXIRR(cashflows: { amount: number; date: string }[]): number {
   // Convert all dates to ms (always in IST)
   const flows = cashflows.map((c) => ({
     amount: c.amount,
-    date: new Date(toISTISOString(c.date)).getTime(),
+    date: new Date(c.date).getTime(),
   }));
   // Sort by date ascending
   flows.sort((a, b) => a.date - b.date);
@@ -163,7 +162,7 @@ const Dashboard = memo(function Dashboard() {
         if (qty && buyPrice && basket.created_at) {
           cashflows.push({
             amount: -1 * qty * buyPrice,
-            date: toISTISOString(basket.created_at),
+            date: basket.created_at,
           });
         }
         if (qty > 0) {
@@ -174,8 +173,8 @@ const Dashboard = memo(function Dashboard() {
             const sellDate =
               typeof stock.sell_date === "string" &&
               stock.sell_date.trim() !== ""
-                ? toISTISOString(stock.sell_date)
-                : toISTISOString(new Date());
+                ? stock.sell_date
+                : new Date().toISOString();
             if (sellPrice && sellDate) {
               cashflows.push({
                 amount: qty * sellPrice,
@@ -188,7 +187,7 @@ const Dashboard = memo(function Dashboard() {
             const ltpOrBuy = Number(stock.ltp ?? stock.buy_price ?? 0);
             cashflows.push({
               amount: qty * ltpOrBuy,
-              date: toISTISOString(new Date()),
+              date: new Date().toISOString(),
             });
             // For invested/return/holding: only include non-exited stocks
             basketInvested += qty * buyPrice;

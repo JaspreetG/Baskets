@@ -1,17 +1,3 @@
-// Helper to convert any date (string or Date) to IST date string (dd/mm/yyyy)
-function getISTDateString(date: Date | string): string {
-  const d = new Date(date);
-  const istDate = new Date(
-    d.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
-  );
-  return istDate.toLocaleDateString("en-GB");
-}
-// Helper to convert any date (string or Date) to IST ISO string (yyyy-mm-ddTHH:mm:ss.sssZ)
-function toISTISOString(date: Date | string): string {
-  return new Date(
-    new Date(date).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
-  ).toISOString();
-}
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -35,6 +21,23 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+// Convert any date (string or Date) to IST date string: dd/mm/yyyy
+function getISTDateString(date: Date | string): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Kolkata",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date(date));
+}
+
+// Convert any date (string or Date) to IST ISO string: yyyy-mm-ddTHH:mm:ss.sssZ
+function toISTISOString(date: Date | string): string {
+  const istDate = new Date(
+    new Date(date).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+  );
+  return istDate.toISOString();
+}
 
 export default function Basket() {
   const [pendingExit, setPendingExit] = useState(false);
@@ -130,7 +133,6 @@ export default function Basket() {
           (1000 * 60 * 60 * 24),
       );
     } else {
-      // Today in IST, truncated to 00:00
       const now = new Date();
       const todayIST = new Date(
         new Date(now).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
