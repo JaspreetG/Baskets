@@ -155,7 +155,11 @@ const Dashboard = memo(function Dashboard() {
         if (qty && buyPrice && basket.created_at) {
           cashflows.push({
             amount: -1 * qty * buyPrice,
-            date: basket.created_at,
+            date: new Date(
+              new Date(basket.created_at).toLocaleString("en-US", {
+                timeZone: "Asia/Kolkata",
+              }),
+            ).toISOString(),
           });
         }
         if (qty > 0) {
@@ -167,7 +171,11 @@ const Dashboard = memo(function Dashboard() {
               typeof stock.sell_date === "string" &&
               stock.sell_date.trim() !== ""
                 ? stock.sell_date
-                : new Date().toISOString();
+                : new Date(
+                    new Date().toLocaleString("en-US", {
+                      timeZone: "Asia/Kolkata",
+                    }),
+                  ).toISOString();
             if (sellPrice && sellDate) {
               cashflows.push({
                 amount: qty * sellPrice,
@@ -180,7 +188,11 @@ const Dashboard = memo(function Dashboard() {
             const ltpOrBuy = Number(stock.ltp ?? stock.buy_price ?? 0);
             cashflows.push({
               amount: qty * ltpOrBuy,
-              date: new Date().toISOString(),
+              date: new Date(
+                new Date().toLocaleString("en-US", {
+                  timeZone: "Asia/Kolkata",
+                }),
+              ).toISOString(),
             });
             // For invested/return/holding: only include non-exited stocks
             basketInvested += qty * buyPrice;

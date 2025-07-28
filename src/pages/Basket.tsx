@@ -299,27 +299,28 @@ export default function Basket() {
                 </p>
                 <p className="text-sm font-medium text-gray-800">
                   {(() => {
-                    function getISTDateString(date: Date): string {
+                    const getISTDateOnly = (d: Date): Date => {
+                      const ist = new Date(
+                        d.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+                      );
                       return new Date(
-                        date.toLocaleString("en-US", {
-                          timeZone: "Asia/Kolkata",
-                        }),
-                      )
-                        .toISOString()
-                        .split("T")[0];
-                    }
-                    const investIST = getISTDateString(
+                        ist.getFullYear(),
+                        ist.getMonth(),
+                        ist.getDate(),
+                      );
+                    };
+
+                    const investDate = getISTDateOnly(
                       new Date(basket.created_at),
                     );
                     const dates = basket.stocks
                       .map((s) => s.sell_date)
                       .filter((d) => d && typeof d === "string");
                     const latest = dates.sort().at(-1);
-                    const exitIST = latest
-                      ? getISTDateString(new Date(latest))
-                      : getISTDateString(new Date());
-                    const investDate = new Date(investIST);
-                    const exitDate = new Date(exitIST);
+                    const exitDate = latest
+                      ? getISTDateOnly(new Date(latest))
+                      : getISTDateOnly(new Date());
+
                     const diffInMs = exitDate.getTime() - investDate.getTime();
                     const diffInDays = Math.floor(
                       diffInMs / (1000 * 60 * 60 * 24),
