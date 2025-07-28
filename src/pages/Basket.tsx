@@ -312,7 +312,7 @@ export default function Basket() {
               <div>
                 <p className="flex items-center gap-1 text-xs text-gray-500">
                   <FaCalendarAlt className="h-3 w-3 text-gray-400" />
-                  Exited on
+                  Sold on
                 </p>
                 <p className="font-normal text-gray-800">{exitDateIST}</p>
               </div>
