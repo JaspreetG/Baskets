@@ -4,7 +4,6 @@ import Dashboard from "@/pages/Dashboard";
 import SearchBasket from "@/pages/SearchBasket";
 import InvestBasket from "@/pages/InvestBasket";
 import Basket from "@/pages/Basket";
-
 const routeMap = {
   "/": Dashboard,
   "/search": SearchBasket,
