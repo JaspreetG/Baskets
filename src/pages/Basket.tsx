@@ -1,14 +1,11 @@
 // Helper to format date in IST and output as "dd/mm/yyyy"
 function getISTDateString(date: Date): string {
-  const ist = new Date(
-    date.toLocaleString("en-US", {
-      timeZone: "Asia/Kolkata",
-    }),
-  );
-  const dd = String(ist.getDate()).padStart(2, "0");
-  const mm = String(ist.getMonth() + 1).padStart(2, "0");
-  const yyyy = ist.getFullYear();
-  return `${dd}/${mm}/${yyyy}`;
+  return date.toLocaleDateString("en-GB", {
+    timeZone: "Asia/Kolkata",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 }
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -133,7 +130,6 @@ export default function Basket() {
         exit_basket: {
           basket_id: basket!.id,
           stocks: stocksToExit,
-          sell_date: new Date().toISOString().split("T")[0],
         },
       };
       const { error } = await supabase.rpc("exit_basket", payload);

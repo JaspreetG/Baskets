@@ -167,7 +167,7 @@ const Dashboard = memo(function Dashboard() {
               typeof stock.sell_date === "string" &&
               stock.sell_date.trim() !== ""
                 ? stock.sell_date
-                : new Date().toISOString().split("T")[0];
+                : new Date().toISOString();
             if (sellPrice && sellDate) {
               cashflows.push({
                 amount: qty * sellPrice,
@@ -180,7 +180,7 @@ const Dashboard = memo(function Dashboard() {
             const ltpOrBuy = Number(stock.ltp ?? stock.buy_price ?? 0);
             cashflows.push({
               amount: qty * ltpOrBuy,
-              date: new Date().toISOString().split("T")[0],
+              date: new Date().toISOString(),
             });
             // For invested/return/holding: only include non-exited stocks
             basketInvested += qty * buyPrice;
