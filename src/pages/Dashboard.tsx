@@ -1,3 +1,9 @@
+// Helper to convert any date (string or Date) to IST ISO string (yyyy-mm-ddTHH:mm:ss.sssZ)
+function toISTISOString(date: Date | string): string {
+  return new Date(
+    new Date(date).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+  ).toISOString();
+}
 import { Link } from "react-router-dom";
 import { useCallback, useEffect, useMemo, memo } from "react";
 
@@ -17,11 +23,7 @@ function calculateXIRR(cashflows: { amount: number; date: string }[]): number {
   // Convert all dates to ms (always in IST)
   const flows = cashflows.map((c) => ({
     amount: c.amount,
-    date: new Date(
-      new Date(
-        new Date(c.date).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
-      ),
-    ).getTime(),
+    date: new Date(toISTISOString(c.date)).getTime(),
   }));
   // Sort by date ascending
   flows.sort((a, b) => a.date - b.date);
@@ -159,11 +161,7 @@ const Dashboard = memo(function Dashboard() {
         if (qty && buyPrice && basket.created_at) {
           cashflows.push({
             amount: -1 * qty * buyPrice,
-            date: new Date(
-              new Date(basket.created_at).toLocaleString("en-US", {
-                timeZone: "Asia/Kolkata",
-              }),
-            ).toISOString(),
+            date: toISTISOString(basket.created_at),
           });
         }
         if (qty > 0) {
@@ -174,16 +172,8 @@ const Dashboard = memo(function Dashboard() {
             const sellDate =
               typeof stock.sell_date === "string" &&
               stock.sell_date.trim() !== ""
-                ? new Date(
-                    new Date(stock.sell_date).toLocaleString("en-US", {
-                      timeZone: "Asia/Kolkata",
-                    }),
-                  ).toISOString()
-                : new Date(
-                    new Date().toLocaleString("en-US", {
-                      timeZone: "Asia/Kolkata",
-                    }),
-                  ).toISOString();
+                ? toISTISOString(stock.sell_date)
+                : toISTISOString(new Date());
             if (sellPrice && sellDate) {
               cashflows.push({
                 amount: qty * sellPrice,
@@ -196,11 +186,7 @@ const Dashboard = memo(function Dashboard() {
             const ltpOrBuy = Number(stock.ltp ?? stock.buy_price ?? 0);
             cashflows.push({
               amount: qty * ltpOrBuy,
-              date: new Date(
-                new Date().toLocaleString("en-US", {
-                  timeZone: "Asia/Kolkata",
-                }),
-              ).toISOString(),
+              date: toISTISOString(new Date()),
             });
             // For invested/return/holding: only include non-exited stocks
             basketInvested += qty * buyPrice;
@@ -386,22 +372,10 @@ const Dashboard = memo(function Dashboard() {
               [...baskets]
                 .sort((a, b) => {
                   const aDate = a.created_at
-                    ? new Date(
-                        new Date(
-                          new Date(a.created_at).toLocaleString("en-US", {
-                            timeZone: "Asia/Kolkata",
-                          }),
-                        ),
-                      ).getTime()
+                    ? new Date(toISTISOString(a.created_at)).getTime()
                     : 0;
                   const bDate = b.created_at
-                    ? new Date(
-                        new Date(
-                          new Date(b.created_at).toLocaleString("en-US", {
-                            timeZone: "Asia/Kolkata",
-                          }),
-                        ),
-                      ).getTime()
+                    ? new Date(toISTISOString(b.created_at)).getTime()
                     : 0;
                   return bDate - aDate;
                 })
@@ -438,23 +412,8 @@ const Dashboard = memo(function Dashboard() {
                     if (qty && buyPrice && basket.created_at) {
                       if (
                         !earliestDate ||
-                        new Date(
-                          new Date(
-                            new Date(basket.created_at).toLocaleString(
-                              "en-US",
-                              {
-                                timeZone: "Asia/Kolkata",
-                              },
-                            ),
-                          ),
-                        ) <
-                          new Date(
-                            new Date(
-                              new Date(earliestDate).toLocaleString("en-US", {
-                                timeZone: "Asia/Kolkata",
-                              }),
-                            ),
-                          )
+                        new Date(toISTISOString(basket.created_at)) <
+                          new Date(toISTISOString(earliestDate))
                       ) {
                         earliestDate = basket.created_at;
                       }
@@ -472,28 +431,10 @@ const Dashboard = memo(function Dashboard() {
                     });
 
                     const [d1Month, d1Day, d1Year] = formatter
-                      .format(
-                        new Date(
-                          new Date(
-                            new Date(earliestDate).toLocaleString("en-US", {
-                              timeZone: "Asia/Kolkata",
-                            }),
-                          ),
-                        ),
-                      )
+                      .format(new Date(toISTISOString(earliestDate)))
                       .split("/");
                     const [d2Month, d2Day, d2Year] = formatter
-                      .format(
-                        new Date(
-                          new Date(
-                            new Date(
-                              new Date().toLocaleString("en-US", {
-                                timeZone: "Asia/Kolkata",
-                              }),
-                            ),
-                          ),
-                        ),
-                      )
+                      .format(new Date(toISTISOString(new Date())))
                       .split("/");
 
                     const d1 = new Date(`${d1Year}-${d1Month}-${d1Day}`);

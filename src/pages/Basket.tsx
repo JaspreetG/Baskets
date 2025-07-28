@@ -1,3 +1,9 @@
+// Helper to convert any date (string or Date) to IST ISO string (yyyy-mm-ddTHH:mm:ss.sssZ)
+function toISTISOString(date: Date | string): string {
+  return new Date(
+    new Date(date).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+  ).toISOString();
+}
 // Helper to format date in IST and output as "dd/mm/yyyy"
 function getISTDateString(date: Date): string {
   return date.toLocaleDateString("en-GB", {
@@ -209,13 +215,7 @@ export default function Basket() {
             <span>
               Invested on:{" "}
               <span className="text-xs font-normal text-gray-800">
-                {getISTDateString(
-                  new Date(
-                    new Date(basket.created_at).toLocaleString("en-US", {
-                      timeZone: "Asia/Kolkata",
-                    }),
-                  ),
-                )}
+                {getISTDateString(new Date(toISTISOString(basket.created_at)))}
               </span>
             </span>
           </div>
@@ -263,13 +263,7 @@ export default function Basket() {
                       .filter((d) => d && typeof d === "string");
                     const latest = dates.sort().at(-1);
                     return latest
-                      ? getISTDateString(
-                          new Date(
-                            new Date(latest).toLocaleString("en-US", {
-                              timeZone: "Asia/Kolkata",
-                            }),
-                          ),
-                        )
+                      ? getISTDateString(new Date(toISTISOString(latest)))
                       : "-";
                   })()}
                 </p>
@@ -325,31 +319,15 @@ export default function Basket() {
                     };
 
                     const investDate = getISTDateOnly(
-                      new Date(
-                        new Date(basket.created_at).toLocaleString("en-US", {
-                          timeZone: "Asia/Kolkata",
-                        }),
-                      ),
+                      new Date(toISTISOString(basket.created_at)),
                     );
                     const dates = basket.stocks
                       .map((s) => s.sell_date)
                       .filter((d) => d && typeof d === "string");
                     const latest = dates.sort().at(-1);
                     const exitDate = latest
-                      ? getISTDateOnly(
-                          new Date(
-                            new Date(latest).toLocaleString("en-US", {
-                              timeZone: "Asia/Kolkata",
-                            }),
-                          ),
-                        )
-                      : getISTDateOnly(
-                          new Date(
-                            new Date().toLocaleString("en-US", {
-                              timeZone: "Asia/Kolkata",
-                            }),
-                          ),
-                        );
+                      ? getISTDateOnly(new Date(toISTISOString(latest)))
+                      : getISTDateOnly(new Date(toISTISOString(new Date())));
 
                     const diffInMs = exitDate.getTime() - investDate.getTime();
                     const diffInDays = Math.floor(
