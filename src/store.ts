@@ -2,6 +2,7 @@ import { create } from "zustand";
 
 // --- Basket and Portfolio Types ---
 export interface BasketStock {
+  sell_time: string | null | undefined;
   symbol: string;
   name: string;
   quantity: number;
@@ -50,7 +51,16 @@ export const globalStore = create<GlobalStore>((set) => ({
       basketStocks: state.basketStocks.filter((s) => s.symbol !== symbol),
     })),
   baskets: [],
-  setBaskets: (baskets) => set({ baskets }),
+  setBaskets: (baskets) =>
+    set({
+      baskets: baskets.map((b) => ({
+        ...b,
+        stocks: b.stocks.map((s) => ({
+          ...s,
+          sell_date: s.sell_time ?? s.sell_date ?? null,
+        })),
+      })),
+    }),
   updateBasketLTP: (basketId, symbol, ltp) =>
     set((state) => ({
       baskets: state.baskets.map((b) =>
