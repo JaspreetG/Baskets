@@ -52,18 +52,11 @@ function calculateXIRR(cashflows: { amount: number; date: string }[]): number {
   while (iter++ < maxIter) {
     const f = xnpv(rate);
     const df = dxnpv(rate);
-    if (Math.abs(f) < tol) return fixNegativeZero(rate * 100);
+    if (Math.abs(f) < tol) return rate * 100;
     if (df === 0) break;
     rate = rate - f / df;
   }
-  return fixNegativeZero(rate * 100);
-}
-
-// Utility to fix -0.00 to 0.00
-function fixNegativeZero(val: number): number {
-  // Treat -0 and very small values as 0 for display
-  if (Object.is(val, -0) || Math.abs(val) < 0.005) return 0;
-  return val;
+  return rate * 100;
 }
 
 const Dashboard = memo(function Dashboard() {
@@ -200,9 +193,14 @@ const Dashboard = memo(function Dashboard() {
       ret += basketNet - basketInvested;
     });
     let xirr = 0;
+    function fixExtremeXIRR(xirr: number): number {
+      if (!isFinite(xirr) || Math.abs(xirr) > 1000) return 0;
+      if (Object.is(xirr, -0) || Math.abs(xirr) < 0.005) return 0;
+      return xirr;
+    }
     if (cashflows.length > 1) {
       xirr = calculateXIRR(cashflows);
-      if (!isFinite(xirr)) xirr = 0;
+      xirr = fixExtremeXIRR(xirr);
     }
     return {
       totalNetValue: netValue,
@@ -294,7 +292,7 @@ const Dashboard = memo(function Dashboard() {
                   }`}
                 >
                   {(() => {
-                    const displayXirr = fixNegativeZero(xirr);
+                    const displayXirr = xirr;
                     if (displayXirr >= 0.01)
                       return `+${displayXirr.toFixed(2)}%`;
                     if (displayXirr <= -0.01)
