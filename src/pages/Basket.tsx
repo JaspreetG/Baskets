@@ -209,7 +209,13 @@ export default function Basket() {
             <span>
               Invested on:{" "}
               <span className="text-xs font-normal text-gray-800">
-                {getISTDateString(new Date(basket.created_at))}
+                {getISTDateString(
+                  new Date(
+                    new Date(basket.created_at).toLocaleString("en-US", {
+                      timeZone: "Asia/Kolkata",
+                    }),
+                  ),
+                )}
               </span>
             </span>
           </div>
@@ -256,7 +262,15 @@ export default function Basket() {
                       .map((s) => s.sell_date)
                       .filter((d) => d && typeof d === "string");
                     const latest = dates.sort().at(-1);
-                    return latest ? getISTDateString(new Date(latest)) : "-";
+                    return latest
+                      ? getISTDateString(
+                          new Date(
+                            new Date(latest).toLocaleString("en-US", {
+                              timeZone: "Asia/Kolkata",
+                            }),
+                          ),
+                        )
+                      : "-";
                   })()}
                 </p>
               </div>
@@ -311,15 +325,31 @@ export default function Basket() {
                     };
 
                     const investDate = getISTDateOnly(
-                      new Date(basket.created_at),
+                      new Date(
+                        new Date(basket.created_at).toLocaleString("en-US", {
+                          timeZone: "Asia/Kolkata",
+                        }),
+                      ),
                     );
                     const dates = basket.stocks
                       .map((s) => s.sell_date)
                       .filter((d) => d && typeof d === "string");
                     const latest = dates.sort().at(-1);
                     const exitDate = latest
-                      ? getISTDateOnly(new Date(latest))
-                      : getISTDateOnly(new Date());
+                      ? getISTDateOnly(
+                          new Date(
+                            new Date(latest).toLocaleString("en-US", {
+                              timeZone: "Asia/Kolkata",
+                            }),
+                          ),
+                        )
+                      : getISTDateOnly(
+                          new Date(
+                            new Date().toLocaleString("en-US", {
+                              timeZone: "Asia/Kolkata",
+                            }),
+                          ),
+                        );
 
                     const diffInMs = exitDate.getTime() - investDate.getTime();
                     const diffInDays = Math.floor(

@@ -14,10 +14,14 @@ function calculateXIRR(cashflows: { amount: number; date: string }[]): number {
   const hasNegative = cashflows.some((c) => c.amount < 0);
   if (!hasPositive || !hasNegative) return 0;
 
-  // Convert all dates to ms
+  // Convert all dates to ms (always in IST)
   const flows = cashflows.map((c) => ({
     amount: c.amount,
-    date: new Date(c.date).getTime(),
+    date: new Date(
+      new Date(
+        new Date(c.date).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+      ),
+    ).getTime(),
   }));
   // Sort by date ascending
   flows.sort((a, b) => a.date - b.date);
@@ -170,7 +174,11 @@ const Dashboard = memo(function Dashboard() {
             const sellDate =
               typeof stock.sell_date === "string" &&
               stock.sell_date.trim() !== ""
-                ? stock.sell_date
+                ? new Date(
+                    new Date(stock.sell_date).toLocaleString("en-US", {
+                      timeZone: "Asia/Kolkata",
+                    }),
+                  ).toISOString()
                 : new Date(
                     new Date().toLocaleString("en-US", {
                       timeZone: "Asia/Kolkata",
@@ -378,10 +386,22 @@ const Dashboard = memo(function Dashboard() {
               [...baskets]
                 .sort((a, b) => {
                   const aDate = a.created_at
-                    ? new Date(a.created_at).getTime()
+                    ? new Date(
+                        new Date(
+                          new Date(a.created_at).toLocaleString("en-US", {
+                            timeZone: "Asia/Kolkata",
+                          }),
+                        ),
+                      ).getTime()
                     : 0;
                   const bDate = b.created_at
-                    ? new Date(b.created_at).getTime()
+                    ? new Date(
+                        new Date(
+                          new Date(b.created_at).toLocaleString("en-US", {
+                            timeZone: "Asia/Kolkata",
+                          }),
+                        ),
+                      ).getTime()
                     : 0;
                   return bDate - aDate;
                 })
@@ -418,7 +438,23 @@ const Dashboard = memo(function Dashboard() {
                     if (qty && buyPrice && basket.created_at) {
                       if (
                         !earliestDate ||
-                        new Date(basket.created_at) < new Date(earliestDate)
+                        new Date(
+                          new Date(
+                            new Date(basket.created_at).toLocaleString(
+                              "en-US",
+                              {
+                                timeZone: "Asia/Kolkata",
+                              },
+                            ),
+                          ),
+                        ) <
+                          new Date(
+                            new Date(
+                              new Date(earliestDate).toLocaleString("en-US", {
+                                timeZone: "Asia/Kolkata",
+                              }),
+                            ),
+                          )
                       ) {
                         earliestDate = basket.created_at;
                       }
@@ -436,10 +472,28 @@ const Dashboard = memo(function Dashboard() {
                     });
 
                     const [d1Month, d1Day, d1Year] = formatter
-                      .format(new Date(earliestDate))
+                      .format(
+                        new Date(
+                          new Date(
+                            new Date(earliestDate).toLocaleString("en-US", {
+                              timeZone: "Asia/Kolkata",
+                            }),
+                          ),
+                        ),
+                      )
                       .split("/");
                     const [d2Month, d2Day, d2Year] = formatter
-                      .format(new Date())
+                      .format(
+                        new Date(
+                          new Date(
+                            new Date(
+                              new Date().toLocaleString("en-US", {
+                                timeZone: "Asia/Kolkata",
+                              }),
+                            ),
+                          ),
+                        ),
+                      )
                       .split("/");
 
                     const d1 = new Date(`${d1Year}-${d1Month}-${d1Day}`);
