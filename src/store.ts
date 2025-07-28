@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 // --- Basket and Portfolio Types ---
 export interface BasketStock {
-  sell_time: string | null | undefined;
+  sell_time?: string | null;
   symbol: string;
   name: string;
   quantity: number;
