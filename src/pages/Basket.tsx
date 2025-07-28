@@ -1,17 +1,16 @@
+// Helper to convert any date (string or Date) to IST date string (dd/mm/yyyy)
+function getISTDateString(date: Date | string): string {
+  const d = new Date(date);
+  const istDate = new Date(
+    d.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+  );
+  return istDate.toLocaleDateString("en-GB");
+}
 // Helper to convert any date (string or Date) to IST ISO string (yyyy-mm-ddTHH:mm:ss.sssZ)
 function toISTISOString(date: Date | string): string {
   return new Date(
     new Date(date).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
   ).toISOString();
-}
-// Helper to format date in IST and output as "dd/mm/yyyy"
-function getISTDateString(date: Date): string {
-  return date.toLocaleDateString("en-GB", {
-    timeZone: "Asia/Kolkata",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
 }
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -60,6 +59,8 @@ export default function Basket() {
   // Calculate values
   let totalBuyValue = 0;
   let totalSellValue = 0;
+  let earliestDate: string | undefined = undefined;
+  let latestSellDate: string | undefined = undefined;
   basket.stocks.forEach((s) => {
     const qty = s.quantity ?? 0;
     const buyPrice = s.buy_price ?? 0;
@@ -69,6 +70,30 @@ export default function Basket() {
       ? Number(s.sell_price)
       : Number(s.ltp ?? s.buy_price ?? 0);
     totalSellValue += qty * sellOrLtp;
+    // Find earliest buy date
+    if (qty && buyPrice && basket.created_at) {
+      if (
+        !earliestDate ||
+        new Date(toISTISOString(basket.created_at)) <
+          new Date(toISTISOString(earliestDate))
+      ) {
+        earliestDate = basket.created_at;
+      }
+    }
+    // Find latest sell date if available
+    if (
+      typeof s.sell_date === "string" &&
+      s.sell_date.trim() !== "" &&
+      !isNaN(Date.parse(s.sell_date))
+    ) {
+      if (
+        !latestSellDate ||
+        new Date(toISTISOString(s.sell_date)) >
+          new Date(toISTISOString(latestSellDate))
+      ) {
+        latestSellDate = s.sell_date;
+      }
+    }
   });
   const invested = totalBuyValue;
   const currentValue = totalSellValue;
@@ -84,6 +109,39 @@ export default function Basket() {
           s.sell_date.trim() !== "" &&
           !isNaN(Date.parse(s.sell_date)),
       ));
+
+  // Consistent IST date formatting for invested on, exit date, and days invested
+  const investedOnDateIST =
+    earliestDate !== undefined ? getISTDateString(earliestDate) : "-";
+  const exitDateIST =
+    latestSellDate !== undefined ? getISTDateString(latestSellDate) : "-";
+
+  // Days invested calculation (using IST, truncating both dates to 00:00 IST)
+  let investedDays = 0;
+  if (earliestDate) {
+    // Always use IST, truncate to date only before subtracting
+    const investedDateIST = new Date(toISTISOString(earliestDate));
+    investedDateIST.setHours(0, 0, 0, 0);
+    if (latestSellDate) {
+      const sellDateIST = new Date(toISTISOString(latestSellDate));
+      sellDateIST.setHours(0, 0, 0, 0);
+      investedDays = Math.floor(
+        (sellDateIST.getTime() - investedDateIST.getTime()) /
+          (1000 * 60 * 60 * 24),
+      );
+    } else {
+      // Today in IST, truncated to 00:00
+      const now = new Date();
+      const todayIST = new Date(
+        new Date(now).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+      );
+      todayIST.setHours(0, 0, 0, 0);
+      investedDays = Math.floor(
+        (todayIST.getTime() - investedDateIST.getTime()) /
+          (1000 * 60 * 60 * 24),
+      );
+    }
+  }
 
   async function handleExitBasket() {
     if (pendingExit || allExited) return;
@@ -215,7 +273,7 @@ export default function Basket() {
             <span>
               Invested on:{" "}
               <span className="text-xs font-normal text-gray-800">
-                {getISTDateString(new Date(toISTISOString(basket.created_at)))}
+                {investedOnDateIST}
               </span>
             </span>
           </div>
@@ -256,17 +314,7 @@ export default function Basket() {
                   <FaCalendarAlt className="h-3 w-3 text-gray-400" />
                   Exited on
                 </p>
-                <p className="font-normal text-gray-800">
-                  {(() => {
-                    const dates = basket.stocks
-                      .map((s) => s.sell_date)
-                      .filter((d) => d && typeof d === "string");
-                    const latest = dates.sort().at(-1);
-                    return latest
-                      ? getISTDateString(new Date(toISTISOString(latest)))
-                      : "-";
-                  })()}
-                </p>
+                <p className="font-normal text-gray-800">{exitDateIST}</p>
               </div>
             )}
           </div>
@@ -306,35 +354,7 @@ export default function Basket() {
                   Days Invested
                 </p>
                 <p className="text-sm font-medium text-gray-800">
-                  {(() => {
-                    const getISTDateOnly = (d: Date): Date => {
-                      const ist = new Date(
-                        d.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
-                      );
-                      return new Date(
-                        ist.getFullYear(),
-                        ist.getMonth(),
-                        ist.getDate(),
-                      );
-                    };
-
-                    const investDate = getISTDateOnly(
-                      new Date(toISTISOString(basket.created_at)),
-                    );
-                    const dates = basket.stocks
-                      .map((s) => s.sell_date)
-                      .filter((d) => d && typeof d === "string");
-                    const latest = dates.sort().at(-1);
-                    const exitDate = latest
-                      ? getISTDateOnly(new Date(toISTISOString(latest)))
-                      : getISTDateOnly(new Date(toISTISOString(new Date())));
-
-                    const diffInMs = exitDate.getTime() - investDate.getTime();
-                    const diffInDays = Math.floor(
-                      diffInMs / (1000 * 60 * 60 * 24),
-                    );
-                    return `${diffInDays} days`;
-                  })()}
+                  {investedDays} days
                 </p>
               </div>
             )}

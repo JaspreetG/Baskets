@@ -4,6 +4,8 @@ function toISTISOString(date: Date | string): string {
     new Date(date).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
   ).toISOString();
 }
+
+// Removed unused getISTDateString function
 import { Link } from "react-router-dom";
 import { useCallback, useEffect, useMemo, memo } from "react";
 
@@ -420,32 +422,43 @@ const Dashboard = memo(function Dashboard() {
                     }
                   });
 
-                  // Days since investment (calendar days, ignore time)
+                  // Days since investment (IST, date precision: truncates to 00:00 IST for today and created date)
                   let daysSince = 0;
                   if (earliestDate) {
-                    const formatter = new Intl.DateTimeFormat("en-US", {
-                      timeZone: "Asia/Kolkata",
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                    });
-
-                    const [d1Month, d1Day, d1Year] = formatter
-                      .format(new Date(toISTISOString(earliestDate)))
-                      .split("/");
-                    const [d2Month, d2Day, d2Year] = formatter
-                      .format(new Date(toISTISOString(new Date())))
-                      .split("/");
-
-                    const d1 = new Date(`${d1Year}-${d1Month}-${d1Day}`);
-                    const d2 = new Date(`${d2Year}-${d2Month}-${d2Day}`);
-
-                    const diffInMs = d2.getTime() - d1.getTime();
-                    daysSince = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+                    // Use IST and compare date parts only (ignore time for user-friendly "days ago" display)
+                    // createdAtIST preserves full timestamp, but we set hours to 0 for date truncation.
+                    const createdAtIST = new Date(toISTISOString(earliestDate));
+                    const todayIST = new Date(
+                      new Date().toLocaleDateString("en-US", {
+                        timeZone: "Asia/Kolkata",
+                      }),
+                    );
+                    // Compare truncated dates in IST
+                    const diffMs =
+                      todayIST.getTime() -
+                      new Date(createdAtIST).setHours(0, 0, 0, 0);
+                    const diffDays = diffMs / (1000 * 60 * 60 * 24);
+                    daysSince = Math.floor(diffDays);
                   }
 
-                  // Monthly return
-                  const months = daysSince / 30;
+                  // Monthly return (duration in months, use precise IST timestamps for full holding period)
+                  // For monthly return, use full timestamp for accuracy
+                  const sellDates = basket.stocks
+                    .map((stock) =>
+                      stock.sell_date && !isNaN(Date.parse(stock.sell_date))
+                        ? new Date(toISTISOString(stock.sell_date)).getTime()
+                        : undefined,
+                    )
+                    .filter((d): d is number => d !== undefined);
+                  const finalDate = sellDates.length
+                    ? Math.max(...sellDates)
+                    : new Date(toISTISOString(new Date())).getTime();
+                  const startDate = earliestDate
+                    ? new Date(toISTISOString(earliestDate)).getTime()
+                    : finalDate;
+                  // Use 30.4375 as average days per month.
+                  const months =
+                    (finalDate - startDate) / (1000 * 60 * 60 * 24 * 30.4375);
                   const monthlyReturn =
                     months > 0
                       ? (basketSellValue - basketInvested) / months
@@ -486,9 +499,11 @@ const Dashboard = memo(function Dashboard() {
                                 d="M12 6v6l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                               />
                             </svg>
-                            {daysSince === 0
-                              ? "Invested today"
-                              : `Invested ${daysSince} days ago`}
+                            {earliestDate
+                              ? daysSince === 0
+                                ? `Invested today`
+                                : `Invested ${daysSince} days ago`
+                              : "N/A"}
                           </span>
                           <span className="inline-flex items-center gap-1 text-xs text-gray-500">
                             <svg
