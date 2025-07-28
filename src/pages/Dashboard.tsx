@@ -413,23 +413,26 @@ const Dashboard = memo(function Dashboard() {
                     }
                   });
 
-                  // Helper to get YYYY-MM-DD in IST
-                  function getISTDateString(date: Date): string {
-                    return new Date(
-                      date.toLocaleString("en-US", {
-                        timeZone: "Asia/Kolkata",
-                      }),
-                    )
-                      .toISOString()
-                      .split("T")[0];
-                  }
-                  // Days since investment (calendar days, ignore time, in IST)
+                  // Days since investment (calendar days, ignore time)
                   let daysSince = 0;
                   if (earliestDate) {
-                    const istToday = getISTDateString(new Date());
-                    const istCreated = getISTDateString(new Date(earliestDate));
-                    const d1 = new Date(istCreated);
-                    const d2 = new Date(istToday);
+                    const formatter = new Intl.DateTimeFormat("en-US", {
+                      timeZone: "Asia/Kolkata",
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                    });
+
+                    const [d1Month, d1Day, d1Year] = formatter
+                      .format(new Date(earliestDate))
+                      .split("/");
+                    const [d2Month, d2Day, d2Year] = formatter
+                      .format(new Date())
+                      .split("/");
+
+                    const d1 = new Date(`${d1Year}-${d1Month}-${d1Day}`);
+                    const d2 = new Date(`${d2Year}-${d2Month}-${d2Day}`);
+
                     const diffInMs = d2.getTime() - d1.getTime();
                     daysSince = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
                   }
