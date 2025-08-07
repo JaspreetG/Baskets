@@ -2,6 +2,21 @@
 
 ---
 
+<p align="center">
+  <img src="Images/b0.jpeg" width="25%" style="margin: 10px;" />
+  <img src="Images/b1.jpg" width="25%" style="margin: 10px;" />
+  <img src="Images/b2.jpg" width="25%" style="margin: 10px;" />
+  <br/>
+  <img src="Images/b3.jpg" width="25%" style="margin: 10px;" />
+  <img src="Images/b4.jpg" width="25%" style="margin: 10px;" />
+  <img src="Images/b5.jpg" width="25%" style="margin: 10px;" />
+  <br/>
+  <img src="Images/b6.jpg" width="25%" style="margin: 10px;" />
+  <img src="Images/b7.jpg" width="25%" style="margin: 10px;" />
+  <img src="Images/b8.jpg" width="25%" style="margin: 10px;" />
+
+</p>
+
 **🔗 Live Demo:** [https://baskiit.vercel.app](https://baskiit.vercel.app)
 
 ---
@@ -21,7 +36,7 @@ It is designed to simplify investing for everyone — from casual explorers to l
 - **Real-time pricing**: Integrated securely via Supabase Edge Functions.
 - **Exit anytime**: Auto-record sell price/date on exit.
 - **Google Login**: Secure OAuth 2.0 login with persistent sessions.
-- **PWA Support**: Fully installable, mobile-first app with offline access.
+- **PWA Support**: Fully installable, mobile-first app
 - **Modern UI**: Animations, toasts, transitions, empty states, and loaders.
 
 ---
@@ -39,12 +54,12 @@ It is designed to simplify investing for everyone — from casual explorers to l
 **Backend & Data**
 
 - Supabase: Auth, Postgres, Edge Functions
-- PostgreSQL RPC functions for nested JSON retrieval from 3+ relational tables
+- PostgreSQL RPC functions for nested JSON retrieval from 3 relational tables
 - Edge Functions for secure, performant third-party API access
 
 **Extras**
 
-- Full PWA support (installable/offline)
+- Full PWA support (installable)
 - SEO-friendly HTML
 
 ---
