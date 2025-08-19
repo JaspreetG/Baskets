@@ -12,6 +12,7 @@ import {
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { globalStore } from "@/store";
+import type { Basket } from "@/store";
 import {
   Dialog,
   DialogContent,
@@ -49,11 +50,86 @@ export default function Basket() {
   const searchParams = new URLSearchParams(location.search);
   const basketId = searchParams.get("id") ?? location.state?.basketId;
   const baskets = globalStore((s) => s.baskets);
-  const basket = baskets.find((b) => b.id === basketId);
+  const setBaskets = globalStore((s) => s.setBaskets);
+  const updateBasketLTP = globalStore((s) => s.updateBasketLTP);
+  // Coerce both sides to string because backend may return numeric ids
+  const basket = baskets.find((b) => String(b.id) === String(basketId));
 
   useEffect(() => {
     hasMounted.current = true;
   }, []);
+
+  // If store is empty (e.g. on page refresh), fetch baskets from backend
+  useEffect(() => {
+    async function ensureBaskets() {
+      try {
+        if (!baskets || baskets.length === 0) {
+          const { data } = await supabase.rpc("get_all_baskets_with_stocks");
+          if (data && Array.isArray(data)) {
+            // data matches server Basket shape; cast to the local Basket type
+            setBaskets(data as unknown as Basket[]);
+            // after setting baskets, we'll fetch LTPs for the current basket below in a separate effect
+          }
+        }
+      } catch {
+        // ignore fetch errors here; UI will handle empty state
+      }
+    }
+    ensureBaskets();
+  }, [baskets, setBaskets]);
+
+  // Fetch LTPs for this basket if they are missing (happens on refresh when dashboard didn't run)
+  const [ltpFetched, setLtpFetched] = useState(false);
+  useEffect(() => {
+    if (!basket || ltpFetched) return;
+    // Only fetch if at least one non-exited stock lacks ltp
+    const needsLtp = basket.stocks.some((s) => {
+      const isExited =
+        s.sell_price != null &&
+        typeof s.sell_date === "string" &&
+        s.sell_date.trim() !== "" &&
+        !isNaN(Date.parse(s.sell_date));
+      return !isExited && (s.ltp == null || s.ltp === 0);
+    });
+    if (!needsLtp) {
+      setLtpFetched(true);
+      return;
+    }
+
+    (async () => {
+      try {
+        await Promise.all(
+          basket.stocks.map(async (stock) => {
+            // skip exited stocks
+            const isExited =
+              stock.sell_price != null &&
+              typeof stock.sell_date === "string" &&
+              stock.sell_date.trim() !== "" &&
+              !isNaN(Date.parse(stock.sell_date));
+            if (isExited) return;
+            try {
+              const res = await fetch(
+                `https://zmvzrrggaergcqytqmil.supabase.co/functions/v1/ltp-api?symbol=${stock.symbol}`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+                  },
+                },
+              );
+              const data = await res.json();
+              if (data && typeof data.ltp === "number") {
+                updateBasketLTP(String(basket.id), stock.symbol, data.ltp);
+              }
+            } catch {
+              // ignore individual failures
+            }
+          }),
+        );
+      } finally {
+        setLtpFetched(true);
+      }
+    })();
+  }, [basket, updateBasketLTP, ltpFetched]);
 
   if (!basketId || !basket) {
     return null;
