@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 
 export default function App() {
   return (
-    <div className="flex min-h-screen flex-col font-sans relative overflow-hidden bg-[#fbfbfd]">
+    <div className="flex min-h-screen flex-col font-sans relative overflow-x-hidden bg-[#fbfbfd]">
       {/* Apple Liquid Glass Ambient Backdrops */}
       <div className="pointer-events-none fixed inset-0 z-0 flex items-center justify-center overflow-hidden">
         <div className="absolute top-0 -left-[10%] h-[700px] w-[700px] rounded-full bg-blue-100/50 blur-[120px] mix-blend-multiply opacity-60 animate-pulse" style={{ animationDuration: '8s' }}></div>
