@@ -1,11 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  FaChevronLeft,
-  FaRupeeSign,
-  FaBoxOpen,
-} from "react-icons/fa";
-import { useEffect, useRef, useState } from "react";
+import { FaBoxOpen } from "react-icons/fa";
+import { useEffect, useState } from "react";
 import { useDebounce } from "@/lib/useDebounce";
 import { useMutation } from "@tanstack/react-query";
 import type { PostgrestSingleResponse } from "@supabase/postgrest-js";
@@ -127,23 +122,23 @@ export default function InvestBasket() {
   return (
     <div className="flex flex-col justify-between text-slate-800">
       {/* Header */}
-      <div className="mx-auto w-full max-w-3xl px-4 py-8 md:px-8 space-y-8">
-        <div className="mb-4 flex items-center justify-between">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10 relative z-10">
+        <div className="mb-8 sm:mb-12 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tighter text-slate-900 font-heading">
+              Configure.
+            </h1>
+            <p className="text-sm sm:text-base font-medium text-slate-500 mt-1">
+              Set target basket parameters.
+            </p>
+          </div>
           <Link
             to="/search"
-            className="flex h-10 items-center justify-center w-fit gap-2 rounded-full bg-slate-100 px-4 text-sm font-semibold text-slate-600 transition-all hover:bg-slate-200 hover:text-slate-900 hover:shadow-sm"
+            className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center shrink-0 rounded-full bg-white/60 backdrop-blur-xl border border-white/60 shadow-[0_4px_20px_rgba(0,0,0,0.03)] text-slate-500 transition-all hover:bg-white/80 hover:text-slate-900 hover:-translate-y-0.5"
+            title="Back to Search"
           >
-            <FaChevronLeft className="h-3.5 w-3.5" />
-            <span>Find Stocks</span>
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
           </Link>
-        </div>
-        <div className="mb-6 sm:mb-8">
-          <h2 className="mb-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-heading">
-            Configure Your Basket
-          </h2>
-          <p className="text-sm sm:text-base text-slate-500">
-            Determine the custom distribution logic for exactly how your funds will be invested.
-          </p>
         </div>
 
         <form
@@ -156,40 +151,34 @@ export default function InvestBasket() {
             investMutation.mutate({ basketName, distributedStocks });
           }}
         >
-            <div className="mb-8 space-y-6 rounded-[2.5rem] bg-white/70 backdrop-blur-3xl p-5 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white/80">
-              <div className="flex flex-col gap-2">
-                <label
-                  htmlFor="basketName"
-                  className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-widest pl-1"
-                >
-                  Basket Name
+            <div className="mb-10 overflow-hidden rounded-[2.5rem] bg-white/60 backdrop-blur-3xl shadow-[0_8px_40px_rgba(0,0,0,0.04)] border border-white/80">
+              <div className="flex items-center px-6 py-5 sm:px-8 border-b border-slate-900/5 transition-colors focus-within:bg-white/40">
+                <label htmlFor="basketName" className="w-24 sm:w-40 text-[11px] sm:text-[13px] font-bold uppercase tracking-widest text-slate-400 shrink-0">
+                  Name
                 </label>
-                <Input
+                <input
                   id="basketName"
                   type="text"
                   placeholder="e.g. Long Term Tech"
                   value={basketName}
                   onChange={(e) => setBasketName(e.target.value)}
-                  className="w-full rounded-2xl border border-white/50 bg-white/40 backdrop-blur-md px-4 py-3.5 sm:py-4 text-sm sm:text-base placeholder:text-slate-400 focus:bg-white/80 focus:border-blue-400 focus:ring-4 focus:ring-blue-400/20 focus:shadow-[0_0_30px_rgba(59,130,246,0.15)] transition-all shadow-sm"
+                  className="w-full bg-transparent text-[16px] sm:text-lg font-bold text-slate-900 placeholder:text-slate-300 focus:outline-none"
                 />
               </div>
               
-              <div className="flex flex-col gap-2">
-                <label
-                  htmlFor="amount"
-                  className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-widest pl-1"
-                >
-                  Investment Amount
+              <div className="flex items-center px-6 py-5 sm:px-8 transition-colors focus-within:bg-white/40">
+                <label htmlFor="amount" className="w-24 sm:w-40 text-[11px] sm:text-[13px] font-bold uppercase tracking-widest text-slate-400 shrink-0">
+                  Investment
                 </label>
-                <div className="relative w-full">
-                  <FaRupeeSign className="absolute top-1/2 left-4 -translate-y-1/2 text-slate-400 text-sm" />
-                  <Input
+                <div className="flex items-center flex-1">
+                  <span className="text-slate-400 font-bold pr-1.5 sm:pr-2 text-[16px] sm:text-lg">₹</span>
+                  <input
                     id="amount"
                     type="number"
                     placeholder="0.00"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="w-full rounded-2xl border border-white/50 bg-white/40 backdrop-blur-md pl-10 pr-4 py-3.5 sm:py-4 text-sm sm:text-base font-medium tabular-nums placeholder:text-slate-400 focus:bg-white/80 focus:border-blue-400 focus:ring-4 focus:ring-blue-400/20 focus:shadow-[0_0_30px_rgba(59,130,246,0.15)] transition-all shadow-sm"
+                    className="w-full bg-transparent text-[16px] sm:text-lg font-bold tabular-nums text-slate-900 placeholder:text-slate-300 focus:outline-none"
                   />
                 </div>
               </div>
@@ -281,14 +270,14 @@ export default function InvestBasket() {
           )}
 
           <div className="mt-12 mb-24 space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between rounded-[2.5rem] bg-black/80 backdrop-blur-2xl text-white p-6 shadow-[0_12px_40px_rgba(0,0,0,0.2)] border border-white/10 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 mix-blend-overlay"></div>
-              <div className="relative z-10 w-full flex flex-col sm:flex-row items-start sm:items-center justify-between">
-                <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-slate-300 mb-1 sm:mb-0">
-                  Total Value
+            <div className="flex flex-col sm:flex-row items-center justify-between rounded-[2.5rem] bg-white/70 backdrop-blur-3xl p-6 sm:p-8 shadow-[0_20px_60px_rgba(0,0,0,0.08)] border border-white/80 text-center sm:text-left">
+              <div className="flex flex-col items-center sm:items-start mb-6 sm:mb-0">
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">
+                  Total Investment Value
                 </span>
-                <span className="text-2xl sm:text-3xl font-extrabold tabular-nums font-heading">
-                  ₹{total.toFixed(2)}
+                <span className="text-3xl sm:text-4xl font-black tabular-nums font-heading text-slate-900">
+                  <span className="text-slate-400 font-sans font-medium text-2xl mr-1">₹</span>
+                  {total.toFixed(2)}
                 </span>
               </div>
             </div>

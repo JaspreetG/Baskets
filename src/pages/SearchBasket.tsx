@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 import { FaSearch, FaCheckCircle } from "react-icons/fa";
-import { FaChevronLeft } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "@/lib/useDebounce";
@@ -48,45 +47,46 @@ export default function SearchBasket() {
     basketStocks.some((s) => s.symbol === ticker);
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-8 md:px-8">
-      <section className="mb-10 space-y-4">
-        {/* Header */}
-        <div className="mb-8 flex items-center justify-start">
+    <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10 relative z-10">
+        <div className="mb-8 sm:mb-12 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tighter text-slate-900 font-heading">
+              Search.
+            </h1>
+            <p className="text-sm sm:text-base font-medium text-slate-500 mt-1">
+              Find assets to build your basket.
+            </p>
+          </div>
           <Link
             to="/"
-            className="flex h-10 items-center justify-center gap-2 rounded-full bg-slate-100 px-4 text-sm font-semibold text-slate-600 transition-all hover:bg-slate-200 hover:text-slate-900 hover:shadow-sm"
+            className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center shrink-0 rounded-full bg-white/60 backdrop-blur-xl border border-white/60 shadow-[0_4px_20px_rgba(0,0,0,0.03)] text-slate-500 transition-all hover:bg-white/80 hover:text-slate-900 hover:-translate-y-0.5"
+            title="Back to Dashboard"
           >
-            <FaChevronLeft className="h-3.5 w-3.5" />
-            <span>Dashboard</span>
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
           </Link>
         </div>
-        <h2 className="flex items-center gap-2 sm:gap-3 text-xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-heading">
-          <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-600 ring-1 ring-primary-100/50 shadow-sm">
-            <FaSearch className="h-4 w-4" />
-          </div>
-          Find Stocks
-        </h2>
         <p className="text-base text-slate-500 leading-relaxed font-medium">
           Search your favorite companies and tap the{" "}
           <strong className="font-bold text-primary-600">+</strong> button to add them to
-          your basket. When you’re ready, hit{" "}
-          <strong className="font-bold text-primary-600">Done</strong> below to proceed.
+          your basket. When you’re ready, hit <strong className="font-bold text-primary-600">Dashboard</strong> to go back.
         </p>
 
-        {/* Search Bar */}
-        <div className="relative mt-8">
-          <FaSearch className="pointer-events-none absolute top-1/2 left-5 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <Input
-            type="text"
-            placeholder="Search symbols or company names..."
-            className="w-full rounded-[1.5rem] border border-white/50 bg-white/50 py-4 sm:py-5 pr-4 sm:pr-5 pl-10 sm:pl-11 text-sm sm:text-base font-medium text-slate-800 shadow-[0_8px_30px_rgba(0,0,0,0.04)] backdrop-blur-2xl placeholder:text-slate-400 focus:bg-white/80 focus:border-blue-400 focus:ring-4 focus:ring-blue-400/20 focus:shadow-[0_0_30px_rgba(59,130,246,0.15)] focus:outline-none transition-all"
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-            }}
-          />
+        <div className="sticky top-0 z-20 -mx-4 mb-6 bg-transparent px-4 py-4 backdrop-blur-2xl sm:static sm:mx-0 sm:bg-transparent sm:p-0">
+          <div className="relative">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-5 sm:pl-6">
+              <FaSearch className="h-5 w-5 sm:h-6 sm:w-6 text-slate-400" />
+            </div>
+            <Input
+              type="text"
+              placeholder="Search symbols or company names..."
+              className="w-full rounded-full border border-white/80 bg-white/60 py-5 sm:py-6 pr-6 pl-14 sm:pl-16 text-[16px] sm:text-lg font-bold text-slate-900 shadow-[0_12px_40px_rgba(0,0,0,0.06)] backdrop-blur-3xl placeholder:text-slate-400 focus:bg-white/90 focus:border-white focus:ring-4 focus:ring-white/50 focus:outline-none transition-all"
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+              }}
+            />
+          </div>
         </div>
-      </section>
 
       {/* Stock List */}
       <ul className="relative z-20 space-y-3 pb-32">

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useCallback, useEffect, useMemo, memo } from "react";
 
 import { supabase } from "@/lib/supabase";
+import { LogOut } from "lucide-react";
 import { globalStore } from "@/store";
 
 // Helper to convert any date (string or Date) to IST ISO string (yyyy-mm-ddTHH:mm:ss.sssZ)
@@ -212,8 +213,22 @@ const Dashboard = memo(function Dashboard() {
   }, [baskets, isExited]);
 
   return (
-    <>
-      <div className="mx-auto max-w-5xl space-y-10 px-4 py-8 sm:px-6 lg:px-8">
+    <div className="min-h-screen pb-20">
+      <div className="mx-auto max-w-5xl space-y-8 sm:space-y-12 px-4 py-8 sm:px-6 lg:px-8 sm:py-10 relative">
+        {/* Apple Inline Header */}
+        <div className="flex items-center justify-between px-1 sm:px-0">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tighter text-slate-900 font-heading">
+            Basket.
+          </h1>
+          <button
+            onClick={() => supabase.auth.signOut()}
+            className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/60 backdrop-blur-xl border border-white/60 shadow-[0_4px_20px_rgba(0,0,0,0.03)] text-slate-500 transition-all hover:bg-white/80 hover:text-slate-900 hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:-translate-y-0.5"
+            title="Sign Out"
+          >
+            <LogOut className="h-4 w-4 sm:h-5 sm:w-5" />
+          </button>
+        </div>
+
         {/* Portfolio Summary and Baskets Section */}
         <section className="space-y-4">
           <div className="relative">
@@ -499,7 +514,7 @@ const Dashboard = memo(function Dashboard() {
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
         </svg>
       </Link>
-    </>
+    </div>
   );
 });
 export default Dashboard;

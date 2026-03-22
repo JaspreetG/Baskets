@@ -1,5 +1,4 @@
 import AnimatedLayout from "@/components/AnimatedLayout";
-import Header from "@/components/Header";
 
 export default function App() {
   return (
@@ -12,8 +11,7 @@ export default function App() {
       </div>
 
       <div className="relative z-10 flex min-h-screen flex-col">
-        <Header />
-        <main className="flex-1">
+        <main className="flex-1 pb-10">
           <AnimatedLayout />
         </main>
       </div>
