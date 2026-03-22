@@ -5,11 +5,12 @@
   --font-sans: "Inter", system-ui, sans-serif;
   --font-heading: "Plus Jakarta Sans", system-ui, sans-serif;
   
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
+  --color-primary-50: #f4f6ff;
+  --color-primary-100: #e4ebff;
+  --color-primary-400: #6b8cff;
+  --color-primary-500: #4169E1; /* Royal Blue */
+  --color-primary-600: #294dc1;
+  --color-primary-700: #1c3687;
 
   --color-accent-400: #34d399;
   --color-accent-500: #10b981;
@@ -25,5 +26,29 @@
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
+  }
+}
+
+@layer components {
+  .slide-invest {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    outline: none;
+  }
+  .slide-invest::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: white url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%234169E1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>') center/24px no-repeat;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+    cursor: grab;
+    transition: transform 0.1s;
+  }
+  .slide-invest:active::-webkit-slider-thumb {
+    cursor: grabbing;
+    transform: scale(0.95);
   }
 }

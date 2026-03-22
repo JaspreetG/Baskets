@@ -218,7 +218,7 @@ const Dashboard = memo(function Dashboard() {
         {/* Apple Inline Header */}
         <div className="flex items-center justify-between px-1 sm:px-0">
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tighter text-slate-900 font-heading">
-            Basket.
+            Portfolio.
           </h1>
           <button
             onClick={() => supabase.auth.signOut()}
@@ -324,12 +324,23 @@ const Dashboard = memo(function Dashboard() {
         </section>
 
         {/* Baskets Section */}
-        <section className="mt-12 mb-20 space-y-6">
-          <div className="flex items-center justify-between mb-5 sm:mb-6">
-            <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 font-heading">
-              Your Baskets
-            </h3>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 ring-1 ring-slate-200/70">{baskets.length} Total</span>
+        <section className="mt-12 sm:mt-16 mb-20 space-y-6">
+          <div className="flex items-center justify-between pb-4 sm:pb-5 border-b border-slate-900/10 mb-6 sm:mb-8">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-heading">
+                Baskets
+              </h3>
+              <span className="rounded-md bg-slate-100 px-2 sm:px-2.5 py-0.5 sm:py-1 text-[11px] sm:text-xs font-bold text-slate-500 ring-1 ring-slate-200/70 relative top-[1px]">{baskets.length} Total</span>
+            </div>
+            <Link
+              to="/search"
+              className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-primary-50 text-primary-600 transition-all hover:bg-primary-100 hover:scale-105"
+              title="Create New Basket"
+            >
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3" className="h-4 w-4 sm:h-5 sm:w-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+            </Link>
           </div>
 
           <div className="grid gap-5 sm:grid-cols-1 md:grid-cols-2">
@@ -504,16 +515,6 @@ const Dashboard = memo(function Dashboard() {
           </div>
         </section>
       </div>
-
-      <Link
-        to="/search"
-        className="fixed right-6 bottom-8 z-50 flex h-16 w-16 items-center justify-center rounded-full bg-primary-600 text-white shadow-[0_8px_25px_rgba(59,130,246,0.3)] transition-all hover:scale-105 hover:bg-primary-500 hover:shadow-[0_12px_35px_rgba(59,130,246,0.4)]"
-        title="Create New Basket"
-      >
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="h-8 w-8">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-        </svg>
-      </Link>
     </div>
   );
 });

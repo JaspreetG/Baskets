@@ -1,6 +1,5 @@
-import { Button } from "@/components/ui/button";
 import { FaBoxOpen } from "react-icons/fa";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useDebounce } from "@/lib/useDebounce";
 import { useMutation } from "@tanstack/react-query";
 import type { PostgrestSingleResponse } from "@supabase/postgrest-js";
@@ -10,17 +9,13 @@ import { globalStore } from "@/store";
 import { toast } from "sonner";
 
 export default function InvestBasket() {
-  const hasMounted = useRef(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    hasMounted.current = true;
-  }, []);
 
   const basketStocks = globalStore((state) => state.basketStocks);
 
   const [basketName, setBasketName] = useState("");
   const [amount, setAmount] = useState("");
+  const [sliderValue, setSliderValue] = useState(0);
   // Debounce amount input to avoid immediate calculations (using custom hook)
   const debouncedAmount = useDebounce(amount, 400);
 
@@ -190,62 +185,35 @@ export default function InvestBasket() {
                 Allocation Preview
               </h3>
               
-              <div className="overflow-x-auto rounded-[2.5rem] bg-white/60 backdrop-blur-3xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/60">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-[11px] sm:text-xs text-slate-500 font-medium whitespace-nowrap">
-                    <thead className="bg-slate-50/80 border-b border-slate-100">
-                      <tr className="text-left text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
-                        <th className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">Symbol</th>
-                        <th className="px-2 sm:px-6 py-3 sm:py-4 text-center whitespace-nowrap">Qty</th>
-                        <th className="px-2 sm:px-6 py-3 sm:py-4 text-center whitespace-nowrap">Price</th>
-                        <th className="px-3 sm:px-6 py-3 sm:py-4 text-right whitespace-nowrap">Alloc</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50 text-sm font-medium text-slate-700">
-                      {stocks.map((stock, idx) => {
-                        const dist = distributedStocks.find(
-                          (s) => s.code === stock.code,
-                        );
-                        const quantity = dist
-                          ? dist.quantity
-                          : (stock.quantity ?? 0);
-                        const ltp = Number(stock.ltp) || 0;
-                        const allocation =
-                          total > 0 ? ((quantity * ltp) / total) * 100 : 0;
+              <div className="overflow-hidden rounded-[2.5rem] bg-white/60 backdrop-blur-3xl shadow-[0_8px_40px_rgba(0,0,0,0.04)] border border-white/80">
+                <div className="divide-y divide-slate-900/5">
+                  {stocks.map((stock, idx) => {
+                    const dist = distributedStocks.find((s) => s.code === stock.code);
+                    const quantity = dist ? dist.quantity : (stock.quantity ?? 0);
+                    const ltp = Number(stock.ltp) || 0;
+                    const allocation = total > 0 ? ((quantity * ltp) / total) * 100 : 0;
 
-                        return (
-                          <tr
-                            key={stock.code + "-" + idx}
-                            className="bg-white transition-colors hover:bg-slate-50/50"
-                          >
-                            <td className="px-3 sm:px-6 py-3 sm:py-4">
-                              <div className="text-sm sm:text-base font-bold text-slate-900 font-heading max-w-[80px] sm:max-w-[none] truncate">
-                                {stock.code}
-                              </div>
-                              {stock.name && stock.name !== stock.code && (
-                                <div className="mt-0.5 max-w-[80px] sm:max-w-[140px] truncate text-[11px] sm:text-[13px] text-slate-500 font-normal">
-                                  {stock.name}
-                                </div>
-                              )}
-                            </td>
-                            <td className="px-2 sm:px-6 py-3 sm:py-4 text-center tabular-nums text-sm sm:text-base">
-                              <span className="inline-flex items-center justify-center min-w-[1.5rem] sm:min-w-[2rem] rounded-md bg-slate-100 px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-slate-800 font-semibold ring-1 ring-slate-200/50">
-                                {quantity}
-                              </span>
-                            </td>
-                            <td className="px-2 sm:px-6 py-3 sm:py-4 text-center tabular-nums text-xs sm:text-sm text-slate-600 whitespace-nowrap">
-                              ₹{ltp.toFixed(2)}
-                            </td>
-                            <td className="px-3 sm:px-6 py-3 sm:py-4 text-right tabular-nums whitespace-nowrap">
-                              <span className="rounded pl-1.5 pr-1.5 py-0.5 text-[10px] sm:text-xs font-bold text-primary-700 bg-primary-50">
-                                {allocation.toFixed(1)}%
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                    return (
+                      <div key={stock.code + "-" + idx} className="flex items-center justify-between px-6 py-5 sm:px-8 hover:bg-white/40 transition-colors">
+                        <div className="flex flex-col">
+                          <span className="text-base sm:text-lg font-black tracking-tight text-slate-900 font-heading">
+                            {stock.code}
+                          </span>
+                          <span className="text-xs sm:text-[13px] font-medium text-slate-500 mt-0.5">
+                            {quantity} Shares <span className="mx-1.5 opacity-40">•</span> ₹{ltp.toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <span className="text-base sm:text-lg font-black text-slate-900 tabular-nums font-heading tracking-tight">
+                            ₹{(quantity * ltp).toFixed(2)}
+                          </span>
+                          <span className="text-[11px] sm:text-xs font-bold text-slate-400 mt-1 uppercase tracking-wider">
+                            {allocation.toFixed(1)}% Alloc
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
               
@@ -269,35 +237,52 @@ export default function InvestBasket() {
             </div>
           )}
 
-          <div className="mt-12 mb-24 space-y-6">
-            <div className="flex flex-col sm:flex-row items-center justify-between rounded-[2.5rem] bg-white/70 backdrop-blur-3xl p-6 sm:p-8 shadow-[0_20px_60px_rgba(0,0,0,0.08)] border border-white/80 text-center sm:text-left">
-              <div className="flex flex-col items-center sm:items-start mb-6 sm:mb-0">
-                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">
-                  Total Investment Value
+          <div className="mt-12 mb-24">
+            <div className="relative overflow-hidden rounded-[2.5rem] bg-white/70 backdrop-blur-3xl border border-white/80 shadow-[0_12px_40px_rgba(0,0,0,0.06)] p-6 sm:p-10">
+              
+              <div className="flex items-center justify-between mb-8 sm:mb-10 border-b border-slate-900/5 pb-6 sm:pb-8">
+                <span className="text-xs sm:text-sm font-bold uppercase tracking-widest text-slate-500">
+                  Total Amount
                 </span>
-                <span className="text-3xl sm:text-4xl font-black tabular-nums font-heading text-slate-900">
-                  <span className="text-slate-400 font-sans font-medium text-2xl mr-1">₹</span>
+                <span className="text-3xl sm:text-4xl font-black tabular-nums font-heading tracking-tight text-slate-900">
+                  <span className="text-slate-400 font-sans font-medium text-xl sm:text-2xl mr-1">₹</span>
                   {total.toFixed(2)}
                 </span>
               </div>
-            </div>
 
-            <Button
-              type="submit"
-              disabled={
-                investMutation.status === "pending" ||
-                distributedStocks.length === 0 ||
-                total <= 0
-              }
-              className="w-full rounded-full bg-primary-600 px-6 py-6 text-[17px] font-bold text-white shadow-[0_8px_25px_rgba(59,130,246,0.25)] transition-all hover:-translate-y-0.5 hover:bg-primary-500 hover:shadow-[0_12px_30px_rgba(59,130,246,0.35)] disabled:opacity-50 disabled:hover:translate-y-0"
-            >
-              {(() => {
-                if (investMutation.status === "pending") return "Processing Investment...";
-                if (distributedStocks.length === 0 || total <= 0)
-                  return "Add stocks to invest";
-                return "Confirm Investment Details";
-              })()}
-            </Button>
+              {/* iOS Slide to Pay Button */}
+              <div className={`relative h-16 sm:h-[4.5rem] w-full rounded-full bg-slate-900/5 ring-1 ring-inset ring-slate-900/10 shadow-inner overflow-hidden transition-all ${investMutation.isPending || distributedStocks.length === 0 || total <= 0 ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                   <span className="font-extrabold tracking-widest text-slate-500 uppercase text-[11px] sm:text-xs pl-8 opacity-90">
+                     {investMutation.status === "pending" ? "Processing..." : "Slide to Invest"}
+                   </span>
+                </div>
+                
+                {/* Visual Fill Trail */}
+                <div className="absolute top-0 left-0 bottom-0 bg-primary-500/20 pointer-events-none transition-all" style={{ width: `${sliderValue}%` }}></div>
+                
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={sliderValue}
+                  onChange={(e) => {
+                     const v = parseInt(e.target.value);
+                     setSliderValue(v);
+                     if (v >= 95 && !investMutation.isPending) {
+                       setSliderValue(100);
+                       // We trigger form submit bypassing generic button click
+                       const form = e.target.closest("form");
+                       if (form) setTimeout(() => form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true })), 150);
+                     }
+                  }}
+                  onMouseUp={() => { if(sliderValue < 100) setSliderValue(0); }}
+                  onTouchEnd={() => { if(sliderValue < 100) setSliderValue(0); }}
+                  className="slide-invest absolute inset-0 w-full h-full m-0 px-1"
+                  disabled={investMutation.status === "pending" || distributedStocks.length === 0 || total <= 0}
+                />
+              </div>
+            </div>
           </div>
         </form>
       </div>
