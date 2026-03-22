@@ -379,50 +379,56 @@ const Dashboard = memo(function Dashboard() {
                     daysSince = Math.floor(diffMs / (1000 * 60 * 60 * 24));
                   }
 
+                  // CAGR calculation: ((endValue / beginValue) ^ (1 / years)) - 1
+                  const yearsHeld = daysSince > 0 ? daysSince / 365 : 0;
+                  const cagr = basketInvested > 0 && basketSellValue > 0 && yearsHeld > 0
+                    ? (Math.pow(basketSellValue / basketInvested, 1 / yearsHeld) - 1) * 100
+                    : null;
+
+                  const totalReturn = basketSellValue - basketInvested;
+                  const returnPct = basketInvested ? (totalReturn / basketInvested) * 100 : 0;
+                  const isPositive = returnPct >= 0.01;
+                  const isNegative = returnPct <= -0.01;
+                  const returnColor = isPositive ? "text-emerald-600" : isNegative ? "text-rose-500" : "text-slate-500";
+                  const sign = isPositive ? "+" : isNegative ? "-" : "";
+
                   return (
-                      <Link
-                        key={basket.id}
-                        to={`/basket?id=${basket.id}`}
-                        state={{ basketId: basket.id }}
-                        className="group block w-full outline-none"
-                      >
-                        <div className="flex items-center justify-between rounded-[1.5rem] bg-white/60 backdrop-blur-2xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/60 transition-all duration-300 hover:bg-white/90 hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] active:-translate-y-0.5">
-                          <div className="flex items-center gap-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-50 text-primary-600 shadow-inner shrink-0 group-hover:bg-primary-600 group-hover:text-white transition-colors duration-300">
-                               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="h-6 w-6">
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                               </svg>
-                            </div>
-                            <div className="flex flex-col">
-                               <span className="text-base sm:text-lg font-extrabold text-slate-900 font-heading truncate max-w-[140px] sm:max-w-[200px]" title={basket.name}>
-                                 {basket.name}
-                               </span>
-                               <span className="text-xs sm:text-[13px] font-medium text-slate-500 mt-0.5">
-                                 {basket.stocks.length} assets <span className="mx-1 opacity-50">•</span> {earliestDate ? (daysSince === 0 ? "Today" : `${daysSince}d active`) : "N/A"}
-                               </span>
-                            </div>
-                          </div>
-                          
-                          <div className="flex flex-col items-end">
-                            <span className="text-base sm:text-lg font-bold text-slate-900 tabular-nums font-heading tracking-tight">
-                              ₹{Math.round(basketSellValue).toLocaleString()}
+                    <Link
+                      key={basket.id}
+                      to={`/basket?id=${basket.id}`}
+                      state={{ basketId: basket.id }}
+                      className="group block w-full outline-none"
+                    >
+                      <div className="flex items-center justify-between rounded-[1.5rem] bg-white/60 backdrop-blur-2xl px-5 py-4 sm:px-6 sm:py-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/60 transition-all duration-300 hover:bg-white/90 hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] active:-translate-y-0.5">
+                        {/* Left: name + metadata */}
+                        <div className="flex flex-col min-w-0 pr-4">
+                          <span className="text-base sm:text-[17px] font-extrabold text-slate-900 font-heading truncate" title={basket.name}>
+                            {basket.name}
+                          </span>
+                          <span className="text-xs sm:text-[13px] font-medium text-slate-500 mt-0.5">
+                            {basket.stocks.length} stocks
+                            {daysSince > 0 && <><span className="mx-1.5 opacity-40">·</span>{daysSince}d held</>}
+                          </span>
+                        </div>
+
+                        {/* Right: value + return + cagr */}
+                        <div className="flex flex-col items-end shrink-0">
+                          <span className="text-base sm:text-[17px] font-black text-slate-900 tabular-nums font-heading tracking-tight">
+                            ₹{Math.round(basketSellValue).toLocaleString()}
+                          </span>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className={`text-[11px] sm:text-xs font-bold tabular-nums ${returnColor}`}>
+                              {sign}₹{Math.abs(Math.round(totalReturn)).toLocaleString()} ({sign}{Math.abs(returnPct).toFixed(1)}%)
                             </span>
-                            {(() => {
-                              const percent = basketInvested ? ((basketSellValue - basketInvested) / basketInvested) * 100 : 0;
-                              const isPositive = percent >= 0.01;
-                              const isNegative = percent <= -0.01;
-                              const textColor = isPositive ? "text-emerald-600" : isNegative ? "text-rose-500" : "text-slate-500";
-                              const sign = isPositive ? "+" : isNegative ? "-" : "";
-                              
-                              return (
-                                <span className={`mt-0.5 text-[11px] sm:text-xs font-bold uppercase tracking-widest ${textColor}`}>
-                                  {sign}{Math.abs(percent).toFixed(2)}%
-                                </span>
-                              );
-                            })()}
+                            {cagr !== null && Math.abs(cagr) < 9999 && (
+                              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400 border-l border-slate-200 pl-2">
+                                {cagr >= 0 ? "+" : ""}{cagr.toFixed(1)}% CAGR
+                              </span>
+                            )}
                           </div>
                         </div>
-                      </Link>
+                      </div>
+                    </Link>
                   );
                 })
             ) : (
