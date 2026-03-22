@@ -317,140 +317,138 @@ export default function Basket() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-8 px-6 py-8 text-sm text-gray-800">
+    <div className="mx-auto w-full max-w-4xl space-y-10 px-4 py-8 md:px-8 text-slate-800">
       {/* Back Button */}
-      <div className="mb-2">
+      <div className="mb-6 flex items-center justify-between">
         <Link
           to="/"
-          className="mt-1 flex items-center gap-2 text-base text-gray-500 hover:text-gray-700"
+          className="flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-slate-800"
         >
-          <FaChevronLeft className="h-4 w-4" />
-          <span className="text-base text-gray-500">Back</span>
+          <FaChevronLeft className="h-3.5 w-3.5" />
+          <span>Dashboard</span>
         </Link>
-      </div>
-
-      {/* Performance Summary */}
-      <div className="relative rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
         {allExited && (
           <Button
             variant="outline"
-            className="absolute top-3 right-3 flex h-8 items-center gap-2 rounded-xl border-red-400 px-3 py-1 text-xs font-semibold text-red-500 shadow-sm transition-colors duration-200 hover:bg-red-50 hover:text-red-600 focus:ring-red-400"
-            style={{ borderWidth: 1, minWidth: 0 }}
+            className="flex h-9 items-center gap-2 rounded-xl border-rose-200 bg-rose-50 px-4 text-xs font-bold text-rose-600 transition-all duration-300 hover:bg-rose-100 hover:text-rose-700 hover:border-rose-300 focus:ring-4 focus:ring-rose-100"
             onClick={() => setShowDeleteConfirm(true)}
           >
-            <FaTrash className="h-3 w-3" />
-            Delete
+            <FaTrash className="h-3.5 w-3.5" />
+            Delete Basket
           </Button>
         )}
-        <h2 className="mb-1 text-base font-semibold text-gray-900 sm:text-lg">
-          {basket.name}
-        </h2>
-        <div className="mb-4 text-xs font-medium text-gray-500">
-          <div className="flex items-center gap-1">
-            <FaCalendarAlt className="h-3 w-3 text-gray-400" />
-            <span>
-              Invested on:{" "}
-              <span className="text-xs font-normal text-gray-800">
-                {investedOnDateIST}
-              </span>
-            </span>
+      </div>
+
+      {/* Performance Summary */}
+      <div className="relative overflow-hidden rounded-[2.5rem] bg-white p-8 md:p-12 shadow-[0_8px_40px_rgb(0,0,0,0.04)] ring-1 ring-slate-200/80">
+        <div className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-primary-50/50 blur-[80px]"></div>
+        
+        <div className="relative z-10">
+          <div className="mb-10">
+            <h2 className="mb-4 text-4xl font-bold tracking-tight text-slate-900 font-heading">
+              {basket.name}
+            </h2>
+            <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-500">
+              <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-1.5 ring-1 ring-slate-200/50">
+                <FaCalendarAlt className="h-4 w-4 text-slate-400" />
+                <span>
+                  Invested: <strong className="text-slate-700">{investedOnDateIST}</strong>
+                </span>
+              </div>
+              {allExited && (
+                <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-1.5 ring-1 ring-slate-200/50">
+                  <FaCalendarAlt className="h-4 w-4 text-slate-400" />
+                  <span>
+                    Sold: <strong className="text-slate-700">{exitDateIST}</strong>
+                  </span>
+                </div>
+              )}
+              {allExited && (
+                 <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-1.5 ring-1 ring-slate-200/50">
+                  <FaCalendarAlt className="h-4 w-4 text-slate-400" />
+                  <span>
+                    Duration: <strong className="text-slate-700">{investedDays} days</strong>
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
-          <div className="mt-4 h-px w-full bg-gray-200" />
-        </div>
-        <div className="flex flex-wrap justify-between gap-x-6 gap-y-4 text-sm text-gray-700">
-          <div className="flex-1 space-y-4">
-            <div>
-              <p className="flex items-center gap-1 text-xs text-gray-500">
-                <FaRupeeSign className="h-3 w-3 text-gray-400" />
+
+          <div className="grid gap-8 border-t border-slate-100 pt-10 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="space-y-2">
+              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500">
+                <div className="flex h-6 w-6 items-center justify-center rounded-md bg-slate-100 text-slate-400">
+                  <FaRupeeSign size={10} />
+                </div>
                 Invested
               </p>
-              <p className="text-base font-medium text-gray-900">
+              <p className="text-2xl font-bold text-slate-900 tabular-nums">
                 ₹{invested.toLocaleString()}
               </p>
             </div>
-            <div>
-              <p className="flex items-center gap-1 text-xs text-gray-500">
-                <FaRupeeSign className="h-3 w-3 text-gray-400" />
-                Total Return
+            
+            <div className="space-y-2">
+              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500">
+                <div className="flex h-6 w-6 items-center justify-center rounded-md bg-slate-100 text-slate-400">
+                  <FaRupeeSign size={10} />
+                </div>
+                {allExited ? "Final Value" : "Current Value"}
               </p>
-              <p
-                className={`text-base font-medium ${
-                  totalReturn > 0
-                    ? "text-green-600"
-                    : totalReturn < 0
-                      ? "text-red-500"
-                      : "text-gray-500"
-                }`}
-              >
-                {totalReturn > 0 ? "+" : totalReturn < 0 ? "-" : ""}₹
-                {Math.abs(totalReturn).toLocaleString()}
-              </p>
-            </div>
-            {allExited && (
-              <div>
-                <p className="flex items-center gap-1 text-xs text-gray-500">
-                  <FaCalendarAlt className="h-3 w-3 text-gray-400" />
-                  Sold on
-                </p>
-                <p className="font-normal text-gray-800">{exitDateIST}</p>
-              </div>
-            )}
-          </div>
-          {/* Divider for large enough space */}
-          <div className="flex-1 space-y-4 text-right">
-            <div>
-              <p className="flex items-center justify-end gap-1 text-xs text-gray-500">
-                <FaRupeeSign className="h-3 w-3 text-gray-400" />
-                Current Value
-              </p>
-              <p className="text-base font-medium text-gray-900">
+              <p className="text-2xl font-bold text-slate-900 tabular-nums">
                 ₹{currentValue.toLocaleString()}
               </p>
             </div>
-            <div>
-              <p className="flex items-center justify-end gap-1 text-xs text-gray-500">
-                <FaPercentage className="h-3 w-3 text-gray-400" />
-                Return
+
+            <div className="space-y-2 lg:col-span-2">
+              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500">
+                <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary-50 text-primary-400">
+                  <FaPercentage size={10} />
+                </div>
+                Total Return
               </p>
-              <p
-                className={`text-base font-medium ${
-                  returnPercent > 0
-                    ? "text-green-600"
-                    : returnPercent < 0
-                      ? "text-red-500"
-                      : "text-gray-500"
-                }`}
-              >
-                {returnPercent > 0 ? "+" : returnPercent < 0 ? "-" : ""}
-                {Math.abs(returnPercent).toFixed(2)}%
-              </p>
-            </div>
-            {allExited && (
-              <div>
-                <p className="flex items-center justify-end gap-1 text-xs text-gray-500">
-                  <FaCalendarAlt className="h-3 w-3 text-gray-400" />
-                  Days Invested
+              <div className="flex items-center gap-3">
+                <p
+                  className={`text-2xl font-bold tabular-nums ${
+                    totalReturn > 0
+                      ? "text-accent-600"
+                      : totalReturn < 0
+                        ? "text-rose-500"
+                        : "text-slate-900"
+                  }`}
+                >
+                  {totalReturn > 0 ? "+" : totalReturn < 0 ? "-" : ""}₹
+                  {Math.abs(totalReturn).toLocaleString()}
                 </p>
-                <p className="text-sm font-medium text-gray-800">
-                  {investedDays} days
-                </p>
+                <div
+                  className={`rounded-full px-3 py-1 text-sm font-bold ${
+                    returnPercent > 0
+                      ? "bg-accent-50 text-accent-700 ring-1 ring-accent-200/50"
+                      : returnPercent < 0
+                        ? "bg-rose-50 text-rose-700 ring-1 ring-rose-200/50"
+                        : "bg-slate-100 text-slate-600"
+                  }`}
+                >
+                  {returnPercent > 0 ? "+" : returnPercent < 0 ? "-" : ""}
+                  {Math.abs(returnPercent).toFixed(2)}%
+                </div>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Stock Breakdown */}
-      <div className="rounded-2xl border border-gray-100 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.04)]">
-        <div className="flex items-center gap-2 border-b border-gray-100 px-5 py-4 text-base font-semibold text-gray-700">
-          <FaChartPie className="h-4 w-4 text-gray-500" />
-          Stock Composition
+      <div className="overflow-hidden rounded-[2rem] border border-slate-100 bg-white shadow-[0_8px_30px_rgb(0,0,0,0.03)] ring-1 ring-slate-200/50">
+        <div className="flex items-center gap-3 border-b border-slate-100 bg-slate-50/50 px-6 py-5 text-lg font-bold text-slate-800 font-heading">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-primary-500 ring-1 ring-slate-200/60 shadow-sm">
+            <FaChartPie size={14} />
+          </div>
+          Composition Summary
         </div>
-        <ul className="divide-y divide-gray-100">
+        <div className="divide-y divide-slate-50">
           {basket.stocks.map((stock) => {
             const stockInvested =
               (stock.quantity ?? 0) * (stock.buy_price ?? 0);
-            // Use sell_price if available (and sell_date is valid), else ltp, else buy_price
             const hasSell =
               stock.sell_price != null &&
               !isNaN(Number(stock.sell_price)) &&
@@ -466,138 +464,149 @@ export default function Basket() {
             const stockReturnPercent = stockInvested
               ? (stockReturn / stockInvested) * 100
               : 0;
-            // Always neutral color for value; only return percent is color-coded
-            const valueClass = "text-right font-light text-gray-800";
-            let stockReturnPercentClass = "text-gray-500";
-            // Use direct >= and <= logic for precision checks
+            
+            let stockReturnPercentClass = "text-slate-500 ring-slate-200 bg-slate-50";
             if (stockReturnPercent >= 0.01)
-              stockReturnPercentClass = "text-green-600";
+              stockReturnPercentClass = "text-accent-700 ring-accent-200 bg-accent-50";
             else if (stockReturnPercent <= -0.01)
-              stockReturnPercentClass = "text-red-500";
+              stockReturnPercentClass = "text-rose-700 ring-rose-200 bg-rose-50";
+              
             let stockReturnPercentSign = "";
             if (stockReturnPercent >= 0.01) stockReturnPercentSign = "+";
             else if (stockReturnPercent <= -0.01) stockReturnPercentSign = "-";
+            
             return (
-              <li
+              <div
                 key={stock.symbol}
-                className="flex items-center justify-between px-5 py-4 text-sm"
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-6 transition-colors hover:bg-slate-50/50 gap-4"
               >
-                <span className="block font-medium text-gray-800">
-                  {stock.symbol}
-                  <span className="mt-0.5 block text-xs text-gray-500">
-                    {stock.name}
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-lg font-bold text-slate-700 ring-1 ring-slate-200/50 font-heading">
+                    {stock.symbol.charAt(0)}
+                  </div>
+                  <div>
+                    <span className="block text-lg font-bold text-slate-900 font-heading">
+                      {stock.symbol}
+                    </span>
+                    <span className="mt-0.5 block text-[13px] font-medium text-slate-500">
+                      {stock.name} • {stock.quantity} shares
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-start sm:items-end flex-col sm:text-right">
+                  <span className="text-xl font-bold text-slate-800 tabular-nums">
+                    ₹{stockCurrent.toLocaleString()}
                   </span>
-                </span>
-                <span className={valueClass}>
-                  ₹{stockCurrent.toLocaleString()} <br />
-                  <span className="text-xs font-normal">
-                    <span className={stockReturnPercentClass}>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <span className="text-[13px] font-medium text-slate-400">Return</span>
+                    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-bold ring-1 ${stockReturnPercentClass}`}>
                       {stockReturnPercentSign}
                       {Math.abs(stockReturnPercent).toFixed(2)}%
                     </span>
-                  </span>
-                </span>
-              </li>
+                  </div>
+                </div>
+              </div>
             );
           })}
-        </ul>
+        </div>
       </div>
 
       {/* Exit Basket button */}
-      <div className="mb-12 pt-4">
+      <div className="mb-16 pt-8">
         <Button
           onClick={() => setShowExitConfirm(true)}
           disabled={allExited || pendingExit}
-          className="w-full bg-red-500 px-5 py-3 text-base font-semibold text-white transition hover:bg-red-600 disabled:opacity-50"
+          className="w-full rounded-[1.25rem] bg-slate-900 px-6 py-7 text-[17px] font-bold text-white shadow-xl shadow-slate-900/20 transition-all hover:-translate-y-0.5 hover:bg-black hover:shadow-slate-900/30 disabled:opacity-40 disabled:hover:translate-y-0"
         >
           {(() => {
             if (allExited)
               return (
-                <span className="flex items-center justify-center gap-2">
-                  <FaSignOutAlt className="h-4 w-4" />
-                  Exit taken
+                <span className="flex items-center justify-center gap-3">
+                  <FaSignOutAlt size={18} />
+                  Basket Exited Successfully
                 </span>
               );
             if (pendingExit)
               return (
-                <span className="flex items-center justify-center gap-2">
-                  <FaSignOutAlt className="h-4 w-4 animate-pulse" />
-                  Exiting...
+                <span className="flex items-center justify-center gap-3">
+                  <FaSignOutAlt size={18} className="animate-pulse" />
+                  Securing Exit Prices...
                 </span>
               );
             return (
-              <span className="flex items-center justify-center gap-2">
-                <FaSignOutAlt className="h-4 w-4" />
-                Exit Basket
+              <span className="flex items-center justify-center gap-3">
+                <FaSignOutAlt size={18} />
+                Exit Basket Now
               </span>
             );
           })()}
         </Button>
       </div>
 
-      {/* Exit Confirmation Dialog */}
+      {/* Dialogs remain identical logically, just polished superficially */}
       <Dialog open={showExitConfirm} onOpenChange={setShowExitConfirm}>
-        <DialogContent className="max-w-sm rounded-2xl border border-gray-200 bg-white p-0 shadow-xl">
-          <DialogHeader className="px-6 pt-6">
-            <DialogTitle className="text-lg font-semibold text-gray-900">
-              Are you sure you want to exit this basket?
+        <DialogContent className="max-w-md rounded-[2rem] border-0 bg-white/95 p-8 shadow-2xl backdrop-blur-xl">
+          <DialogHeader className="space-y-3 pb-6 text-left">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-rose-100 text-rose-600 mb-2">
+              <FaSignOutAlt size={20} />
+            </div>
+            <DialogTitle className="text-2xl font-bold text-slate-900 font-heading">
+              Exit Basket?
             </DialogTitle>
-            <DialogDescription className="pt-1 text-sm text-gray-500">
-              This action will exit all stocks in this basket at the latest
-              prices. This cannot be undone.
+            <DialogDescription className="text-base text-slate-500 leading-relaxed font-medium">
+              This will lock in the current market prices for all holdings. This action is final and cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex flex-row justify-end gap-2 px-6 pt-4 pb-6">
+          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4">
             <Button
               variant="outline"
-              className="flex-1"
+              className="w-full rounded-xl py-6 text-base font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-900 border-slate-200"
               onClick={() => setShowExitConfirm(false)}
             >
-              No
+              Cancel
             </Button>
             <Button
-              className="flex-1 bg-red-600 text-white hover:bg-red-700"
+              className="w-full rounded-xl bg-slate-900 py-6 text-base font-bold text-white hover:bg-black shadow-lg shadow-black/10"
               onClick={async () => {
                 setShowExitConfirm(false);
                 await handleExitBasket();
               }}
             >
-              Yes
+              Confirm Exit
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-        <DialogContent className="max-w-sm rounded-2xl border border-gray-200 bg-white p-0 shadow-xl">
-          <DialogHeader className="px-6 pt-6">
-            <DialogTitle className="text-lg font-semibold text-gray-900">
-              Are you sure you want to delete this basket?
+        <DialogContent className="max-w-md rounded-[2rem] border-0 bg-white/95 p-8 shadow-2xl backdrop-blur-xl">
+          <DialogHeader className="space-y-3 pb-6 text-left">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-rose-100 text-rose-600 mb-2">
+              <FaTrash size={20} />
+            </div>
+            <DialogTitle className="text-2xl font-bold text-slate-900 font-heading">
+              Delete Basket?
             </DialogTitle>
-            <DialogDescription className="pt-1 text-sm text-gray-500">
-              This action will permanently delete this basket and all its data.
-              This cannot be undone.
+            <DialogDescription className="text-base text-slate-500 leading-relaxed font-medium">
+              You are about to permanently delete this basket's history. This data cannot be recovered.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex flex-row justify-end gap-2 px-6 pt-4 pb-6">
+          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4">
             <Button
               variant="outline"
-              className="flex-1"
+              className="w-full rounded-xl py-6 text-base font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-900 border-slate-200"
               onClick={() => setShowDeleteConfirm(false)}
             >
-              No
+              Cancel
             </Button>
             <Button
-              className="flex-1 border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700 focus:ring-red-400"
-              variant="outline"
-              style={{ borderWidth: 1 }}
+              className="w-full rounded-xl bg-rose-600 py-6 text-base font-bold text-white hover:bg-rose-700 shadow-lg shadow-rose-600/20"
               onClick={async () => {
                 setShowDeleteConfirm(false);
                 await handleDeleteBasket();
               }}
             >
-              Yes
+              Delete Permanently
             </Button>
           </DialogFooter>
         </DialogContent>

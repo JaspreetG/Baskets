@@ -21,13 +21,7 @@ const AnimatedLayout = () => {
   const Page = routeMap[path as keyof typeof routeMap] || Dashboard;
 
   return (
-    <div
-      style={{
-        position: "relative",
-        width: "100vw",
-        minHeight: "100vh",
-      }}
-    >
+    <div className="relative flex-1 w-full">
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={location.key}

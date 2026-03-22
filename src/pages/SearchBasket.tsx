@@ -48,38 +48,38 @@ export default function SearchBasket() {
     basketStocks.some((s) => s.symbol === ticker);
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-6 text-gray-700 md:px-8">
-      <section className="mb-8 space-y-4">
+    <div className="mx-auto w-full max-w-2xl px-4 py-8 md:px-8">
+      <section className="mb-10 space-y-4">
         {/* Header */}
-        <div className="mt-3 mb-6 flex items-center justify-start">
+        <div className="mb-8 flex items-center justify-start">
           <Link
             to="/"
-            className="mt-1 flex items-center gap-2 text-base text-gray-500 hover:text-gray-700"
+            className="flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-slate-800"
           >
-            <FaChevronLeft className="h-4 w-4" />
-            <span className="text-base text-gray-500">Add Stocks</span>
+            <FaChevronLeft className="h-3.5 w-3.5" />
+            <span>Dashboard</span>
           </Link>
         </div>
-        <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-800">
-          <span className="text-blue-600">
-            <FaSearch className="inline-block h-5 w-5" />
-          </span>
-          Find & Add Stocks
+        <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-slate-900 font-heading">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-600 ring-1 ring-primary-100/50 shadow-sm">
+            <FaSearch className="h-4 w-4" />
+          </div>
+          Find Stocks
         </h2>
-        <p className="text-sm text-gray-500">
+        <p className="text-base text-slate-500 leading-relaxed font-medium">
           Search your favorite companies and tap the{" "}
-          <strong className="text-blue-600">+</strong> button to add them to
+          <strong className="font-bold text-primary-600">+</strong> button to add them to
           your basket. When you’re ready, hit{" "}
-          <strong className="text-blue-600">Done</strong> below to continue.
+          <strong className="font-bold text-primary-600">Done</strong> below to proceed.
         </p>
 
         {/* Search Bar */}
-        <div className="relative">
-          <FaSearch className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-400" />
+        <div className="relative mt-8">
+          <FaSearch className="pointer-events-none absolute top-1/2 left-5 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <Input
             type="text"
-            placeholder="Search your favorite stocks..."
-            className="w-full rounded-lg border border-gray-200 bg-white py-3 pr-4 pl-12 text-base text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 focus:outline-none"
+            placeholder="Search symbols or company names..."
+            className="w-full rounded-2xl border border-slate-200/60 bg-white/80 py-6 pr-6 pl-12 text-lg text-slate-800 shadow-[0_4px_20px_rgb(0,0,0,0.03)] backdrop-blur-md placeholder:text-slate-400 focus:border-primary-400 focus:ring-4 focus:ring-primary-100/50 focus:outline-none transition-all"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -89,30 +89,30 @@ export default function SearchBasket() {
       </section>
 
       {/* Stock List */}
-      <ul className="relative z-20 divide-y divide-gray-200 overflow-hidden rounded-xl bg-white shadow-md">
+      <ul className="relative z-20 space-y-3 pb-32">
         {(data ?? []).map((stock: Stock) => {
           const selected = isStockSelected(stock.ticker);
           return (
             <li
               key={stock.ticker}
-              className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-gray-50"
+              className="flex items-center justify-between rounded-[1.25rem] bg-white p-4 shadow-[0_2px_10px_rgb(0,0,0,0.02)] ring-1 ring-slate-200/50 transition-all hover:shadow-[0_4px_15px_rgb(0,0,0,0.04)] hover:ring-slate-200"
             >
-              <div className="flex-1">
-                <div className="text-sm font-semibold text-gray-700">
+              <div className="flex-1 min-w-0 pr-4">
+                <div className="text-lg font-bold text-slate-900 font-heading">
                   {stock.ticker}
                 </div>
-                <div className="text-xs leading-snug text-gray-500">
+                <div className="truncate text-sm font-medium text-slate-500">
                   {stock.title}
                 </div>
               </div>
               <Button
                 size="sm"
-                variant={selected ? undefined : "ghost"}
-                className={
+                variant={selected ? undefined : "outline"}
+                className={`h-10 w-10 shrink-0 rounded-full p-0 transition-all ${
                   selected
-                    ? "border border-blue-600 bg-blue-600 text-white hover:bg-blue-700"
-                    : "font-medium text-blue-600 transition-colors hover:text-blue-700"
-                }
+                    ? "bg-accent-500 text-white shadow-md shadow-accent-500/20 hover:bg-accent-600 border-none ring-0"
+                    : "border border-slate-200 bg-white text-slate-400 hover:border-primary-300 hover:bg-primary-50 hover:text-primary-600"
+                }`}
                 onClick={async () => {
                   if (!selected) {
                     // Add to basket
@@ -135,30 +135,40 @@ export default function SearchBasket() {
                       sell_date: null,
                     });
                     toast.success(
-                      `${stock.ticker} (${stock.title}) added to basket!`,
+                      `${stock.ticker} added to basket!`,
                     );
                   } else {
                     // Remove from basket
                     globalStore.getState().removeBasketStock(stock.ticker);
                     toast.success(
-                      `${stock.ticker} (${stock.title}) removed from basket!`,
+                      `${stock.ticker} removed from basket!`,
                     );
                   }
                 }}
               >
-                <Plus className={selected ? "h-4 w-4 text-white" : "h-4 w-4"} />
+                {selected ? (
+                  <FaCheckCircle className="h-5 w-5" />
+                ) : (
+                  <Plus className="h-5 w-5" />
+                )}
               </Button>
             </li>
           );
         })}
+        {query.trim().length > 0 && (data ?? []).length === 0 && (
+          <div className="py-12 text-center text-slate-500 font-medium">
+            No stocks found matching "{query}".
+          </div>
+        )}
       </ul>
+      
       {/* Sticky Done Button */}
-      <div className="pointer-events-none fixed bottom-6 left-0 z-10 w-full px-6 md:px-8">
+      <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-30 bg-gradient-to-t from-slate-50 via-slate-50/90 to-transparent pb-6 pt-12 px-4 md:px-8">
         <div className="pointer-events-auto mx-auto max-w-2xl">
-          <Link to="/invest">
-            <Button className="mb-12 inline-flex h-[40px] w-full items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700">
+          <Link to="/invest" className="block w-full">
+            <Button className="flex h-14 w-full items-center justify-center gap-2 rounded-[1rem] bg-primary-600 text-[15px] font-bold text-white shadow-xl shadow-primary-600/20 transition-all hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-primary-600/30">
               <FaCheckCircle className="h-4 w-4" />
-              Done
+              Review & Configure Basket
             </Button>
           </Link>
         </div>

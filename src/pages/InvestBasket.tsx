@@ -1,7 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-
 import {
   FaChevronLeft,
   FaRupeeSign,
@@ -9,10 +7,6 @@ import {
   FaMoneyBillWave,
   FaChartBar,
   FaBoxOpen,
-  FaBarcode,
-  FaHashtag,
-  FaTag,
-  FaPercentage,
 } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
 import { useDebounce } from "@/lib/useDebounce";
@@ -134,22 +128,24 @@ export default function InvestBasket() {
   });
 
   return (
-    <div className="flex min-h-screen flex-col justify-between bg-white text-gray-700">
+    <div className="flex flex-col justify-between text-slate-800">
       {/* Header */}
-      <div className="mx-auto w-full max-w-2xl px-6 md:px-8">
-        <div className="mt-3 mb-4 flex items-center justify-between">
+      <div className="mx-auto w-full max-w-3xl px-4 py-8 md:px-8 space-y-8">
+        <div className="mb-4 flex items-center justify-between">
           <Link
             to="/search"
-            className="mt-1 flex items-center gap-2 text-base text-gray-500 hover:text-gray-700"
+            className="flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-slate-800"
           >
-            <FaChevronLeft className="h-4 w-4" />
-            <span className="text-base text-gray-500">Create Basket</span>
+            <FaChevronLeft className="h-3.5 w-3.5" />
+            <span>Find Stocks</span>
           </Link>
         </div>
-        <div className="mb-6 text-sm text-gray-600">
-          <p>
-            Enter your basket name and the amount you want to invest. We'll help
-            you distribute the amount across selected stocks.
+        <div className="mb-8">
+          <h2 className="mb-3 text-3xl font-bold tracking-tight text-slate-900 font-heading">
+            Configure Your Basket
+          </h2>
+          <p className="text-base text-slate-500 font-medium leading-relaxed max-w-xl">
+            Name your new investment basket and specify your total investment amount. We'll automatically distribute the funds optimally across your chosen stocks.
           </p>
         </div>
 
@@ -163,88 +159,74 @@ export default function InvestBasket() {
             investMutation.mutate({ basketName, distributedStocks });
           }}
         >
-          <div className="mb-10 space-y-6">
-            <div className="flex items-center gap-4">
+          <div className="mb-10 space-y-6 rounded-[2rem] bg-white p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-200/50">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
               <label
                 htmlFor="basketName"
-                className="flex min-w-[140px] items-center gap-2 text-sm font-medium text-gray-700"
+                className="flex w-full md:w-[160px] items-center gap-2.5 text-sm font-bold text-slate-700 uppercase tracking-widest"
               >
-                <FaBox className="text-gray-400" />
-                Basket Name
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-50 text-primary-600">
+                  <FaBox size={14} />
+                </div>
+                Name
               </label>
               <Input
                 id="basketName"
                 type="text"
-                placeholder="write basket name"
+                placeholder="e.g. Long Term Tech"
                 value={basketName}
                 onChange={(e) => setBasketName(e.target.value)}
-                className="flex-1 rounded-lg border border-gray-200 bg-white px-4 py-3 text-base placeholder:text-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                className="flex-1 rounded-[1rem] border border-slate-200/60 bg-slate-50/50 px-5 py-6 text-lg placeholder:text-slate-400 focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-100/50 transition-all shadow-inner"
               />
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
               <label
                 htmlFor="amount"
-                className="flex min-w-[140px] items-center gap-2 text-sm font-medium text-gray-700"
+                className="flex w-full md:w-[160px] items-center gap-2.5 text-sm font-bold text-slate-700 uppercase tracking-widest"
               >
-                <FaMoneyBillWave className="text-gray-400" />
-                Amount to Invest
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                  <FaMoneyBillWave size={14} />
+                </div>
+                Investment
               </label>
-              <div className="relative w-full">
-                <FaRupeeSign className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
+              <div className="relative w-full md:flex-1">
+                <FaRupeeSign className="absolute top-1/2 left-5 -translate-y-1/2 text-slate-400" />
                 <Input
                   id="amount"
                   type="number"
-                  placeholder="enter amount"
+                  placeholder="Enter amount (₹)"
                   min="1"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full rounded-lg border border-gray-200 bg-white py-3 pl-9 text-base placeholder:text-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-[1rem] border border-slate-200/60 bg-slate-50/50 py-6 pl-12 pr-5 text-lg placeholder:text-slate-400 focus:bg-white focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100/50 transition-all font-semibold tabular-nums shadow-inner"
                 />
               </div>
             </div>
           </div>
 
-          <hr className="my-6 border-t border-gray-200" />
-
           {stocks.length > 0 && (
-            <>
-              <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700">
-                <FaChartBar className="text-gray-400" />
-                Allocated Stocks
-              </h3>
-              {/* Stock List */}
-              <Card className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm ring-1 ring-gray-100">
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-600 ring-1 ring-orange-100/50">
+                  <FaChartBar size={18} />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 font-heading">
+                  Allocation Preview
+                </h3>
+              </div>
+              
+              <div className="overflow-hidden rounded-[2rem] border border-slate-100 bg-white shadow-[0_8px_30px_rgb(0,0,0,0.03)] ring-1 ring-slate-200/50">
                 <div className="overflow-x-auto">
-                  <table className="min-w-full table-auto divide-y divide-gray-200">
-                    <thead className="bg-white">
-                      <tr className="text-left text-xs font-semibold text-gray-500">
-                        <th className="w-full max-w-xs truncate px-5 py-3">
-                          <div className="flex items-center gap-2">
-                            <FaBarcode className="text-gray-400" />
-                            Symbol
-                          </div>
-                        </th>
-                        <th className="px-5 py-3 text-center whitespace-nowrap">
-                          <div className="flex items-center justify-center gap-2">
-                            <FaHashtag className="text-gray-400" />
-                            Quantity
-                          </div>
-                        </th>
-                        <th className="px-5 py-3 text-center whitespace-nowrap">
-                          <div className="flex items-center justify-center gap-2">
-                            <FaTag className="text-gray-400" />
-                            Price
-                          </div>
-                        </th>
-                        <th className="px-5 py-3 text-center whitespace-nowrap">
-                          <div className="flex items-center justify-center gap-2">
-                            <FaPercentage className="h-3 w-3 text-gray-400" />
-                            Allocation
-                          </div>
-                        </th>
+                  <table className="min-w-full table-auto">
+                    <thead className="bg-slate-50/80 border-b border-slate-100">
+                      <tr className="text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                        <th className="px-6 py-4">Symbol</th>
+                        <th className="px-6 py-4 text-center">Qty</th>
+                        <th className="px-6 py-4 text-center">Unit Price</th>
+                        <th className="px-6 py-4 text-right">Allocation</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200 text-sm text-gray-700">
+                    <tbody className="divide-y divide-slate-50 text-sm font-medium text-slate-700">
                       {stocks.map((stock, idx) => {
                         const dist = distributedStocks.find(
                           (s) => s.code === stock.code,
@@ -259,26 +241,30 @@ export default function InvestBasket() {
                         return (
                           <tr
                             key={stock.code + "-" + idx}
-                            className="align-middle"
+                            className="bg-white transition-colors hover:bg-slate-50/50"
                           >
-                            <td className="max-w-xs truncate px-5 py-4">
-                              <div className="font-medium text-gray-900">
+                            <td className="px-6 py-5">
+                              <div className="text-base font-bold text-slate-900 font-heading">
                                 {stock.code}
                               </div>
                               {stock.name && stock.name !== stock.code && (
-                                <div className="max-w-[120px] truncate text-xs text-gray-500 sm:max-w-[180px] sm:whitespace-nowrap">
+                                <div className="mt-0.5 max-w-[180px] truncate text-[13px] text-slate-500 font-normal">
                                   {stock.name}
                                 </div>
                               )}
                             </td>
-                            <td className="px-5 py-4 text-center whitespace-nowrap tabular-nums">
-                              {quantity}
+                            <td className="px-6 py-5 text-center tabular-nums text-base">
+                              <span className="inline-flex items-center justify-center min-w-[2rem] rounded-md bg-slate-100 px-2.5 py-1 text-slate-800 font-semibold ring-1 ring-slate-200/50">
+                                {quantity}
+                              </span>
                             </td>
-                            <td className="px-5 py-4 text-center whitespace-nowrap tabular-nums">
+                            <td className="px-6 py-5 text-center tabular-nums text-slate-600">
                               ₹{ltp.toFixed(2)}
                             </td>
-                            <td className="px-5 py-4 text-center whitespace-nowrap tabular-nums">
-                              {allocation.toFixed(2)}%
+                            <td className="px-6 py-5 text-right tabular-nums">
+                              <span className="rounded-full bg-primary-50 px-3 py-1 text-xs font-bold text-primary-700 ring-1 ring-primary-200/50">
+                                {allocation.toFixed(1)}%
+                              </span>
                             </td>
                           </tr>
                         );
@@ -286,44 +272,41 @@ export default function InvestBasket() {
                     </tbody>
                   </table>
                 </div>
-              </Card>
-              <div className="mt-6 text-sm text-gray-600">
-                <p>
-                  Buy the suggested quantities from your preferred broker app,
-                  then return and click{" "}
-                  <span className="font-medium text-blue-600">Invest</span> to
-                  track your basket's performance.
-                </p>
               </div>
-            </>
+              
+              <div className="rounded-[1.5rem] bg-slate-50 p-5 text-center text-sm font-medium text-slate-500 ring-1 ring-slate-200/50">
+                Purchase these allocations via your preferred broker, then tap below to start tracking.
+              </div>
+            </div>
           )}
 
           {stocks.length === 0 && (
             <div className="mt-8">
-              <Card className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center text-gray-500 shadow-sm ring-1 ring-gray-100">
-                <div className="flex flex-col items-center justify-center gap-3">
-                  <FaBoxOpen className="h-8 w-8 text-gray-400" />
-                  <div className="text-base font-medium">
-                    Add stocks to invest
-                  </div>
+              <div className="flex flex-col items-center justify-center gap-4 rounded-[2rem] border-2 border-dashed border-slate-200 bg-slate-50/50 px-6 py-16 text-center shadow-sm">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/50 text-slate-400">
+                  <FaBoxOpen size={28} />
                 </div>
-              </Card>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-800 font-heading">Your basket is empty</h3>
+                  <p className="mt-1 text-sm text-slate-500">Go back and search for stocks to add them here.</p>
+                </div>
+              </div>
             </div>
           )}
 
-          <hr className="my-6 border-t border-gray-200" />
+          <div className="mt-12 mb-24 space-y-6">
+            <div className="flex items-center justify-between rounded-[1.5rem] bg-white p-6 shadow-[0_4px_20px_rgb(0,0,0,0.03)] ring-1 ring-slate-200/60">
+              <span className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-slate-600">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+                  <FaBoxOpen size={16} />
+                </div>
+                Total Value
+              </span>
+              <span className="text-3xl font-bold text-slate-900 tabular-nums">
+                ₹{total.toFixed(2)}
+              </span>
+            </div>
 
-          <div className="mt-8 flex items-center justify-between px-2 text-base font-medium text-gray-700 sm:px-4 sm:text-sm">
-            <span className="flex items-center gap-2 text-gray-600">
-              <FaBoxOpen className="text-gray-400" />
-              Total Investment
-            </span>
-            <span className="text-gray-900 tabular-nums">
-              ₹{total.toFixed(2)}
-            </span>
-          </div>
-
-          <div className="mt-8 mb-16">
             <Button
               type="submit"
               disabled={
@@ -331,13 +314,13 @@ export default function InvestBasket() {
                 distributedStocks.length === 0 ||
                 total <= 0
               }
-              className="w-full rounded-lg bg-blue-600 px-6 py-4 text-base font-medium text-white shadow-md transition-all hover:bg-blue-700 hover:shadow-lg disabled:opacity-50"
+              className="w-full rounded-[1.25rem] bg-primary-600 px-6 py-7 text-[17px] font-bold text-white shadow-xl shadow-primary-600/20 transition-all hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-primary-600/30 disabled:opacity-50 disabled:hover:translate-y-0"
             >
               {(() => {
-                if (investMutation.status === "pending") return "Investing...";
+                if (investMutation.status === "pending") return "Processing Investment...";
                 if (distributedStocks.length === 0 || total <= 0)
                   return "Add stocks to invest";
-                return "Invest";
+                return "Confirm Investment Details";
               })()}
             </Button>
           </div>
