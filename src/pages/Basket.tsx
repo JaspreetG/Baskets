@@ -319,22 +319,22 @@ export default function Basket() {
   return (
     <div className="mx-auto w-full max-w-4xl space-y-10 px-4 py-8 md:px-8 text-slate-800">
       {/* Back Button */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-row items-center justify-between gap-4">
         <Link
           to="/"
-          className="flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-slate-800"
+          className="flex h-10 items-center justify-center gap-2 rounded-full bg-slate-100 px-4 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900"
         >
           <FaChevronLeft className="h-3.5 w-3.5" />
-          <span>Dashboard</span>
+          <span>Back</span>
         </Link>
         {allExited && (
           <Button
             variant="outline"
-            className="flex h-9 items-center gap-2 rounded-xl border-rose-200 bg-rose-50 px-4 text-xs font-bold text-rose-600 transition-all duration-300 hover:bg-rose-100 hover:text-rose-700 hover:border-rose-300 focus:ring-4 focus:ring-rose-100"
+            className="flex h-10 items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-4 text-xs font-bold text-rose-600 transition-all duration-300 hover:bg-rose-100 hover:text-rose-700"
             onClick={() => setShowDeleteConfirm(true)}
           >
             <FaTrash className="h-3.5 w-3.5" />
-            Delete Basket
+            Delete
           </Button>
         )}
       </div>
@@ -516,7 +516,7 @@ export default function Basket() {
         <Button
           onClick={() => setShowExitConfirm(true)}
           disabled={allExited || pendingExit}
-          className="w-full rounded-[1.25rem] bg-slate-900 px-6 py-7 text-[17px] font-bold text-white shadow-xl shadow-slate-900/20 transition-all hover:-translate-y-0.5 hover:bg-black hover:shadow-slate-900/30 disabled:opacity-40 disabled:hover:translate-y-0"
+          className="w-full rounded-full bg-primary-600 px-6 py-6 text-[17px] font-bold text-white shadow-[0_8px_25px_rgba(59,130,246,0.25)] transition-all hover:-translate-y-0.5 hover:bg-primary-500 hover:shadow-[0_12px_30px_rgba(59,130,246,0.35)] disabled:opacity-40 disabled:hover:translate-y-0"
         >
           {(() => {
             if (allExited)
@@ -545,28 +545,28 @@ export default function Basket() {
 
       {/* Dialogs remain identical logically, just polished superficially */}
       <Dialog open={showExitConfirm} onOpenChange={setShowExitConfirm}>
-        <DialogContent className="max-w-md rounded-[2rem] border-0 bg-white/95 p-8 shadow-2xl backdrop-blur-xl">
-          <DialogHeader className="space-y-3 pb-6 text-left">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-rose-100 text-rose-600 mb-2">
-              <FaSignOutAlt size={20} />
+        <DialogContent className="max-w-[92vw] sm:max-w-md rounded-[1.75rem] border border-slate-100 bg-white p-6 shadow-2xl sm:p-8">
+          <DialogHeader className="space-y-4 pb-4 text-left">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-800">
+              <FaSignOutAlt size={22} className="ml-1" />
             </div>
-            <DialogTitle className="text-2xl font-bold text-slate-900 font-heading">
-              Exit Basket?
+            <DialogTitle className="text-[22px] font-bold tracking-tight text-slate-900 font-heading">
+              Exit Basket
             </DialogTitle>
-            <DialogDescription className="text-base text-slate-500 leading-relaxed font-medium">
-              This will lock in the current market prices for all holdings. This action is final and cannot be undone.
+            <DialogDescription className="text-[15px] font-medium leading-relaxed text-slate-500">
+              This action will lock in current market prices for all holdings. It is permanent and cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4">
+          <DialogFooter className="mt-4 flex flex-col gap-3 sm:flex-row sm:justify-end sm:gap-4">
             <Button
               variant="outline"
-              className="w-full rounded-xl py-6 text-base font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-900 border-slate-200"
+              className="w-full sm:w-auto rounded-full py-5 px-6 text-[15px] font-bold text-slate-700 border-slate-200 hover:bg-slate-50 focus:ring-2 focus:ring-slate-200"
               onClick={() => setShowExitConfirm(false)}
             >
               Cancel
             </Button>
             <Button
-              className="w-full rounded-xl bg-slate-900 py-6 text-base font-bold text-white hover:bg-black shadow-lg shadow-black/10"
+              className="w-full sm:w-auto rounded-full bg-primary-600 py-5 px-6 text-[15px] font-bold text-white shadow-[0_8px_20px_rgba(59,130,246,0.25)] hover:bg-primary-500 hover:shadow-[0_12px_25px_rgba(59,130,246,0.35)] focus:ring-2 focus:ring-primary-600 focus:ring-offset-2"
               onClick={async () => {
                 setShowExitConfirm(false);
                 await handleExitBasket();
@@ -579,28 +579,28 @@ export default function Basket() {
       </Dialog>
 
       <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-        <DialogContent className="max-w-md rounded-[2rem] border-0 bg-white/95 p-8 shadow-2xl backdrop-blur-xl">
-          <DialogHeader className="space-y-3 pb-6 text-left">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-rose-100 text-rose-600 mb-2">
+        <DialogContent className="max-w-[92vw] sm:max-w-md rounded-[1.75rem] border border-slate-100 bg-white p-6 shadow-2xl sm:p-8">
+          <DialogHeader className="space-y-4 pb-4 text-left">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-rose-100 text-rose-600">
               <FaTrash size={20} />
             </div>
-            <DialogTitle className="text-2xl font-bold text-slate-900 font-heading">
-              Delete Basket?
+            <DialogTitle className="text-[22px] font-bold tracking-tight text-slate-900 font-heading">
+              Delete Basket
             </DialogTitle>
-            <DialogDescription className="text-base text-slate-500 leading-relaxed font-medium">
+            <DialogDescription className="text-[15px] font-medium leading-relaxed text-slate-500">
               You are about to permanently delete this basket's history. This data cannot be recovered.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4">
+          <DialogFooter className="mt-4 flex flex-col gap-3 sm:flex-row sm:justify-end sm:gap-4">
             <Button
               variant="outline"
-              className="w-full rounded-xl py-6 text-base font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-900 border-slate-200"
+              className="w-full sm:w-auto rounded-full py-5 px-6 text-[15px] font-bold text-slate-700 border-slate-200 hover:bg-slate-50 focus:ring-2 focus:ring-slate-200"
               onClick={() => setShowDeleteConfirm(false)}
             >
               Cancel
             </Button>
             <Button
-              className="w-full rounded-xl bg-rose-600 py-6 text-base font-bold text-white hover:bg-rose-700 shadow-lg shadow-rose-600/20"
+              className="w-full sm:w-auto rounded-full bg-rose-600 py-5 px-6 text-[15px] font-bold text-white shadow-md shadow-rose-600/20 hover:bg-rose-700 focus:ring-2 focus:ring-rose-600 focus:ring-offset-2"
               onClick={async () => {
                 setShowDeleteConfirm(false);
                 await handleDeleteBasket();

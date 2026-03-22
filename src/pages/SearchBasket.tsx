@@ -54,7 +54,7 @@ export default function SearchBasket() {
         <div className="mb-8 flex items-center justify-start">
           <Link
             to="/"
-            className="flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-slate-800"
+            className="flex h-10 items-center justify-center gap-2 rounded-full bg-slate-100 px-4 text-sm font-semibold text-slate-600 transition-all hover:bg-slate-200 hover:text-slate-900 hover:shadow-sm"
           >
             <FaChevronLeft className="h-3.5 w-3.5" />
             <span>Dashboard</span>
@@ -79,7 +79,7 @@ export default function SearchBasket() {
           <Input
             type="text"
             placeholder="Search symbols or company names..."
-            className="w-full rounded-2xl border border-slate-200/60 bg-white/80 py-6 pr-6 pl-12 text-lg text-slate-800 shadow-[0_4px_20px_rgb(0,0,0,0.03)] backdrop-blur-md placeholder:text-slate-400 focus:border-primary-400 focus:ring-4 focus:ring-primary-100/50 focus:outline-none transition-all"
+            className="w-full rounded-2xl border border-slate-200/60 bg-white/80 py-6 pr-6 pl-12 text-lg text-slate-800 shadow-[0_4px_20px_rgb(0,0,0,0.03)] backdrop-blur-md placeholder:text-slate-400 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/20 focus:shadow-[0_0_30px_rgba(59,130,246,0.15)] focus:outline-none transition-all"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -166,7 +166,7 @@ export default function SearchBasket() {
       <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-30 bg-gradient-to-t from-slate-50 via-slate-50/90 to-transparent pb-6 pt-12 px-4 md:px-8">
         <div className="pointer-events-auto mx-auto max-w-2xl">
           <Link to="/invest" className="block w-full">
-            <Button className="flex h-14 w-full items-center justify-center gap-2 rounded-[1rem] bg-primary-600 text-[15px] font-bold text-white shadow-xl shadow-primary-600/20 transition-all hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-primary-600/30">
+            <Button className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-primary-600 text-[15px] font-bold text-white shadow-[0_8px_20px_rgba(59,130,246,0.25)] transition-all hover:-translate-y-0.5 hover:bg-primary-500 hover:shadow-[0_12px_25px_rgba(59,130,246,0.35)]">
               <FaCheckCircle className="h-4 w-4" />
               Review & Configure Basket
             </Button>

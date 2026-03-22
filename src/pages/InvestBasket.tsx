@@ -134,7 +134,7 @@ export default function InvestBasket() {
         <div className="mb-4 flex items-center justify-between">
           <Link
             to="/search"
-            className="flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-slate-800"
+            className="flex h-10 items-center justify-center w-fit gap-2 rounded-full bg-slate-100 px-4 text-sm font-semibold text-slate-600 transition-all hover:bg-slate-200 hover:text-slate-900 hover:shadow-sm"
           >
             <FaChevronLeft className="h-3.5 w-3.5" />
             <span>Find Stocks</span>
@@ -176,7 +176,7 @@ export default function InvestBasket() {
                 placeholder="e.g. Long Term Tech"
                 value={basketName}
                 onChange={(e) => setBasketName(e.target.value)}
-                className="flex-1 rounded-[1rem] border border-slate-200/60 bg-slate-50/50 px-5 py-6 text-lg placeholder:text-slate-400 focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-100/50 transition-all shadow-inner"
+                className="flex-1 rounded-[1rem] border border-slate-200/60 bg-slate-50/50 px-5 py-6 text-lg placeholder:text-slate-400 focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-400/20 focus:shadow-[0_0_30px_rgba(59,130,246,0.15)] transition-all shadow-inner"
               />
             </div>
             <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
@@ -198,7 +198,7 @@ export default function InvestBasket() {
                   min="1"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full rounded-[1rem] border border-slate-200/60 bg-slate-50/50 py-6 pl-12 pr-5 text-lg placeholder:text-slate-400 focus:bg-white focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100/50 transition-all font-semibold tabular-nums shadow-inner"
+                  className="w-full rounded-[1rem] border border-slate-200/60 bg-slate-50/50 py-6 pl-12 pr-5 text-lg placeholder:text-slate-400 focus:bg-white focus:border-emerald-400 focus:ring-4 focus:ring-emerald-400/20 focus:shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-all font-semibold tabular-nums shadow-inner"
                 />
               </div>
             </div>
@@ -314,7 +314,7 @@ export default function InvestBasket() {
                 distributedStocks.length === 0 ||
                 total <= 0
               }
-              className="w-full rounded-[1.25rem] bg-primary-600 px-6 py-7 text-[17px] font-bold text-white shadow-xl shadow-primary-600/20 transition-all hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-primary-600/30 disabled:opacity-50 disabled:hover:translate-y-0"
+              className="w-full rounded-full bg-primary-600 px-6 py-6 text-[17px] font-bold text-white shadow-[0_8px_25px_rgba(59,130,246,0.25)] transition-all hover:-translate-y-0.5 hover:bg-primary-500 hover:shadow-[0_12px_30px_rgba(59,130,246,0.35)] disabled:opacity-50 disabled:hover:translate-y-0"
             >
               {(() => {
                 if (investMutation.status === "pending") return "Processing Investment...";

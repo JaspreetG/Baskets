@@ -499,7 +499,7 @@ const Dashboard = memo(function Dashboard() {
                   </div>
                   <Link
                     to="/search"
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-primary-600/20 transition-all hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-primary-600/40 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary-600 px-6 py-4 text-[15px] font-bold text-white shadow-[0_8px_20px_rgba(59,130,246,0.25)] transition-all hover:-translate-y-0.5 hover:bg-primary-500 hover:shadow-[0_12px_25px_rgba(59,130,246,0.35)] focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                   >
                     <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="-ml-1">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -515,7 +515,7 @@ const Dashboard = memo(function Dashboard() {
 
       <Link
         to="/search"
-        className="fixed right-6 bottom-8 z-50 flex h-16 w-16 items-center justify-center rounded-full bg-primary-600 text-white shadow-xl shadow-primary-600/30 transition-all hover:scale-105 hover:bg-primary-700 hover:shadow-primary-600/40"
+        className="fixed right-6 bottom-8 z-50 flex h-16 w-16 items-center justify-center rounded-full bg-primary-600 text-white shadow-[0_8px_25px_rgba(59,130,246,0.3)] transition-all hover:scale-105 hover:bg-primary-500 hover:shadow-[0_12px_35px_rgba(59,130,246,0.4)]"
         title="Create New Basket"
       >
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="h-8 w-8">
