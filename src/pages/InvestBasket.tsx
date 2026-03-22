@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { FaBoxOpen } from "react-icons/fa";
 import { useState } from "react";
 import { useDebounce } from "@/lib/useDebounce";
@@ -15,7 +16,6 @@ export default function InvestBasket() {
 
   const [basketName, setBasketName] = useState("");
   const [amount, setAmount] = useState("");
-  const [sliderValue, setSliderValue] = useState(0);
   // Debounce amount input to avoid immediate calculations (using custom hook)
   const debouncedAmount = useDebounce(amount, 400);
 
@@ -250,38 +250,17 @@ export default function InvestBasket() {
                 </span>
               </div>
 
-              {/* iOS Slide to Pay Button */}
-              <div className={`relative h-16 sm:h-[4.5rem] w-full rounded-full bg-slate-900/5 ring-1 ring-inset ring-slate-900/10 shadow-inner overflow-hidden transition-all ${investMutation.isPending || distributedStocks.length === 0 || total <= 0 ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                   <span className="font-extrabold tracking-widest text-slate-500 uppercase text-[11px] sm:text-xs pl-8 opacity-90">
-                     {investMutation.status === "pending" ? "Processing..." : "Slide to Invest"}
-                   </span>
-                </div>
-                
-                {/* Visual Fill Trail */}
-                <div className="absolute top-0 left-0 bottom-0 bg-primary-500/20 pointer-events-none transition-all" style={{ width: `${sliderValue}%` }}></div>
-                
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={sliderValue}
-                  onChange={(e) => {
-                     const v = parseInt(e.target.value);
-                     setSliderValue(v);
-                     if (v >= 95 && !investMutation.isPending) {
-                       setSliderValue(100);
-                       // We trigger form submit bypassing generic button click
-                       const form = e.target.closest("form");
-                       if (form) setTimeout(() => form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true })), 150);
-                     }
-                  }}
-                  onMouseUp={() => { if(sliderValue < 100) setSliderValue(0); }}
-                  onTouchEnd={() => { if(sliderValue < 100) setSliderValue(0); }}
-                  className="slide-invest absolute inset-0 w-full h-full m-0 px-1"
-                  disabled={investMutation.status === "pending" || distributedStocks.length === 0 || total <= 0}
-                />
-              </div>
+              <Button
+                type="submit"
+                disabled={investMutation.status === "pending" || distributedStocks.length === 0 || total <= 0}
+                className="w-full h-16 sm:h-[4.5rem] rounded-full bg-primary-600 text-white text-[17px] sm:text-xl font-black tracking-tight shadow-[0_8px_30px_rgba(65,105,225,0.25)] transition-all hover:bg-primary-500 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(65,105,225,0.35)] disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[0_8px_30px_rgba(65,105,225,0.25)]"
+              >
+                {(() => {
+                  if (investMutation.status === "pending") return "Processing...";
+                  if (distributedStocks.length === 0 || total <= 0) return "Add stocks to invest";
+                  return "Confirm Investment";
+                })()}
+              </Button>
             </div>
           </div>
         </form>

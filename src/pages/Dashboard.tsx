@@ -334,25 +334,21 @@ const Dashboard = memo(function Dashboard() {
             </div>
             <Link
               to="/search"
-              className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-primary-50 text-primary-600 transition-all hover:bg-primary-100 hover:scale-105"
-              title="Create New Basket"
+              className="flex items-center gap-1.5 rounded-full bg-primary-600 px-4 sm:px-5 py-2 sm:py-2.5 text-[13px] sm:text-sm font-bold text-white shadow-[0_4px_15px_rgba(65,105,225,0.3)] transition-all hover:bg-primary-500 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(65,105,225,0.4)]"
             >
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3" className="h-4 w-4 sm:h-5 sm:w-5">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3" className="h-4 w-4">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
               </svg>
+              <span>New Basket</span>
             </Link>
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-1 md:grid-cols-2">
+          <div className="flex flex-col gap-3 sm:gap-4">
             {baskets.length > 0 ? (
               [...baskets]
                 .sort((a, b) => {
-                  const aDate = a.created_at
-                    ? new Date(toISTISOString(a.created_at)).getTime()
-                    : 0;
-                  const bDate = b.created_at
-                    ? new Date(toISTISOString(b.created_at)).getTime()
-                    : 0;
+                  const aDate = a.created_at ? new Date(toISTISOString(a.created_at)).getTime() : 0;
+                  const bDate = b.created_at ? new Date(toISTISOString(b.created_at)).getTime() : 0;
                   return bDate - aDate;
                 })
                 .map((basket) => {
@@ -360,36 +356,16 @@ const Dashboard = memo(function Dashboard() {
                   let basketSellValue = 0;
                   let earliestDate: string | undefined = undefined;
 
-                  const allExited =
-                    basket.stocks.length > 0 &&
-                    basket.stocks.every((stock) => {
-                      return (
-                        stock.sell_price != null &&
-                        !isNaN(Number(stock.sell_price)) &&
-                        typeof stock.sell_date === "string" &&
-                        stock.sell_date.trim() !== "" &&
-                        !isNaN(Date.parse(stock.sell_date))
-                      );
-                    });
-
                   basket.stocks.forEach((stock) => {
                     const qty = stock.quantity ?? 0;
                     const buyPrice = stock.buy_price ?? 0;
                     basketInvested += qty * buyPrice;
-                    const hasSell =
-                      stock.sell_price != null &&
-                      !isNaN(Number(stock.sell_price));
-                    const sellOrLtp = hasSell
-                      ? Number(stock.sell_price)
-                      : Number(stock.ltp ?? stock.buy_price ?? 0);
+                    const hasSell = stock.sell_price != null && !isNaN(Number(stock.sell_price));
+                    const sellOrLtp = hasSell ? Number(stock.sell_price) : Number(stock.ltp ?? stock.buy_price ?? 0);
                     basketSellValue += qty * sellOrLtp;
 
                     if (qty && buyPrice && basket.created_at) {
-                      if (
-                        !earliestDate ||
-                        new Date(toISTISOString(basket.created_at)) <
-                          new Date(toISTISOString(earliestDate))
-                      ) {
+                      if (!earliestDate || new Date(toISTISOString(basket.created_at)) < new Date(toISTISOString(earliestDate))) {
                         earliestDate = basket.created_at;
                       }
                     }
@@ -398,90 +374,55 @@ const Dashboard = memo(function Dashboard() {
                   let daysSince = 0;
                   if (earliestDate) {
                     const createdAtIST = new Date(toISTISOString(earliestDate));
-                    const todayIST = new Date(
-                      new Date().toLocaleDateString("en-US", {
-                        timeZone: "Asia/Kolkata",
-                      }),
-                    );
-                    const diffMs =
-                      todayIST.getTime() -
-                      new Date(createdAtIST).setHours(0, 0, 0, 0);
-                    const diffDays = diffMs / (1000 * 60 * 60 * 24);
-                    daysSince = Math.floor(diffDays);
-                  }
-
-                  const sellDates = basket.stocks
-                    .map((stock) =>
-                      stock.sell_date && !isNaN(Date.parse(stock.sell_date))
-                        ? new Date(toISTISOString(stock.sell_date)).getTime()
-                        : undefined,
-                    )
-                    .filter((d): d is number => d !== undefined);
-                  const finalDate = sellDates.length
-                    ? Math.max(...sellDates)
-                    : new Date(toISTISOString(new Date())).getTime();
-                  const startDate = earliestDate
-                    ? new Date(toISTISOString(earliestDate)).getTime()
-                    : finalDate;
-                  const months =
-                    (finalDate - startDate) / (1000 * 60 * 60 * 24 * 30.4375);
-                  const monthlyReturn =
-                    months > 0
-                      ? (basketSellValue - basketInvested) / months
-                      : 0;
-
-                  let monthlyLabel = "";
-                  if (allExited) {
-                    monthlyLabel = monthlyReturn >= 0 ? "Grown " : "Lost ";
-                  } else {
-                    monthlyLabel = monthlyReturn >= 0 ? "Growing " : "Losing ";
+                    const todayIST = new Date(new Date().toLocaleDateString("en-US", { timeZone: "Asia/Kolkata" }));
+                    const diffMs = todayIST.getTime() - new Date(createdAtIST).setHours(0, 0, 0, 0);
+                    daysSince = Math.floor(diffMs / (1000 * 60 * 60 * 24));
                   }
 
                   return (
-                    <Link
-                      key={basket.id}
-                      to={`/basket?id=${basket.id}`}
-                      state={{ basketId: basket.id }}
-                      className="group block h-full"
-                    >
-                      <div className="flex h-full flex-col justify-between rounded-[2rem] bg-white/60 backdrop-blur-2xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/60 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] hover:bg-white/80">
-                        <div className="mb-4">
-                          <h4 className="mb-2 truncate text-base sm:text-lg font-extrabold text-slate-900 font-heading group-hover:text-primary-600 transition-colors">
-                            {basket.name}
-                          </h4>
-                          <div className="flex flex-wrap gap-2 text-xs text-slate-500 font-medium">
-                            <span className="inline-flex items-center rounded-md bg-slate-50 px-2 py-1 ring-1 ring-slate-200/50 text-slate-500">
-                              {earliestDate ? (daysSince === 0 ? "Today" : `${daysSince}d ago`) : "N/A"}
-                            </span>
-                            <span className="inline-flex items-center rounded-md bg-slate-50 px-2 py-1 ring-1 ring-slate-200/50 text-slate-500">
-                              {monthlyLabel} {Math.abs(basketInvested ? (monthlyReturn / basketInvested) * 100 : 0).toFixed(1)}%/mo
-                            </span>
+                      <Link
+                        key={basket.id}
+                        to={`/basket?id=${basket.id}`}
+                        state={{ basketId: basket.id }}
+                        className="group block w-full outline-none"
+                      >
+                        <div className="flex items-center justify-between rounded-[1.5rem] bg-white/60 backdrop-blur-2xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/60 transition-all duration-300 hover:bg-white/90 hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] active:-translate-y-0.5">
+                          <div className="flex items-center gap-4">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-50 text-primary-600 shadow-inner shrink-0 group-hover:bg-primary-600 group-hover:text-white transition-colors duration-300">
+                               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="h-6 w-6">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                               </svg>
+                            </div>
+                            <div className="flex flex-col">
+                               <span className="text-base sm:text-lg font-extrabold text-slate-900 font-heading truncate max-w-[140px] sm:max-w-[200px]" title={basket.name}>
+                                 {basket.name}
+                               </span>
+                               <span className="text-xs sm:text-[13px] font-medium text-slate-500 mt-0.5">
+                                 {basket.stocks.length} assets <span className="mx-1 opacity-50">•</span> {earliestDate ? (daysSince === 0 ? "Today" : `${daysSince}d active`) : "N/A"}
+                               </span>
+                            </div>
                           </div>
-                        </div>
-                        
-                        <div className="mt-auto flex items-end justify-between border-t border-slate-50 pt-4">
-                          <div className="flex flex-col">
-                            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Value</span>
-                            <span className="text-xl font-bold text-slate-800 tabular-nums tracking-tight">
+                          
+                          <div className="flex flex-col items-end">
+                            <span className="text-base sm:text-lg font-bold text-slate-900 tabular-nums font-heading tracking-tight">
                               ₹{Math.round(basketSellValue).toLocaleString()}
                             </span>
+                            {(() => {
+                              const percent = basketInvested ? ((basketSellValue - basketInvested) / basketInvested) * 100 : 0;
+                              const isPositive = percent >= 0.01;
+                              const isNegative = percent <= -0.01;
+                              const textColor = isPositive ? "text-emerald-600" : isNegative ? "text-rose-500" : "text-slate-500";
+                              const sign = isPositive ? "+" : isNegative ? "-" : "";
+                              
+                              return (
+                                <span className={`mt-0.5 text-[11px] sm:text-xs font-bold uppercase tracking-widest ${textColor}`}>
+                                  {sign}{Math.abs(percent).toFixed(2)}%
+                                </span>
+                              );
+                            })()}
                           </div>
-                          {(() => {
-                            const percent = basketInvested ? ((basketSellValue - basketInvested) / basketInvested) * 100 : 0;
-                            const isPositive = percent >= 0.01;
-                            const isNegative = percent <= -0.01;
-                            const bgColor = isPositive ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : isNegative ? "bg-rose-50 text-rose-700 ring-rose-200" : "bg-slate-50 text-slate-600 ring-slate-200";
-                            const sign = isPositive ? "+" : isNegative ? "-" : "";
-                            
-                            return (
-                              <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-sm font-bold ring-1 ${bgColor}`}>
-                                {sign}{Math.abs(percent).toFixed(2)}%
-                              </span>
-                            );
-                          })()}
                         </div>
-                      </div>
-                    </Link>
+                      </Link>
                   );
                 })
             ) : (
