@@ -116,21 +116,27 @@ export default function SearchBasket() {
                 onClick={async () => {
                   if (!selected) {
                     // Add to basket
-                    const res = await fetch(
-                      `https://zmvzrrggaergcqytqmil.supabase.co/functions/v1/ltp-api?symbol=${stock.ticker}`,
-                      {
-                        headers: {
-                          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+                    let ltp = 0;
+                    try {
+                      const res = await fetch(
+                        `https://zmvzrrggaergcqytqmil.supabase.co/functions/v1/ltp-api?symbol=${stock.ticker}`,
+                        {
+                          headers: {
+                            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+                          },
                         },
-                      },
-                    );
-                    const data = await res.json();
+                      );
+                      const data = await res.json();
+                      ltp = typeof data?.ltp === "number" ? data.ltp : 0;
+                    } catch {
+                      toast.error(`Could not fetch price for ${stock.ticker}. Adding with price 0.`);
+                    }
                     globalStore.getState().addBasketStock({
                       symbol: stock.ticker,
                       name: stock.title,
-                      quantity: 0, // default, user will set in InvestBasket
-                      buy_price: data.ltp, // treat ltp as buy price for now
-                      ltp: data.ltp,
+                      quantity: 0,
+                      buy_price: ltp,
+                      ltp: ltp,
                       sell_price: null,
                       sell_date: null,
                     });

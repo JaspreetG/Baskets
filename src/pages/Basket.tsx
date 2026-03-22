@@ -134,27 +134,23 @@ export default function Basket() {
   // Calculate values
   let totalBuyValue = 0;
   let totalSellValue = 0;
-  let earliestDate: string | undefined = undefined;
+  // Always use basket.created_at as the base date (same fix as Dashboard)
+  const earliestDate: string | undefined = basket.created_at ?? undefined;
   let latestSellDate: string | undefined = undefined;
   basket.stocks.forEach((s) => {
     const qty = s.quantity ?? 0;
     const buyPrice = s.buy_price ?? 0;
     totalBuyValue += qty * buyPrice;
-    const hasSell = s.sell_price != null && !isNaN(Number(s.sell_price));
+    const hasSell =
+      s.sell_price != null &&
+      !isNaN(Number(s.sell_price)) &&
+      typeof s.sell_date === "string" &&
+      s.sell_date.trim() !== "" &&
+      !isNaN(Date.parse(s.sell_date));
     const sellOrLtp = hasSell
       ? Number(s.sell_price)
       : Number(s.ltp ?? s.buy_price ?? 0);
     totalSellValue += qty * sellOrLtp;
-    // Find earliest buy date
-    if (qty && buyPrice && basket.created_at) {
-      if (
-        !earliestDate ||
-        new Date(toISTISOString(basket.created_at)) <
-          new Date(toISTISOString(earliestDate))
-      ) {
-        earliestDate = basket.created_at;
-      }
-    }
     // Find latest sell date if available
     if (
       typeof s.sell_date === "string" &&
@@ -200,20 +196,20 @@ export default function Basket() {
     if (latestSellDate) {
       const sellDateIST = new Date(toISTISOString(latestSellDate));
       sellDateIST.setHours(0, 0, 0, 0);
-      investedDays = Math.floor(
+      investedDays = Math.max(0, Math.floor(
         (sellDateIST.getTime() - investedDateIST.getTime()) /
           (1000 * 60 * 60 * 24),
-      );
+      ));
     } else {
       const now = new Date();
       const todayIST = new Date(
         new Date(now).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
       );
       todayIST.setHours(0, 0, 0, 0);
-      investedDays = Math.floor(
+      investedDays = Math.max(0, Math.floor(
         (todayIST.getTime() - investedDateIST.getTime()) /
           (1000 * 60 * 60 * 24),
-      );
+      ));
     }
   }
 
@@ -349,9 +345,7 @@ export default function Basket() {
               {allExited && (
                 <span className="rounded-md bg-slate-50 px-2.5 py-1 ring-1 ring-slate-200/50">Sold: <strong className="text-slate-700">{exitDateIST}</strong></span>
               )}
-              {allExited && (
-                <span className="rounded-md bg-slate-50 px-2.5 py-1 ring-1 ring-slate-200/50">Duration: <strong className="text-slate-700">{investedDays} days</strong></span>
-              )}
+              <span className="rounded-md bg-slate-50 px-2.5 py-1 ring-1 ring-slate-200/50">Duration: <strong className="text-slate-700">{investedDays} days</strong></span>
             </div>
           </div>
 
@@ -393,6 +387,27 @@ export default function Basket() {
                 </div>
               </div>
             </div>
+
+            {/* CAGR */}
+            {investedDays > 0 && invested > 0 && currentValue > 0 && (
+              <div className="flex items-center justify-between sm:block sm:flex-1 sm:border-l sm:border-slate-900/5 sm:pl-8 sm:space-y-1.5">
+                <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-slate-500">
+                  CAGR
+                </span>
+                {(() => {
+                  const yearsHeld = investedDays / 365;
+                  if (yearsHeld <= 0 || invested <= 0) return <p className="text-base sm:text-xl font-bold tabular-nums text-slate-600">N/A</p>;
+                  const cagrVal = (Math.pow(currentValue / invested, 1 / yearsHeld) - 1) * 100;
+                  if (!isFinite(cagrVal) || isNaN(cagrVal)) return <p className="text-base sm:text-xl font-bold tabular-nums text-slate-600">N/A</p>;
+                  const cagrColor = cagrVal > 0.01 ? "text-emerald-600" : cagrVal < -0.01 ? "text-rose-500" : "text-slate-600";
+                  return (
+                    <p className={`text-base sm:text-xl font-bold tabular-nums ${cagrColor}`}>
+                      {cagrVal >= 0 ? "+" : ""}{cagrVal.toFixed(2)}%
+                    </p>
+                  );
+                })()}
+              </div>
+            )}
           </div>
         </div>
       </div>

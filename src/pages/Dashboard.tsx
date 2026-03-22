@@ -53,10 +53,16 @@ function calculateXIRR(cashflows: { amount: number; date: string }[]): number {
   while (iter++ < maxIter) {
     const f = xnpv(rate);
     const df = dxnpv(rate);
+    if (!isFinite(f) || isNaN(f)) break;
     if (Math.abs(f) < tol) return rate * 100;
     if (df === 0) break;
-    rate = rate - f / df;
+    const newRate = rate - f / df;
+    // Clamp rate: can't go below -0.99 (Math.pow breaks at -1)
+    rate = Math.max(-0.99, Math.min(newRate, 10));
+    if (!isFinite(rate) || isNaN(rate)) break;
   }
+  // Final safety: if result is unreasonable, return 0
+  if (!isFinite(rate) || isNaN(rate) || Math.abs(rate) > 10) return 0;
   return rate * 100;
 }
 
@@ -95,7 +101,9 @@ const Dashboard = memo(function Dashboard() {
           },
         );
         const ltpData = await res.json();
-        updateBasketLTP(basketId, stock.symbol, ltpData.ltp);
+        if (typeof ltpData?.ltp === "number") {
+          updateBasketLTP(basketId, stock.symbol, ltpData.ltp);
+        }
       } catch {
         // ignore
       }
@@ -110,9 +118,18 @@ const Dashboard = memo(function Dashboard() {
       await Promise.all(
         (data as Basket[]).map(async (basket) => {
           await Promise.all(
-            basket.stocks.map(async (stock) =>
-              fetchLTPForStock(String(basket.id), stock),
-            ),
+            basket.stocks
+              .filter((stock) => {
+                // Skip LTP fetch for already-exited stocks
+                const exited =
+                  stock.sell_price != null &&
+                  typeof stock.sell_date === "string" &&
+                  stock.sell_date.trim() !== "";
+                return !exited;
+              })
+              .map(async (stock) =>
+                fetchLTPForStock(String(basket.id), stock),
+              ),
           );
         }),
       );
@@ -175,7 +192,6 @@ const Dashboard = memo(function Dashboard() {
                 date: sellDate,
               });
             }
-            // For invested/return/holding: do NOT include exited stocks
           } else {
             // Not exited: use LTP as sell price, today as sell date for XIRR
             const ltpOrBuy = Number(stock.ltp ?? stock.buy_price ?? 0);
@@ -183,10 +199,13 @@ const Dashboard = memo(function Dashboard() {
               amount: qty * ltpOrBuy,
               date: new Date().toISOString(),
             });
-            // For invested/return/holding: only include non-exited stocks
-            basketInvested += qty * buyPrice;
-            basketNet += qty * ltpOrBuy;
           }
+          // Always include stock in invested/return totals (exited or not)
+          const stockSellOrLtp = isExited(stock)
+            ? Number(stock.sell_price)
+            : Number(stock.ltp ?? stock.buy_price ?? 0);
+          basketInvested += qty * buyPrice;
+          basketNet += qty * stockSellOrLtp;
         }
       });
       netValue += basketNet;
@@ -354,21 +373,16 @@ const Dashboard = memo(function Dashboard() {
                 .map((basket) => {
                   let basketInvested = 0;
                   let basketSellValue = 0;
-                  let earliestDate: string | undefined = undefined;
+                  // Always use basket.created_at so even brand new baskets show "Today"
+                  const earliestDate: string | undefined = basket.created_at ?? undefined;
 
                   basket.stocks.forEach((stock) => {
                     const qty = stock.quantity ?? 0;
                     const buyPrice = stock.buy_price ?? 0;
                     basketInvested += qty * buyPrice;
-                    const hasSell = stock.sell_price != null && !isNaN(Number(stock.sell_price));
+                    const hasSell = stock.sell_price != null && !isNaN(Number(stock.sell_price)) && typeof stock.sell_date === "string" && stock.sell_date.trim() !== "";
                     const sellOrLtp = hasSell ? Number(stock.sell_price) : Number(stock.ltp ?? stock.buy_price ?? 0);
                     basketSellValue += qty * sellOrLtp;
-
-                    if (qty && buyPrice && basket.created_at) {
-                      if (!earliestDate || new Date(toISTISOString(basket.created_at)) < new Date(toISTISOString(earliestDate))) {
-                        earliestDate = basket.created_at;
-                      }
-                    }
                   });
 
                   let daysSince = 0;
@@ -376,7 +390,7 @@ const Dashboard = memo(function Dashboard() {
                     const createdAtIST = new Date(toISTISOString(earliestDate));
                     const todayIST = new Date(new Date().toLocaleDateString("en-US", { timeZone: "Asia/Kolkata" }));
                     const diffMs = todayIST.getTime() - new Date(createdAtIST).setHours(0, 0, 0, 0);
-                    daysSince = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                    daysSince = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
                   }
 
                   // CAGR calculation: ((endValue / beginValue) ^ (1 / years)) - 1
@@ -405,9 +419,12 @@ const Dashboard = memo(function Dashboard() {
                           <span className="text-base sm:text-[17px] font-extrabold text-slate-900 font-heading truncate" title={basket.name}>
                             {basket.name}
                           </span>
-                          <span className="text-xs sm:text-[13px] font-medium text-slate-500 mt-0.5">
+                          <span className="text-[11px] sm:text-xs font-medium text-slate-500 mt-1">
                             {basket.stocks.length} stocks
-                            {daysSince > 0 && <><span className="mx-1.5 opacity-40">·</span>{daysSince}d held</>}
+                            <span className="mx-1 opacity-40">·</span>
+                            Inv ₹{Math.round(basketInvested).toLocaleString()}
+                            {daysSince > 0 && <><span className="mx-1 opacity-40">·</span>{daysSince}d</>}
+                            {daysSince === 0 && earliestDate && <><span className="mx-1 opacity-40">·</span>Today</>}
                           </span>
                         </div>
 
@@ -416,12 +433,12 @@ const Dashboard = memo(function Dashboard() {
                           <span className="text-base sm:text-[17px] font-black text-slate-900 tabular-nums font-heading tracking-tight">
                             ₹{Math.round(basketSellValue).toLocaleString()}
                           </span>
-                          <div className="flex items-center gap-2 mt-0.5">
+                          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap justify-end">
                             <span className={`text-[11px] sm:text-xs font-bold tabular-nums ${returnColor}`}>
-                              {sign}₹{Math.abs(Math.round(totalReturn)).toLocaleString()} ({sign}{Math.abs(returnPct).toFixed(1)}%)
+                              {sign}{Math.abs(returnPct).toFixed(1)}%
                             </span>
                             {cagr !== null && Math.abs(cagr) < 9999 && (
-                              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400 border-l border-slate-200 pl-2">
+                              <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 border-l border-slate-200 pl-1.5">
                                 {cagr >= 0 ? "+" : ""}{cagr.toFixed(1)}% CAGR
                               </span>
                             )}
@@ -441,7 +458,7 @@ const Dashboard = memo(function Dashboard() {
                       </svg>
                     </div>
                   </div>
-                    <span className="text-lg sm:text-xl font-extrabold tracking-tight text-white/90 font-heading leading-tight drop-shadow-sm">
+                    <span className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 font-heading leading-tight">
                       Smarter Investing,<br />Effortless Portfolios.
                     </span>
                   <div className="mb-8 text-sm font-medium text-slate-500 leading-relaxed">

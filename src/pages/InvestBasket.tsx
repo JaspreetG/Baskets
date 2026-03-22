@@ -51,14 +51,16 @@ export default function InvestBasket() {
     let remaining =
       parsedAmount - allocated.reduce((acc, s) => acc + s.cost, 0);
 
-    while (remaining > 0.01) {
+    let safetyCounter = 0;
+    const maxIterations = n * 1000; // prevent infinite loop
+    while (remaining > 0.01 && safetyCounter++ < maxIterations) {
       // Sort by lowest allocation first
       allocated.sort((a, b) => a.quantity * a.ltp - b.quantity * b.ltp);
       let allocatedFlag = false;
 
       for (let i = 0; i < n; i++) {
         const stock = allocated[i];
-        if (stock.ltp <= 0) continue;
+        if (stock.ltp <= 0 || !isFinite(stock.ltp)) continue;
         if (remaining >= stock.ltp) {
           stock.quantity += 1;
           stock.cost += stock.ltp;
@@ -194,21 +196,21 @@ export default function InvestBasket() {
                     const allocation = total > 0 ? ((quantity * ltp) / total) * 100 : 0;
 
                     return (
-                      <div key={stock.code + "-" + idx} className="flex items-center justify-between px-6 py-5 sm:px-8 hover:bg-white/40 transition-colors">
-                        <div className="flex flex-col">
-                          <span className="text-base sm:text-lg font-black tracking-tight text-slate-900 font-heading">
+                      <div key={stock.code + "-" + idx} className="flex items-center justify-between gap-4 px-5 py-4 sm:px-8 sm:py-5 hover:bg-white/40 transition-colors">
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-sm sm:text-base font-black tracking-tight text-slate-900 font-heading truncate">
                             {stock.code}
                           </span>
-                          <span className="text-xs sm:text-[13px] font-medium text-slate-500 mt-0.5">
-                            {quantity} Shares <span className="mx-1.5 opacity-40">•</span> ₹{ltp.toFixed(2)}
+                          <span className="text-[11px] sm:text-xs font-medium text-slate-500 mt-0.5">
+                            {quantity} shares · ₹{ltp.toFixed(2)}
                           </span>
                         </div>
-                        <div className="flex flex-col items-end">
-                          <span className="text-base sm:text-lg font-black text-slate-900 tabular-nums font-heading tracking-tight">
+                        <div className="flex flex-col items-end shrink-0">
+                          <span className="text-sm sm:text-base font-black text-slate-900 tabular-nums font-heading tracking-tight">
                             ₹{(quantity * ltp).toFixed(2)}
                           </span>
-                          <span className="text-[11px] sm:text-xs font-bold text-slate-400 mt-1 uppercase tracking-wider">
-                            {allocation.toFixed(1)}% Alloc
+                          <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 mt-0.5 uppercase tracking-wider">
+                            {allocation.toFixed(1)}%
                           </span>
                         </div>
                       </div>
