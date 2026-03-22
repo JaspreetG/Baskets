@@ -159,7 +159,7 @@ export default function InvestBasket() {
             investMutation.mutate({ basketName, distributedStocks });
           }}
         >
-          <div className="mb-10 space-y-6 rounded-[2rem] bg-white p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-200/50">
+          <div className="mb-8 space-y-6 rounded-3xl bg-white p-5 sm:p-8 shadow-[0_2px_15px_rgb(0,0,0,0.03)] ring-1 ring-slate-200/60">
             <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
               <label
                 htmlFor="basketName"
@@ -176,7 +176,7 @@ export default function InvestBasket() {
                 placeholder="e.g. Long Term Tech"
                 value={basketName}
                 onChange={(e) => setBasketName(e.target.value)}
-                className="flex-1 rounded-[1rem] border border-slate-200/60 bg-slate-50/50 px-5 py-6 text-lg placeholder:text-slate-400 focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-400/20 focus:shadow-[0_0_30px_rgba(59,130,246,0.15)] transition-all shadow-inner"
+                className="flex-1 rounded-2xl border border-slate-200 bg-slate-50/50 px-4 sm:px-5 py-4 sm:py-5 text-base sm:text-lg placeholder:text-slate-400 focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-400/20 focus:shadow-[0_0_30px_rgba(59,130,246,0.15)] transition-all shadow-sm"
               />
             </div>
             <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
@@ -198,7 +198,7 @@ export default function InvestBasket() {
                   min="1"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full rounded-[1rem] border border-slate-200/60 bg-slate-50/50 py-6 pl-12 pr-5 text-lg placeholder:text-slate-400 focus:bg-white focus:border-emerald-400 focus:ring-4 focus:ring-emerald-400/20 focus:shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-all font-semibold tabular-nums shadow-inner"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 py-4 sm:py-5 pl-10 pr-4 text-base sm:text-lg placeholder:text-slate-400 focus:bg-white focus:border-emerald-400 focus:ring-4 focus:ring-emerald-400/20 focus:shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-all font-semibold tabular-nums shadow-sm"
                 />
               </div>
             </div>
@@ -215,15 +215,15 @@ export default function InvestBasket() {
                 </h3>
               </div>
               
-              <div className="overflow-hidden rounded-[2rem] border border-slate-100 bg-white shadow-[0_8px_30px_rgb(0,0,0,0.03)] ring-1 ring-slate-200/50">
+              <div className="overflow-x-auto rounded-3xl border border-slate-100 bg-white shadow-sm ring-1 ring-slate-200/60">
                 <div className="overflow-x-auto">
                   <table className="min-w-full table-auto">
                     <thead className="bg-slate-50/80 border-b border-slate-100">
-                      <tr className="text-left text-xs font-bold uppercase tracking-wider text-slate-500">
-                        <th className="px-6 py-4">Symbol</th>
-                        <th className="px-6 py-4 text-center">Qty</th>
-                        <th className="px-6 py-4 text-center">Unit Price</th>
-                        <th className="px-6 py-4 text-right">Allocation</th>
+                      <tr className="text-left text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
+                        <th className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">Symbol</th>
+                        <th className="px-2 sm:px-6 py-3 sm:py-4 text-center whitespace-nowrap">Qty</th>
+                        <th className="px-2 sm:px-6 py-3 sm:py-4 text-center whitespace-nowrap">Price</th>
+                        <th className="px-3 sm:px-6 py-3 sm:py-4 text-right whitespace-nowrap">Alloc</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50 text-sm font-medium text-slate-700">
@@ -243,26 +243,26 @@ export default function InvestBasket() {
                             key={stock.code + "-" + idx}
                             className="bg-white transition-colors hover:bg-slate-50/50"
                           >
-                            <td className="px-6 py-5">
-                              <div className="text-base font-bold text-slate-900 font-heading">
+                            <td className="px-3 sm:px-6 py-3 sm:py-4">
+                              <div className="text-sm sm:text-base font-bold text-slate-900 font-heading max-w-[80px] sm:max-w-[none] truncate">
                                 {stock.code}
                               </div>
                               {stock.name && stock.name !== stock.code && (
-                                <div className="mt-0.5 max-w-[180px] truncate text-[13px] text-slate-500 font-normal">
+                                <div className="mt-0.5 max-w-[80px] sm:max-w-[140px] truncate text-[11px] sm:text-[13px] text-slate-500 font-normal">
                                   {stock.name}
                                 </div>
                               )}
                             </td>
-                            <td className="px-6 py-5 text-center tabular-nums text-base">
-                              <span className="inline-flex items-center justify-center min-w-[2rem] rounded-md bg-slate-100 px-2.5 py-1 text-slate-800 font-semibold ring-1 ring-slate-200/50">
+                            <td className="px-2 sm:px-6 py-3 sm:py-4 text-center tabular-nums text-sm sm:text-base">
+                              <span className="inline-flex items-center justify-center min-w-[1.5rem] sm:min-w-[2rem] rounded-md bg-slate-100 px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-slate-800 font-semibold ring-1 ring-slate-200/50">
                                 {quantity}
                               </span>
                             </td>
-                            <td className="px-6 py-5 text-center tabular-nums text-slate-600">
+                            <td className="px-2 sm:px-6 py-3 sm:py-4 text-center tabular-nums text-xs sm:text-sm text-slate-600 whitespace-nowrap">
                               ₹{ltp.toFixed(2)}
                             </td>
-                            <td className="px-6 py-5 text-right tabular-nums">
-                              <span className="rounded-full bg-primary-50 px-3 py-1 text-xs font-bold text-primary-700 ring-1 ring-primary-200/50">
+                            <td className="px-3 sm:px-6 py-3 sm:py-4 text-right tabular-nums whitespace-nowrap">
+                              <span className="rounded pl-1.5 pr-1.5 py-0.5 text-[10px] sm:text-xs font-bold text-primary-700 bg-primary-50">
                                 {allocation.toFixed(1)}%
                               </span>
                             </td>
@@ -282,7 +282,7 @@ export default function InvestBasket() {
 
           {stocks.length === 0 && (
             <div className="mt-8">
-              <div className="flex flex-col items-center justify-center gap-4 rounded-[2rem] border-2 border-dashed border-slate-200 bg-slate-50/50 px-6 py-16 text-center shadow-sm">
+              <div className="flex flex-col items-center justify-center gap-4 rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50/50 px-5 sm:px-6 py-10 sm:py-16 text-center shadow-sm">
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/50 text-slate-400">
                   <FaBoxOpen size={28} />
                 </div>
@@ -295,14 +295,14 @@ export default function InvestBasket() {
           )}
 
           <div className="mt-12 mb-24 space-y-6">
-            <div className="flex items-center justify-between rounded-[1.5rem] bg-white p-6 shadow-[0_4px_20px_rgb(0,0,0,0.03)] ring-1 ring-slate-200/60">
-              <span className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-slate-600">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+            <div className="flex items-center justify-between rounded-3xl bg-white p-5 sm:p-6 shadow-sm ring-1 ring-slate-200/60">
+              <span className="flex items-center gap-2 sm:gap-3 text-[11px] sm:text-sm font-bold uppercase tracking-widest text-slate-600">
+                <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
                   <FaBoxOpen size={16} />
                 </div>
                 Total Value
               </span>
-              <span className="text-3xl font-bold text-slate-900 tabular-nums">
+              <span className="text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
                 ₹{total.toFixed(2)}
               </span>
             </div>

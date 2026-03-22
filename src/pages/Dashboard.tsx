@@ -217,7 +217,7 @@ const Dashboard = memo(function Dashboard() {
         {/* Portfolio Summary and Baskets Section */}
         <section className="space-y-4">
           <div className="relative">
-            <div className="relative overflow-hidden space-y-8 rounded-[2rem] bg-white p-7 md:p-10 shadow-[0_8px_40px_rgb(0,0,0,0.04)] ring-1 ring-slate-200/80">
+            <div className="relative overflow-hidden space-y-6 sm:space-y-8 rounded-3xl bg-white p-5 sm:p-7 md:p-10 shadow-[0_2px_15px_rgb(0,0,0,0.03)] ring-1 ring-slate-200/80">
               <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary-50/50 blur-3xl"></div>
               
               {/* Header: Overall Holding Label and Value */}
@@ -240,20 +240,20 @@ const Dashboard = memo(function Dashboard() {
                   </div>
                   <span className="leading-snug text-slate-800">Portfolio Value</span>
                 </div>
-                <div className="text-3xl font-bold tracking-tight text-slate-900 tabular-nums">
+                <div className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 tabular-nums">
                   <span className="text-slate-400 mr-1 font-sans">₹</span>
                   {totalNetValue.toLocaleString()}
                 </div>
               </div>
 
               {/* Invested, XIRR, Total Return (vertical grid layout) */}
-              <div className="grid w-full grid-cols-2 lg:grid-cols-4 gap-6 border-t border-slate-100 pt-8 text-sm relative z-10">
+              <div className="grid w-full grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 border-t border-slate-100 pt-6 sm:pt-8 text-sm relative z-10">
                 {/* Invested */}
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500">
                     Invested
                   </div>
-                  <div className="text-xl font-semibold text-slate-800 tabular-nums">
+                  <div className="text-lg sm:text-xl font-bold text-slate-800 tabular-nums">
                     ₹{totalInvested.toLocaleString()}
                   </div>
                 </div>
@@ -264,7 +264,7 @@ const Dashboard = memo(function Dashboard() {
                     XIRR
                   </div>
                   <div
-                    className={`text-xl font-bold tabular-nums ${
+                    className={`text-lg sm:text-xl font-bold tabular-nums ${
                       xirr >= 0.01
                         ? "text-accent-600"
                         : xirr <= -0.01
@@ -290,7 +290,7 @@ const Dashboard = memo(function Dashboard() {
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <div
-                      className={`text-xl font-bold tabular-nums ${
+                      className={`text-lg sm:text-xl font-bold tabular-nums ${
                         totalReturn > 0
                           ? "text-accent-600"
                           : totalReturn < 0
@@ -302,7 +302,7 @@ const Dashboard = memo(function Dashboard() {
                       {Math.abs(totalReturn).toLocaleString()}
                     </div>
                     <div
-                      className={`rounded-full px-2.5 py-0.5 text-sm font-semibold ${
+                      className={`rounded pl-1 pr-2 py-0.5 text-xs sm:text-sm font-bold ${
                         totalReturn > 0
                           ? "bg-accent-50 text-accent-700 ring-1 ring-accent-200/50"
                           : totalReturn < 0
@@ -330,7 +330,7 @@ const Dashboard = memo(function Dashboard() {
         {/* Baskets Section */}
         <section className="mt-12 mb-20 space-y-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-2xl font-bold text-slate-900 font-heading">Your Baskets</h3>
+            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 font-heading">Your Baskets</h3>
             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 ring-1 ring-slate-200/70">{baskets.length} Total</span>
           </div>
 
@@ -437,7 +437,7 @@ const Dashboard = memo(function Dashboard() {
                     >
                       <div className="flex h-full flex-col justify-between rounded-[1.5rem] bg-white p-6 shadow-[0_2px_10px_rgb(0,0,0,0.02)] ring-1 ring-slate-200/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:ring-primary-200">
                         <div className="mb-4">
-                          <h4 className="mb-2 truncate text-xl font-bold text-slate-900 font-heading group-hover:text-primary-600 transition-colors">
+                          <h4 className="mb-2 truncate text-lg sm:text-xl font-bold text-slate-900 font-heading group-hover:text-primary-600 transition-colors">
                             {basket.name}
                           </h4>
                           <div className="flex flex-wrap gap-2 text-xs text-slate-500 font-medium">
@@ -459,7 +459,7 @@ const Dashboard = memo(function Dashboard() {
                         <div className="mt-auto flex items-end justify-between border-t border-slate-50 pt-4">
                           <div className="flex flex-col">
                             <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Value</span>
-                            <span className="text-xl font-bold text-slate-800 tabular-nums">
+                            <span className="text-xl font-bold text-slate-800 tabular-nums tracking-tight">
                               ₹{Math.round(basketSellValue).toLocaleString()}
                             </span>
                           </div>

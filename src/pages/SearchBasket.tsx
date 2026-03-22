@@ -60,8 +60,8 @@ export default function SearchBasket() {
             <span>Dashboard</span>
           </Link>
         </div>
-        <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-slate-900 font-heading">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-600 ring-1 ring-primary-100/50 shadow-sm">
+        <h2 className="flex items-center gap-2 sm:gap-3 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 font-heading">
+          <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-600 ring-1 ring-primary-100/50 shadow-sm">
             <FaSearch className="h-4 w-4" />
           </div>
           Find Stocks
@@ -79,7 +79,7 @@ export default function SearchBasket() {
           <Input
             type="text"
             placeholder="Search symbols or company names..."
-            className="w-full rounded-2xl border border-slate-200/60 bg-white/80 py-6 pr-6 pl-12 text-lg text-slate-800 shadow-[0_4px_20px_rgb(0,0,0,0.03)] backdrop-blur-md placeholder:text-slate-400 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/20 focus:shadow-[0_0_30px_rgba(59,130,246,0.15)] focus:outline-none transition-all"
+            className="w-full rounded-2xl border border-slate-200/60 bg-white/80 py-4 sm:py-6 pr-4 sm:pr-6 pl-10 sm:pl-12 text-base sm:text-lg text-slate-800 shadow-[0_4px_20px_rgb(0,0,0,0.03)] backdrop-blur-md placeholder:text-slate-400 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/20 focus:shadow-[0_0_30px_rgba(59,130,246,0.15)] focus:outline-none transition-all"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -95,13 +95,13 @@ export default function SearchBasket() {
           return (
             <li
               key={stock.ticker}
-              className="flex items-center justify-between rounded-[1.25rem] bg-white p-4 shadow-[0_2px_10px_rgb(0,0,0,0.02)] ring-1 ring-slate-200/50 transition-all hover:shadow-[0_4px_15px_rgb(0,0,0,0.04)] hover:ring-slate-200"
+              className="flex items-center justify-between rounded-2xl bg-white p-3 sm:p-4 shadow-[0_2px_10px_rgb(0,0,0,0.02)] ring-1 ring-slate-200/50 transition-all hover:shadow-[0_4px_15px_rgb(0,0,0,0.04)] hover:ring-slate-200"
             >
-              <div className="flex-1 min-w-0 pr-4">
-                <div className="text-lg font-bold text-slate-900 font-heading">
+              <div className="flex-1 min-w-0 pr-3 sm:pr-4">
+                <div className="text-base sm:text-lg font-bold text-slate-900 font-heading">
                   {stock.ticker}
                 </div>
-                <div className="truncate text-sm font-medium text-slate-500">
+                <div className="truncate text-xs sm:text-sm font-medium text-slate-500">
                   {stock.title}
                 </div>
               </div>

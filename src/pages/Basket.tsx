@@ -340,32 +340,32 @@ export default function Basket() {
       </div>
 
       {/* Performance Summary */}
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-white p-8 md:p-12 shadow-[0_8px_40px_rgb(0,0,0,0.04)] ring-1 ring-slate-200/80">
+      <div className="relative overflow-hidden rounded-3xl bg-white p-5 sm:p-8 md:p-12 shadow-[0_8px_40px_rgb(0,0,0,0.04)] ring-1 ring-slate-200/80">
         <div className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-primary-50/50 blur-[80px]"></div>
         
         <div className="relative z-10">
-          <div className="mb-10">
-            <h2 className="mb-4 text-4xl font-bold tracking-tight text-slate-900 font-heading">
+          <div className="mb-6 sm:mb-10">
+            <h2 className="mb-3 sm:mb-4 text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-slate-900 font-heading">
               {basket.name}
             </h2>
-            <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-500">
-              <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-1.5 ring-1 ring-slate-200/50">
-                <FaCalendarAlt className="h-4 w-4 text-slate-400" />
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[11px] sm:text-sm font-medium text-slate-500">
+              <div className="flex items-center gap-1.5 sm:gap-2 rounded-lg bg-slate-50 px-2 sm:px-3 py-1 sm:py-1.5 ring-1 ring-slate-200/50">
+                <FaCalendarAlt className="h-3 sm:h-4 w-3 sm:w-4 text-slate-400" />
                 <span>
                   Invested: <strong className="text-slate-700">{investedOnDateIST}</strong>
                 </span>
               </div>
               {allExited && (
-                <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-1.5 ring-1 ring-slate-200/50">
-                  <FaCalendarAlt className="h-4 w-4 text-slate-400" />
+                <div className="flex items-center gap-1.5 sm:gap-2 rounded-lg bg-slate-50 px-2 sm:px-3 py-1 sm:py-1.5 ring-1 ring-slate-200/50">
+                  <FaCalendarAlt className="h-3 sm:h-4 w-3 sm:w-4 text-slate-400" />
                   <span>
                     Sold: <strong className="text-slate-700">{exitDateIST}</strong>
                   </span>
                 </div>
               )}
               {allExited && (
-                 <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-1.5 ring-1 ring-slate-200/50">
-                  <FaCalendarAlt className="h-4 w-4 text-slate-400" />
+                 <div className="flex items-center gap-1.5 sm:gap-2 rounded-lg bg-slate-50 px-2 sm:px-3 py-1 sm:py-1.5 ring-1 ring-slate-200/50">
+                  <FaCalendarAlt className="h-3 sm:h-4 w-3 sm:w-4 text-slate-400" />
                   <span>
                     Duration: <strong className="text-slate-700">{investedDays} days</strong>
                   </span>
@@ -374,27 +374,27 @@ export default function Basket() {
             </div>
           </div>
 
-          <div className="grid gap-8 border-t border-slate-100 pt-10 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="space-y-2">
-              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500">
-                <div className="flex h-6 w-6 items-center justify-center rounded-md bg-slate-100 text-slate-400">
+          <div className="grid gap-5 sm:gap-8 border-t border-slate-100 pt-6 sm:pt-10 grid-cols-2 lg:grid-cols-4">
+            <div className="space-y-1 sm:space-y-2">
+              <p className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
+                <div className="flex h-5 sm:h-6 w-5 sm:w-6 items-center justify-center rounded-md bg-slate-100 text-slate-400">
                   <FaRupeeSign size={10} />
                 </div>
                 Invested
               </p>
-              <p className="text-2xl font-bold text-slate-900 tabular-nums">
+              <p className="text-lg sm:text-2xl font-bold text-slate-900 tabular-nums">
                 ₹{invested.toLocaleString()}
               </p>
             </div>
             
-            <div className="space-y-2">
-              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500">
-                <div className="flex h-6 w-6 items-center justify-center rounded-md bg-slate-100 text-slate-400">
+            <div className="space-y-1 sm:space-y-2">
+              <p className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
+                <div className="flex h-5 sm:h-6 w-5 sm:w-6 items-center justify-center rounded-md bg-slate-100 text-slate-400">
                   <FaRupeeSign size={10} />
                 </div>
                 {allExited ? "Final Value" : "Current Value"}
               </p>
-              <p className="text-2xl font-bold text-slate-900 tabular-nums">
+              <p className="text-lg sm:text-2xl font-bold text-slate-900 tabular-nums">
                 ₹{currentValue.toLocaleString()}
               </p>
             </div>
@@ -438,10 +438,10 @@ export default function Basket() {
       </div>
 
       {/* Stock Breakdown */}
-      <div className="overflow-hidden rounded-[2rem] border border-slate-100 bg-white shadow-[0_8px_30px_rgb(0,0,0,0.03)] ring-1 ring-slate-200/50">
-        <div className="flex items-center gap-3 border-b border-slate-100 bg-slate-50/50 px-6 py-5 text-lg font-bold text-slate-800 font-heading">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-primary-500 ring-1 ring-slate-200/60 shadow-sm">
-            <FaChartPie size={14} />
+      <div className="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-[0_8px_30px_rgb(0,0,0,0.03)] ring-1 ring-slate-200/50">
+        <div className="flex items-center gap-2 sm:gap-3 border-b border-slate-100 bg-slate-50/50 px-4 sm:px-6 py-4 sm:py-5 text-base sm:text-lg font-bold text-slate-800 font-heading">
+          <div className="flex h-7 sm:h-8 w-7 sm:w-8 items-center justify-center rounded-lg bg-white text-primary-500 ring-1 ring-slate-200/60 shadow-sm">
+            <FaChartPie size={12} className="sm:size-3.5" />
           </div>
           Composition Summary
         </div>
@@ -478,28 +478,28 @@ export default function Basket() {
             return (
               <div
                 key={stock.symbol}
-                className="flex flex-col sm:flex-row sm:items-center justify-between p-6 transition-colors hover:bg-slate-50/50 gap-4"
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 transition-colors hover:bg-slate-50/50 gap-3 sm:gap-4"
               >
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-lg font-bold text-slate-700 ring-1 ring-slate-200/50 font-heading">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="flex h-10 sm:h-12 w-10 sm:w-12 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-base sm:text-lg font-bold text-slate-700 ring-1 ring-slate-200/50 font-heading">
                     {stock.symbol.charAt(0)}
                   </div>
                   <div>
-                    <span className="block text-lg font-bold text-slate-900 font-heading">
+                    <span className="block text-base sm:text-lg font-bold text-slate-900 font-heading line-clamp-1">
                       {stock.symbol}
                     </span>
-                    <span className="mt-0.5 block text-[13px] font-medium text-slate-500">
+                    <span className="mt-0.5 block text-[11px] sm:text-[13px] font-medium text-slate-500 line-clamp-1">
                       {stock.name} • {stock.quantity} shares
                     </span>
                   </div>
                 </div>
-                <div className="flex items-start sm:items-end flex-col sm:text-right">
-                  <span className="text-xl font-bold text-slate-800 tabular-nums">
+                <div className="flex items-start sm:items-end flex-row sm:flex-col justify-between sm:justify-start w-full sm:w-auto sm:text-right border-t border-slate-100 sm:border-0 pt-3 sm:pt-0">
+                  <span className="text-lg sm:text-xl font-bold text-slate-800 tabular-nums">
                     ₹{stockCurrent.toLocaleString()}
                   </span>
-                  <div className="mt-1.5 flex items-center gap-2">
-                    <span className="text-[13px] font-medium text-slate-400">Return</span>
-                    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-bold ring-1 ${stockReturnPercentClass}`}>
+                  <div className="mt-0 sm:mt-1.5 flex items-center gap-2">
+                    <span className="hidden sm:inline text-[13px] font-medium text-slate-400">Return</span>
+                    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] sm:text-xs font-bold ring-1 ${stockReturnPercentClass}`}>
                       {stockReturnPercentSign}
                       {Math.abs(stockReturnPercent).toFixed(2)}%
                     </span>
