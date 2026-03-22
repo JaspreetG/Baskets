@@ -1,13 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import {
+import { 
   FaChevronLeft,
   FaTrash,
-  FaCalendarAlt,
-  FaRupeeSign,
-  FaPercentage,
-  FaChartPie,
-  FaSignOutAlt,
+  FaSignOutAlt
 } from "react-icons/fa";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
@@ -340,96 +336,60 @@ export default function Basket() {
       </div>
 
       {/* Performance Summary */}
-      <div className="relative overflow-hidden rounded-3xl bg-white p-5 sm:p-8 md:p-12 shadow-[0_8px_40px_rgb(0,0,0,0.04)] ring-1 ring-slate-200/80">
-        <div className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-primary-50/50 blur-[80px]"></div>
+      <div className="relative overflow-hidden rounded-[2.5rem] bg-white/70 backdrop-blur-3xl p-5 sm:p-8 md:p-12 shadow-[0_12px_40px_rgba(0,0,0,0.04)] border border-white/80">
+        <div className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-blue-300/10 blur-[100px] mix-blend-overlay"></div>
         
         <div className="relative z-10">
           <div className="mb-6 sm:mb-10">
-            <h2 className="mb-3 sm:mb-4 text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-slate-900 font-heading">
+            <h2 className="mb-2 sm:mb-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 font-heading">
               {basket.name}
             </h2>
-            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[11px] sm:text-sm font-medium text-slate-500">
-              <div className="flex items-center gap-1.5 sm:gap-2 rounded-lg bg-slate-50 px-2 sm:px-3 py-1 sm:py-1.5 ring-1 ring-slate-200/50">
-                <FaCalendarAlt className="h-3 sm:h-4 w-3 sm:w-4 text-slate-400" />
-                <span>
-                  Invested: <strong className="text-slate-700">{investedOnDateIST}</strong>
-                </span>
-              </div>
+            <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm font-medium text-slate-500">
+              <span className="rounded-md bg-slate-50 px-2.5 py-1 ring-1 ring-slate-200/50">Invested: <strong className="text-slate-700">{investedOnDateIST}</strong></span>
               {allExited && (
-                <div className="flex items-center gap-1.5 sm:gap-2 rounded-lg bg-slate-50 px-2 sm:px-3 py-1 sm:py-1.5 ring-1 ring-slate-200/50">
-                  <FaCalendarAlt className="h-3 sm:h-4 w-3 sm:w-4 text-slate-400" />
-                  <span>
-                    Sold: <strong className="text-slate-700">{exitDateIST}</strong>
-                  </span>
-                </div>
+                <span className="rounded-md bg-slate-50 px-2.5 py-1 ring-1 ring-slate-200/50">Sold: <strong className="text-slate-700">{exitDateIST}</strong></span>
               )}
               {allExited && (
-                 <div className="flex items-center gap-1.5 sm:gap-2 rounded-lg bg-slate-50 px-2 sm:px-3 py-1 sm:py-1.5 ring-1 ring-slate-200/50">
-                  <FaCalendarAlt className="h-3 sm:h-4 w-3 sm:w-4 text-slate-400" />
-                  <span>
-                    Duration: <strong className="text-slate-700">{investedDays} days</strong>
-                  </span>
-                </div>
+                <span className="rounded-md bg-slate-50 px-2.5 py-1 ring-1 ring-slate-200/50">Duration: <strong className="text-slate-700">{investedDays} days</strong></span>
               )}
             </div>
           </div>
 
-          <div className="grid gap-5 sm:gap-8 border-t border-slate-100 pt-6 sm:pt-10 grid-cols-2 lg:grid-cols-4">
-            <div className="space-y-1 sm:space-y-2">
-              <p className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
-                <div className="flex h-5 sm:h-6 w-5 sm:w-6 items-center justify-center rounded-md bg-slate-100 text-slate-400">
-                  <FaRupeeSign size={10} />
-                </div>
+          <div className="flex flex-col sm:flex-row w-full gap-4 sm:gap-8 border-t border-slate-900/5 pt-5 sm:pt-8 relative">
+            <div className="flex items-center justify-between sm:block sm:flex-1 pb-4 sm:pb-0 border-b sm:border-b-0 border-slate-900/5 sm:space-y-1.5">
+              <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-slate-500">
                 Invested
-              </p>
-              <p className="text-lg sm:text-2xl font-bold text-slate-900 tabular-nums">
+              </span>
+              <p className="text-base sm:text-xl font-bold text-slate-800 tabular-nums">
                 ₹{invested.toLocaleString()}
               </p>
             </div>
             
-            <div className="space-y-1 sm:space-y-2">
-              <p className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
-                <div className="flex h-5 sm:h-6 w-5 sm:w-6 items-center justify-center rounded-md bg-slate-100 text-slate-400">
-                  <FaRupeeSign size={10} />
-                </div>
+            <div className="flex items-center justify-between sm:block sm:flex-1 pb-4 sm:pb-0 border-b sm:border-b-0 border-slate-900/5 sm:border-l sm:border-slate-900/5 sm:pl-8 sm:space-y-1.5">
+              <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-slate-500">
                 {allExited ? "Final Value" : "Current Value"}
-              </p>
-              <p className="text-lg sm:text-2xl font-bold text-slate-900 tabular-nums">
+              </span>
+              <p className="text-base sm:text-xl font-bold text-slate-800 tabular-nums">
                 ₹{currentValue.toLocaleString()}
               </p>
             </div>
-
-            <div className="space-y-2 lg:col-span-2">
-              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500">
-                <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary-50 text-primary-400">
-                  <FaPercentage size={10} />
-                </div>
+            
+            <div className="flex items-center justify-between sm:block sm:flex-1 sm:border-l sm:border-slate-900/5 sm:pl-8 sm:space-y-1.5">
+              <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-slate-500">
                 Total Return
-              </p>
-              <div className="flex items-center gap-3">
-                <p
-                  className={`text-2xl font-bold tabular-nums ${
-                    totalReturn > 0
-                      ? "text-accent-600"
-                      : totalReturn < 0
-                        ? "text-rose-500"
-                        : "text-slate-900"
-                  }`}
-                >
-                  {totalReturn > 0 ? "+" : totalReturn < 0 ? "-" : ""}₹
-                  {Math.abs(totalReturn).toLocaleString()}
+              </span>
+              <div className="flex items-center sm:items-baseline gap-2 text-right sm:text-left">
+                <p className={`text-base sm:text-xl font-bold tabular-nums ${totalReturn > 0 ? "text-emerald-600" : totalReturn < 0 ? "text-rose-500" : "text-slate-600"}`}>
+                  {totalReturn > 0 ? "+" : totalReturn < 0 ? "-" : ""}₹{Math.abs(totalReturn).toLocaleString()}
                 </p>
-                <div
-                  className={`rounded-full px-3 py-1 text-sm font-bold ${
+                <div className={`px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] uppercase tracking-wider font-bold ${
                     returnPercent > 0
-                      ? "bg-accent-50 text-accent-700 ring-1 ring-accent-200/50"
+                      ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/50"
                       : returnPercent < 0
                         ? "bg-rose-50 text-rose-700 ring-1 ring-rose-200/50"
                         : "bg-slate-100 text-slate-600"
-                  }`}
-                >
-                  {returnPercent > 0 ? "+" : returnPercent < 0 ? "-" : ""}
-                  {Math.abs(returnPercent).toFixed(2)}%
+                  }`}>
+                  {returnPercent > 0 ? "+" : returnPercent < 0 ? "-" : ""}{Math.abs(returnPercent).toFixed(2)}%
                 </div>
               </div>
             </div>
@@ -438,14 +398,11 @@ export default function Basket() {
       </div>
 
       {/* Stock Breakdown */}
-      <div className="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-[0_8px_30px_rgb(0,0,0,0.03)] ring-1 ring-slate-200/50">
-        <div className="flex items-center gap-2 sm:gap-3 border-b border-slate-100 bg-slate-50/50 px-4 sm:px-6 py-4 sm:py-5 text-base sm:text-lg font-bold text-slate-800 font-heading">
-          <div className="flex h-7 sm:h-8 w-7 sm:w-8 items-center justify-center rounded-lg bg-white text-primary-500 ring-1 ring-slate-200/60 shadow-sm">
-            <FaChartPie size={12} className="sm:size-3.5" />
-          </div>
+      <div className="overflow-hidden rounded-[2.5rem] bg-white/60 backdrop-blur-3xl shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-white/60 mt-8">
+        <div className="border-b border-slate-900/5 bg-white/40 px-5 sm:px-6 py-5 text-[11px] sm:text-xs font-bold uppercase tracking-widest text-slate-500">
           Composition Summary
         </div>
-        <div className="divide-y divide-slate-50">
+        <div className="divide-y divide-slate-900/5">
           {basket.stocks.map((stock) => {
             const stockInvested =
               (stock.quantity ?? 0) * (stock.buy_price ?? 0);
@@ -467,43 +424,39 @@ export default function Basket() {
             
             let stockReturnPercentClass = "text-slate-500 ring-slate-200 bg-slate-50";
             if (stockReturnPercent >= 0.01)
-              stockReturnPercentClass = "text-accent-700 ring-accent-200 bg-accent-50";
+              stockReturnPercentClass = "text-emerald-700 ring-emerald-200 bg-emerald-50";
             else if (stockReturnPercent <= -0.01)
               stockReturnPercentClass = "text-rose-700 ring-rose-200 bg-rose-50";
               
             let stockReturnPercentSign = "";
             if (stockReturnPercent >= 0.01) stockReturnPercentSign = "+";
             else if (stockReturnPercent <= -0.01) stockReturnPercentSign = "-";
-            
-            return (
+                   return (
               <div
                 key={stock.symbol}
-                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 transition-colors hover:bg-slate-50/50 gap-3 sm:gap-4"
+                className="flex items-center justify-between p-4 sm:p-5 transition-colors hover:bg-white/40 gap-4"
               >
-                <div className="flex items-center gap-3 sm:gap-4">
-                  <div className="flex h-10 sm:h-12 w-10 sm:w-12 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-base sm:text-lg font-bold text-slate-700 ring-1 ring-slate-200/50 font-heading">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0 pr-2">
+                  <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-sm sm:text-base font-extrabold text-slate-700 ring-1 ring-slate-200/50 font-heading">
                     {stock.symbol.charAt(0)}
                   </div>
-                  <div>
-                    <span className="block text-base sm:text-lg font-bold text-slate-900 font-heading line-clamp-1">
+                  <div className="min-w-0">
+                    <span className="block text-sm sm:text-base font-extrabold text-slate-900 font-heading truncate">
                       {stock.symbol}
                     </span>
-                    <span className="mt-0.5 block text-[11px] sm:text-[13px] font-medium text-slate-500 line-clamp-1">
+                    <span className="mt-0.5 block text-[11px] sm:text-[13px] font-medium text-slate-500 truncate">
                       {stock.name} • {stock.quantity} shares
                     </span>
                   </div>
                 </div>
-                <div className="flex items-start sm:items-end flex-row sm:flex-col justify-between sm:justify-start w-full sm:w-auto sm:text-right border-t border-slate-100 sm:border-0 pt-3 sm:pt-0">
-                  <span className="text-lg sm:text-xl font-bold text-slate-800 tabular-nums">
+                
+                <div className="flex flex-col items-end shrink-0 text-right space-y-0.5 sm:space-y-1">
+                  <span className="text-sm sm:text-base font-bold text-slate-900 tabular-nums font-heading">
                     ₹{stockCurrent.toLocaleString()}
                   </span>
-                  <div className="mt-0 sm:mt-1.5 flex items-center gap-2">
-                    <span className="hidden sm:inline text-[13px] font-medium text-slate-400">Return</span>
-                    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] sm:text-xs font-bold ring-1 ${stockReturnPercentClass}`}>
-                      {stockReturnPercentSign}
-                      {Math.abs(stockReturnPercent).toFixed(2)}%
-                    </span>
-                  </div>
+                  <span className={`inline-flex items-center rounded-md px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-[11px] uppercase tracking-wider font-bold ring-1 ${stockReturnPercentClass}`}>
+                    {stockReturnPercentSign}{Math.abs(stockReturnPercent).toFixed(2)}%
+                  </span>
                 </div>
               </div>
             );

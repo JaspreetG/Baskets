@@ -217,56 +217,38 @@ const Dashboard = memo(function Dashboard() {
         {/* Portfolio Summary and Baskets Section */}
         <section className="space-y-4">
           <div className="relative">
-            <div className="relative overflow-hidden space-y-6 sm:space-y-8 rounded-3xl bg-white p-5 sm:p-7 md:p-10 shadow-[0_2px_15px_rgb(0,0,0,0.03)] ring-1 ring-slate-200/80">
-              <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary-50/50 blur-3xl"></div>
+            {/* Main Portfolio Top Card */}
+            <div className="relative overflow-hidden rounded-[2.5rem] bg-white/70 backdrop-blur-3xl p-5 sm:p-8 md:p-10 shadow-[0_8px_40px_rgba(0,0,0,0.04)] border border-white/80">
+              <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-blue-400/10 blur-[80px] mix-blend-overlay"></div>
               
               {/* Header: Overall Holding Label and Value */}
-              <div className="flex items-center justify-between relative z-10">
-                <div className="flex items-center gap-4 text-xl font-bold tracking-tight text-slate-900 font-heading">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-50 text-primary-600 ring-1 ring-primary-100/50 shadow-sm">
-                    <svg
-                      className="h-6 w-6"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M3 7h18M3 12h18M3 17h18"
-                      />
-                    </svg>
-                  </div>
-                  <span className="leading-snug text-slate-800">Portfolio Value</span>
-                </div>
-                <div className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 tabular-nums">
-                  <span className="text-slate-400 mr-1 font-sans">₹</span>
-                  {totalNetValue.toLocaleString()}
-                </div>
-              </div>
-
-              {/* Invested, XIRR, Total Return (vertical grid layout) */}
-              <div className="grid w-full grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 border-t border-slate-100 pt-6 sm:pt-8 text-sm relative z-10">
+              <div className="relative z-10 flex flex-col items-start gap-1 sm:gap-1.5">
+                <h2 className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-slate-500">Portfolio Value</h2>
+                          <div className="text-lg sm:text-xl font-extrabold text-slate-900 tabular-nums font-heading">
+                            <span className="font-sans text-slate-400 mr-1 text-sm sm:text-base">₹</span>
+                            {totalNetValue.toLocaleString()}
+                          </div>
+              </div>              {/* Invested, XIRR, Total Return */}
+              <div className="flex flex-col sm:flex-row w-full gap-4 sm:gap-8 border-t border-slate-100 pt-5 sm:pt-8 relative z-10">
                 {/* Invested */}
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <div className="flex items-center justify-between sm:block sm:flex-1 pb-4 sm:pb-0 border-b sm:border-b-0 border-slate-100 sm:space-y-1.5">
+                  <div className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-slate-500">
                     Invested
                   </div>
-                  <div className="text-lg sm:text-xl font-bold text-slate-800 tabular-nums">
+                  <div className="text-sm sm:text-lg font-bold text-slate-800 tabular-nums font-heading">
                     ₹{totalInvested.toLocaleString()}
                   </div>
                 </div>
 
                 {/* XIRR */}
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <div className="flex items-center justify-between sm:block sm:flex-1 pb-4 sm:pb-0 border-b sm:border-b-0 border-slate-100 sm:border-l sm:pl-8 sm:space-y-1.5">
+                  <div className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-slate-500">
                     XIRR
                   </div>
                   <div
-                    className={`text-lg sm:text-xl font-bold tabular-nums ${
+                    className={`text-sm sm:text-lg font-bold tabular-nums font-heading ${
                       xirr >= 0.01
-                        ? "text-accent-600"
+                        ? "text-emerald-600"
                         : xirr <= -0.01
                           ? "text-rose-500"
                           : "text-slate-600"
@@ -284,27 +266,26 @@ const Dashboard = memo(function Dashboard() {
                 </div>
 
                 {/* Total Return */}
-                <div className="space-y-1.5 lg:col-span-2">
-                  <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <div className="flex items-center justify-between sm:block sm:flex-1 sm:border-l border-slate-100 sm:pl-8 sm:space-y-1.5">
+                  <div className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-slate-500">
                     Total Return
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center sm:items-baseline gap-2 text-right sm:text-left">
                     <div
-                      className={`text-lg sm:text-xl font-bold tabular-nums ${
+                      className={`text-sm sm:text-lg font-bold tabular-nums font-heading ${
                         totalReturn > 0
-                          ? "text-accent-600"
+                          ? "text-emerald-600"
                           : totalReturn < 0
                             ? "text-rose-500"
                             : "text-slate-600"
                       }`}
                     >
-                      {totalReturn > 0 ? "+" : totalReturn < 0 ? "-" : ""}₹
-                      {Math.abs(totalReturn).toLocaleString()}
+                      {totalReturn > 0 ? "+" : totalReturn < 0 ? "-" : ""}₹{Math.abs(totalReturn).toLocaleString()}
                     </div>
                     <div
-                      className={`rounded pl-1 pr-2 py-0.5 text-xs sm:text-sm font-bold ${
+                      className={`px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] uppercase tracking-wider font-bold ${
                         totalReturn > 0
-                          ? "bg-accent-50 text-accent-700 ring-1 ring-accent-200/50"
+                          ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/50"
                           : totalReturn < 0
                             ? "bg-rose-50 text-rose-700 ring-1 ring-rose-200/50"
                             : "bg-slate-100 text-slate-600"
@@ -329,8 +310,10 @@ const Dashboard = memo(function Dashboard() {
 
         {/* Baskets Section */}
         <section className="mt-12 mb-20 space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 font-heading">Your Baskets</h3>
+          <div className="flex items-center justify-between mb-5 sm:mb-6">
+            <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 font-heading">
+              Your Baskets
+            </h3>
             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 ring-1 ring-slate-200/70">{baskets.length} Total</span>
           </div>
 
@@ -435,22 +418,16 @@ const Dashboard = memo(function Dashboard() {
                       state={{ basketId: basket.id }}
                       className="group block h-full"
                     >
-                      <div className="flex h-full flex-col justify-between rounded-[1.5rem] bg-white p-6 shadow-[0_2px_10px_rgb(0,0,0,0.02)] ring-1 ring-slate-200/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:ring-primary-200">
+                      <div className="flex h-full flex-col justify-between rounded-[2rem] bg-white/60 backdrop-blur-2xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/60 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] hover:bg-white/80">
                         <div className="mb-4">
-                          <h4 className="mb-2 truncate text-lg sm:text-xl font-bold text-slate-900 font-heading group-hover:text-primary-600 transition-colors">
+                          <h4 className="mb-2 truncate text-base sm:text-lg font-extrabold text-slate-900 font-heading group-hover:text-primary-600 transition-colors">
                             {basket.name}
                           </h4>
                           <div className="flex flex-wrap gap-2 text-xs text-slate-500 font-medium">
-                            <span className="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2 py-1 ring-1 ring-slate-200/50">
-                              <svg className="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
+                            <span className="inline-flex items-center rounded-md bg-slate-50 px-2 py-1 ring-1 ring-slate-200/50 text-slate-500">
                               {earliestDate ? (daysSince === 0 ? "Today" : `${daysSince}d ago`) : "N/A"}
                             </span>
-                            <span className="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2 py-1 ring-1 ring-slate-200/50">
-                              <svg className="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                              </svg>
+                            <span className="inline-flex items-center rounded-md bg-slate-50 px-2 py-1 ring-1 ring-slate-200/50 text-slate-500">
                               {monthlyLabel} {Math.abs(basketInvested ? (monthlyReturn / basketInvested) * 100 : 0).toFixed(1)}%/mo
                             </span>
                           </div>
@@ -467,7 +444,7 @@ const Dashboard = memo(function Dashboard() {
                             const percent = basketInvested ? ((basketSellValue - basketInvested) / basketInvested) * 100 : 0;
                             const isPositive = percent >= 0.01;
                             const isNegative = percent <= -0.01;
-                            const bgColor = isPositive ? "bg-accent-50 text-accent-700 ring-accent-200" : isNegative ? "bg-rose-50 text-rose-700 ring-rose-200" : "bg-slate-50 text-slate-600 ring-slate-200";
+                            const bgColor = isPositive ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : isNegative ? "bg-rose-50 text-rose-700 ring-rose-200" : "bg-slate-50 text-slate-600 ring-slate-200";
                             const sign = isPositive ? "+" : isNegative ? "-" : "";
                             
                             return (
@@ -491,9 +468,9 @@ const Dashboard = memo(function Dashboard() {
                       </svg>
                     </div>
                   </div>
-                  <div className="mb-3 text-2xl font-bold tracking-tight text-slate-900 font-heading">
-                    No baskets yet
-                  </div>
+                    <span className="text-lg sm:text-xl font-extrabold tracking-tight text-white/90 font-heading leading-tight drop-shadow-sm">
+                      Smarter Investing,<br />Effortless Portfolios.
+                    </span>
                   <div className="mb-8 text-sm font-medium text-slate-500 leading-relaxed">
                     Start by creating your first investment basket to track your portfolio performance smoothly.
                   </div>

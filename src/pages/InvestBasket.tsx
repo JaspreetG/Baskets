@@ -3,9 +3,6 @@ import { Input } from "@/components/ui/input";
 import {
   FaChevronLeft,
   FaRupeeSign,
-  FaBox,
-  FaMoneyBillWave,
-  FaChartBar,
   FaBoxOpen,
 } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
@@ -140,12 +137,12 @@ export default function InvestBasket() {
             <span>Find Stocks</span>
           </Link>
         </div>
-        <div className="mb-8">
-          <h2 className="mb-3 text-3xl font-bold tracking-tight text-slate-900 font-heading">
+        <div className="mb-6 sm:mb-8">
+          <h2 className="mb-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-heading">
             Configure Your Basket
           </h2>
-          <p className="text-base text-slate-500 font-medium leading-relaxed max-w-xl">
-            Name your new investment basket and specify your total investment amount. We'll automatically distribute the funds optimally across your chosen stocks.
+          <p className="text-sm sm:text-base text-slate-500">
+            Determine the custom distribution logic for exactly how your funds will be invested.
           </p>
         </div>
 
@@ -159,65 +156,54 @@ export default function InvestBasket() {
             investMutation.mutate({ basketName, distributedStocks });
           }}
         >
-          <div className="mb-8 space-y-6 rounded-3xl bg-white p-5 sm:p-8 shadow-[0_2px_15px_rgb(0,0,0,0.03)] ring-1 ring-slate-200/60">
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-              <label
-                htmlFor="basketName"
-                className="flex w-full md:w-[160px] items-center gap-2.5 text-sm font-bold text-slate-700 uppercase tracking-widest"
-              >
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-50 text-primary-600">
-                  <FaBox size={14} />
-                </div>
-                Name
-              </label>
-              <Input
-                id="basketName"
-                type="text"
-                placeholder="e.g. Long Term Tech"
-                value={basketName}
-                onChange={(e) => setBasketName(e.target.value)}
-                className="flex-1 rounded-2xl border border-slate-200 bg-slate-50/50 px-4 sm:px-5 py-4 sm:py-5 text-base sm:text-lg placeholder:text-slate-400 focus:bg-white focus:border-primary-400 focus:ring-4 focus:ring-primary-400/20 focus:shadow-[0_0_30px_rgba(59,130,246,0.15)] transition-all shadow-sm"
-              />
-            </div>
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-              <label
-                htmlFor="amount"
-                className="flex w-full md:w-[160px] items-center gap-2.5 text-sm font-bold text-slate-700 uppercase tracking-widest"
-              >
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
-                  <FaMoneyBillWave size={14} />
-                </div>
-                Investment
-              </label>
-              <div className="relative w-full md:flex-1">
-                <FaRupeeSign className="absolute top-1/2 left-5 -translate-y-1/2 text-slate-400" />
+            <div className="mb-8 space-y-6 rounded-[2.5rem] bg-white/70 backdrop-blur-3xl p-5 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white/80">
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="basketName"
+                  className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-widest pl-1"
+                >
+                  Basket Name
+                </label>
                 <Input
-                  id="amount"
-                  type="number"
-                  placeholder="Enter amount (₹)"
-                  min="1"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 py-4 sm:py-5 pl-10 pr-4 text-base sm:text-lg placeholder:text-slate-400 focus:bg-white focus:border-emerald-400 focus:ring-4 focus:ring-emerald-400/20 focus:shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-all font-semibold tabular-nums shadow-sm"
+                  id="basketName"
+                  type="text"
+                  placeholder="e.g. Long Term Tech"
+                  value={basketName}
+                  onChange={(e) => setBasketName(e.target.value)}
+                  className="w-full rounded-2xl border border-white/50 bg-white/40 backdrop-blur-md px-4 py-3.5 sm:py-4 text-sm sm:text-base placeholder:text-slate-400 focus:bg-white/80 focus:border-blue-400 focus:ring-4 focus:ring-blue-400/20 focus:shadow-[0_0_30px_rgba(59,130,246,0.15)] transition-all shadow-sm"
                 />
               </div>
+              
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="amount"
+                  className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-widest pl-1"
+                >
+                  Investment Amount
+                </label>
+                <div className="relative w-full">
+                  <FaRupeeSign className="absolute top-1/2 left-4 -translate-y-1/2 text-slate-400 text-sm" />
+                  <Input
+                    id="amount"
+                    type="number"
+                    placeholder="0.00"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="w-full rounded-2xl border border-white/50 bg-white/40 backdrop-blur-md pl-10 pr-4 py-3.5 sm:py-4 text-sm sm:text-base font-medium tabular-nums placeholder:text-slate-400 focus:bg-white/80 focus:border-blue-400 focus:ring-4 focus:ring-blue-400/20 focus:shadow-[0_0_30px_rgba(59,130,246,0.15)] transition-all shadow-sm"
+                  />
+                </div>
+              </div>
             </div>
-          </div>
 
           {stocks.length > 0 && (
             <div className="space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-600 ring-1 ring-orange-100/50">
-                  <FaChartBar size={18} />
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 font-heading">
-                  Allocation Preview
-                </h3>
-              </div>
+              <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 font-heading pl-1">
+                Allocation Preview
+              </h3>
               
-              <div className="overflow-x-auto rounded-3xl border border-slate-100 bg-white shadow-sm ring-1 ring-slate-200/60">
+              <div className="overflow-x-auto rounded-[2.5rem] bg-white/60 backdrop-blur-3xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white/60">
                 <div className="overflow-x-auto">
-                  <table className="min-w-full table-auto">
+                  <table className="w-full text-left text-[11px] sm:text-xs text-slate-500 font-medium whitespace-nowrap">
                     <thead className="bg-slate-50/80 border-b border-slate-100">
                       <tr className="text-left text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
                         <th className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">Symbol</th>
@@ -295,16 +281,16 @@ export default function InvestBasket() {
           )}
 
           <div className="mt-12 mb-24 space-y-6">
-            <div className="flex items-center justify-between rounded-3xl bg-white p-5 sm:p-6 shadow-sm ring-1 ring-slate-200/60">
-              <span className="flex items-center gap-2 sm:gap-3 text-[11px] sm:text-sm font-bold uppercase tracking-widest text-slate-600">
-                <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
-                  <FaBoxOpen size={16} />
-                </div>
-                Total Value
-              </span>
-              <span className="text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
-                ₹{total.toFixed(2)}
-              </span>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between rounded-[2.5rem] bg-black/80 backdrop-blur-2xl text-white p-6 shadow-[0_12px_40px_rgba(0,0,0,0.2)] border border-white/10 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 mix-blend-overlay"></div>
+              <div className="relative z-10 w-full flex flex-col sm:flex-row items-start sm:items-center justify-between">
+                <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-slate-300 mb-1 sm:mb-0">
+                  Total Value
+                </span>
+                <span className="text-2xl sm:text-3xl font-extrabold tabular-nums font-heading">
+                  ₹{total.toFixed(2)}
+                </span>
+              </div>
             </div>
 
             <Button
