@@ -7,10 +7,6 @@ import { registerSW } from "virtual:pwa-register";
 import App from "./App";
 import RequireAuth from "@/components/RequireAuth";
 import Auth from "@/pages/Auth";
-import Dashboard from "@/pages/Dashboard";
-import SearchBasket from "@/pages/SearchBasket";
-import InvestBasket from "@/pages/InvestBasket";
-import Basket from "./pages/Basket";
 import { Toaster } from "@/components/ui/sonner";
 import { useSupabaseAuthListener } from "@/hooks/useSupabaseAuthListener";
 
@@ -20,18 +16,12 @@ export const router = createBrowserRouter([
     element: <Auth />,
   },
   {
-    path: "/",
+    path: "/*",
     element: (
       <RequireAuth>
         <App />
       </RequireAuth>
     ),
-    children: [
-      { index: true, element: <Dashboard /> },
-      { path: "basket", element: <Basket /> },
-      { path: "search", element: <SearchBasket /> },
-      { path: "invest", element: <InvestBasket /> },
-    ],
   },
 ]);
 

@@ -2,14 +2,13 @@ import { create } from "zustand";
 
 // --- Basket and Portfolio Types ---
 export interface BasketStock {
-  sell_time?: string | null;
   symbol: string;
   name: string;
   quantity: number;
   buy_price: number;
   sell_price?: number | null;
-  sell_date?: string | null;
-  ltp?: number; // latest price
+  sell_time?: string | null;   // Active DB column (timestamptz)
+  ltp?: number;                // latest traded price
 }
 
 export interface Basket {
@@ -63,13 +62,16 @@ export const globalStore = create<GlobalStore>((set) => ({
       };
     }),
   baskets: [],
-  setBaskets: (baskets) =>
+  setBaskets: (baskets: Basket[]) =>
     set(() => {
       const out: Basket[] = [];
       for (const b of baskets) {
         const stocks: BasketStock[] = [];
         for (const s of b.stocks) {
-          stocks.push({ ...s, sell_date: s.sell_time ?? s.sell_date ?? null });
+          stocks.push({
+            ...s,
+            sell_time: s.sell_time ?? null,
+          });
         }
         out.push({ ...b, stocks });
       }

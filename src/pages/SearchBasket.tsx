@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "@/lib/useDebounce";
 import { globalStore } from "@/store";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/sonner";
 
 export default function SearchBasket() {
   const hasMounted = useRef(false);
@@ -138,7 +138,7 @@ export default function SearchBasket() {
                       buy_price: ltp,
                       ltp: ltp,
                       sell_price: null,
-                      sell_date: null,
+                      sell_time: null,
                     });
                     toast.success(
                       `${stock.ticker} added to basket!`,

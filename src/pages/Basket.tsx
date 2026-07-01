@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { 
   FaChevronLeft,
   FaTrash,
   FaSignOutAlt
 } from "react-icons/fa";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/lib/supabase";
 import { globalStore } from "@/store";
 import type { Basket } from "@/store";
@@ -29,14 +29,15 @@ function getISTDateString(date: Date | string): string {
 }
 
 // Convert any date (string or Date) to IST ISO string: yyyy-mm-ddTHH:mm:ss.sssZ
+// Uses explicit +5:30 offset math — avoids locale string parsing which is implementation-defined.
 function toISTISOString(date: Date | string): string {
-  const istDate = new Date(
-    new Date(date).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
-  );
-  return istDate.toISOString();
+  const utcMs = new Date(date).getTime();
+  const istMs = utcMs + 5.5 * 60 * 60 * 1000;
+  return new Date(istMs).toISOString();
 }
 
 export default function Basket() {
+  const navigate = useNavigate();
   const [pendingExit, setPendingExit] = useState(false);
   const [localExited, setLocalExited] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
@@ -55,24 +56,29 @@ export default function Basket() {
     hasMounted.current = true;
   }, []);
 
-  // If store is empty (e.g. on page refresh), fetch baskets from backend
+  // Track whether we're still loading baskets on a fresh page load
+  const [loadingBaskets, setLoadingBaskets] = useState(false);
+
+  // If store is empty (e.g. on page refresh), fetch baskets from backend.
+  // Run only once on mount — not on every baskets change to avoid re-fetch loops.
   useEffect(() => {
     async function ensureBaskets() {
+      if (baskets && baskets.length > 0) return;
+      setLoadingBaskets(true);
       try {
-        if (!baskets || baskets.length === 0) {
-          const { data } = await supabase.rpc("get_all_baskets_with_stocks");
-          if (data && Array.isArray(data)) {
-            // data matches server Basket shape; cast to the local Basket type
-            setBaskets(data as unknown as Basket[]);
-            // after setting baskets, we'll fetch LTPs for the current basket below in a separate effect
-          }
+        const { data } = await supabase.rpc("get_all_baskets_with_stocks");
+        if (data && Array.isArray(data)) {
+          setBaskets(data as unknown as Basket[]);
         }
       } catch {
         // ignore fetch errors here; UI will handle empty state
+      } finally {
+        setLoadingBaskets(false);
       }
     }
     ensureBaskets();
-  }, [baskets, setBaskets]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Fetch LTPs for this basket if they are missing (happens on refresh when dashboard didn't run)
   const [ltpFetched, setLtpFetched] = useState(false);
@@ -82,9 +88,9 @@ export default function Basket() {
     const needsLtp = basket.stocks.some((s) => {
       const isExited =
         s.sell_price != null &&
-        typeof s.sell_date === "string" &&
-        s.sell_date.trim() !== "" &&
-        !isNaN(Date.parse(s.sell_date));
+        typeof s.sell_time === "string" &&
+        s.sell_time.trim() !== "" &&
+        !isNaN(Date.parse(s.sell_time));
       return !isExited && (s.ltp == null || s.ltp === 0);
     });
     if (!needsLtp) {
@@ -99,9 +105,9 @@ export default function Basket() {
             // skip exited stocks
             const isExited =
               stock.sell_price != null &&
-              typeof stock.sell_date === "string" &&
-              stock.sell_date.trim() !== "" &&
-              !isNaN(Date.parse(stock.sell_date));
+              typeof stock.sell_time === "string" &&
+              stock.sell_time.trim() !== "" &&
+              !isNaN(Date.parse(stock.sell_time));
             if (isExited) return;
             try {
               const res = await fetch(
@@ -127,9 +133,43 @@ export default function Basket() {
     })();
   }, [basket, updateBasketLTP, ltpFetched]);
 
-  if (!basketId || !basket) {
-    return null;
+  // Show spinner while baskets are being fetched (e.g. on direct URL navigation / page refresh)
+  if (!basketId) return null;
+
+  if (loadingBaskets || (!basket && baskets.length === 0)) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <svg
+          width="44" height="44" viewBox="0 0 44 44" fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ display: "inline-block", animation: "jira-spin 2.2s linear infinite" }}
+        >
+          <defs>
+            <linearGradient id="jira-gradient-basket" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#2563eb" />
+              <stop offset="0.5" stopColor="#6366f1" />
+              <stop offset="1" stopColor="#2563eb" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M22 8 a14 14 0 0 1 0 28 a14 14 0 0 1 0 -28"
+            stroke="url(#jira-gradient-basket)" strokeWidth="2.5" strokeLinecap="round" fill="none"
+            style={{ strokeDasharray: "90 110", strokeDashoffset: 0, animation: "jira-dash 1.2s linear infinite" }}
+          />
+        </svg>
+        <style>{`
+          @keyframes jira-spin { 100% { transform: rotate(360deg); } }
+          @keyframes jira-dash {
+            0% { stroke-dasharray: 70 130; stroke-dashoffset: 0; }
+            50% { stroke-dasharray: 110 90; stroke-dashoffset: -100; }
+            100% { stroke-dasharray: 70 130; stroke-dashoffset: -200; }
+          }
+        `}</style>
+      </div>
+    );
   }
+
+  if (!basket) return null;
 
   // Calculate values
   let totalBuyValue = 0;
@@ -144,25 +184,25 @@ export default function Basket() {
     const hasSell =
       s.sell_price != null &&
       !isNaN(Number(s.sell_price)) &&
-      typeof s.sell_date === "string" &&
-      s.sell_date.trim() !== "" &&
-      !isNaN(Date.parse(s.sell_date));
+      typeof s.sell_time === "string" &&
+      s.sell_time.trim() !== "" &&
+      !isNaN(Date.parse(s.sell_time));
     const sellOrLtp = hasSell
       ? Number(s.sell_price)
       : Number(s.ltp ?? s.buy_price ?? 0);
     totalSellValue += qty * sellOrLtp;
     // Find latest sell date if available
     if (
-      typeof s.sell_date === "string" &&
-      s.sell_date.trim() !== "" &&
-      !isNaN(Date.parse(s.sell_date))
+      typeof s.sell_time === "string" &&
+      s.sell_time.trim() !== "" &&
+      !isNaN(Date.parse(s.sell_time))
     ) {
       if (
         !latestSellDate ||
-        new Date(toISTISOString(s.sell_date)) >
+        new Date(toISTISOString(s.sell_time)) >
           new Date(toISTISOString(latestSellDate))
       ) {
-        latestSellDate = s.sell_date;
+        latestSellDate = s.sell_time;
       }
     }
   });
@@ -170,15 +210,15 @@ export default function Basket() {
   const currentValue = totalSellValue;
   const totalReturn = currentValue - invested;
   const returnPercent = invested ? (totalReturn / invested) * 100 : 0;
-  // Disable exit if all stocks have a non-null sell_date (all exited)
+  // Disable exit if all stocks have a non-null sell_time (all exited)
   const allExited =
     localExited ||
     (basket.stocks.length > 0 &&
       basket.stocks.every(
         (s) =>
-          typeof s.sell_date === "string" &&
-          s.sell_date.trim() !== "" &&
-          !isNaN(Date.parse(s.sell_date)),
+          typeof s.sell_time === "string" &&
+          s.sell_time.trim() !== "" &&
+          !isNaN(Date.parse(s.sell_time)),
       ));
 
   // Consistent IST date formatting for invested on, exit date, and days invested
@@ -202,9 +242,8 @@ export default function Basket() {
       ));
     } else {
       const now = new Date();
-      const todayIST = new Date(
-        new Date(now).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
-      );
+      // "today" in IST — use explicit offset math (consistent with toISTISOString)
+      const todayIST = new Date(toISTISOString(now));
       todayIST.setHours(0, 0, 0, 0);
       investedDays = Math.max(0, Math.floor(
         (todayIST.getTime() - investedDateIST.getTime()) /
@@ -253,16 +292,27 @@ export default function Basket() {
         ),
       );
 
-      // Prepare array of stocks with their latest LTP as sell_price
-      const stocksToExit = basket!.stocks.map((s) => ({
-        symbol: s.symbol,
-        sell_price: ltpData[s.symbol] ?? s.ltp ?? s.buy_price ?? 0,
-      }));
+      // Prepare array of non-exited stocks with their latest LTP as sell_price
+      // Skip stocks that were already exited (have a sell_time) to preserve original exit prices.
+      const stocksToExit = basket!.stocks
+        .filter((s) => {
+          const alreadyExited =
+            s.sell_price != null &&
+            typeof s.sell_time === "string" &&
+            s.sell_time.trim() !== "";
+          return !alreadyExited;
+        })
+        .map((s) => ({
+          symbol: s.symbol,
+          sell_price: ltpData[s.symbol] ?? s.ltp ?? s.buy_price ?? 0,
+        }));
 
-      // Prepare payload and call exit_basket with up-to-date prices
+      // Build payload — sell_time is the only column in our database schema for exits.
+      const sellTimeIST = toISTISOString(new Date()); // ISO Timestamptz
       const payload = {
         exit_basket: {
           basket_id: basket!.id,
+          sell_time: sellTimeIST,
           stocks: stocksToExit,
         },
       };
@@ -300,7 +350,7 @@ export default function Basket() {
         .getState()
         .setBaskets(baskets.filter((b) => b.id !== basket!.id));
       toast.success("Basket deleted.");
-      window.location.href = "/";
+      navigate("/");
     } catch (err: unknown) {
       const errorMsg =
         err instanceof Error ? err.message : "Failed to delete basket.";
@@ -424,9 +474,9 @@ export default function Basket() {
             const hasSell =
               stock.sell_price != null &&
               !isNaN(Number(stock.sell_price)) &&
-              typeof stock.sell_date === "string" &&
-              stock.sell_date.trim() !== "" &&
-              !isNaN(Date.parse(stock.sell_date));
+              typeof stock.sell_time === "string" &&
+              stock.sell_time.trim() !== "" &&
+              !isNaN(Date.parse(stock.sell_time));
             const stockCurrent =
               (stock.quantity ?? 0) *
               (hasSell

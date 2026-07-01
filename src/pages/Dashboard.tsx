@@ -6,15 +6,16 @@ import { LogOut } from "lucide-react";
 import { globalStore } from "@/store";
 
 // Helper to convert any date (string or Date) to IST ISO string (yyyy-mm-ddTHH:mm:ss.sssZ)
+// Uses explicit +5:30 offset math — avoids locale string parsing which is implementation-defined.
 function toISTISOString(date: Date | string): string {
-  return new Date(
-    new Date(date).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
-  ).toISOString();
+  const utcMs = new Date(date).getTime();
+  const istMs = utcMs + 5.5 * 60 * 60 * 1000;
+  return new Date(istMs).toISOString();
 }
 
 // Utility for XIRR calculation
 // cashflows: array of { amount: number, date: string }, negative for investment, positive for return
-// If no sell_date, use current date as end date
+// If no sell_time, use current date as end date
 function calculateXIRR(cashflows: { amount: number; date: string }[]): number {
   if (cashflows.length < 2) return 0;
   // Ensure at least one positive and one negative cashflow
@@ -79,7 +80,7 @@ const Dashboard = memo(function Dashboard() {
     buy_price?: number;
     quantity?: number;
     sell_price?: number;
-    sell_date?: string;
+    sell_time?: string;
   };
   type Basket = {
     id: string | number;
@@ -120,11 +121,11 @@ const Dashboard = memo(function Dashboard() {
           await Promise.all(
             basket.stocks
               .filter((stock) => {
-                // Skip LTP fetch for already-exited stocks
+                // Skip LTP fetch for already-exited stocks (which have a sell_time)
                 const exited =
                   stock.sell_price != null &&
-                  typeof stock.sell_date === "string" &&
-                  stock.sell_date.trim() !== "";
+                  typeof stock.sell_time === "string" &&
+                  stock.sell_time.trim() !== "";
                 return !exited;
               })
               .map(async (stock) =>
@@ -147,60 +148,66 @@ const Dashboard = memo(function Dashboard() {
   // (removed duplicate fetchAndSetBaskets declaration)
 
   // Calculate portfolio summary and cashflows robustly, only once, and memoize
-  // Helper: is stock exited? (typed)
   const isExited = useCallback((stock: Stock): boolean => {
     return (
       stock.sell_price != null &&
       !isNaN(Number(stock.sell_price)) &&
-      typeof stock.sell_date === "string" &&
-      stock.sell_date.trim() !== "" &&
-      !isNaN(Date.parse(stock.sell_date))
+      typeof stock.sell_time === "string" &&
+      stock.sell_time.trim() !== "" &&
+      !isNaN(Date.parse(stock.sell_time))
     );
   }, []);
 
-  const { totalNetValue, totalInvested, totalReturn, xirr } = useMemo(() => {
+  const { totalNetValue, totalInvested, totalReturn, activeXirr, totalXirr } = useMemo(() => {
     let netValue = 0;
     let invested = 0;
     let ret = 0;
-    const cashflows: { amount: number; date: string }[] = [];
+    // activeCashflows: only currently-held (not exited) positions
+    const activeCashflows: { amount: number; date: string }[] = [];
+    // totalCashflows: all positions — exited (realized) + active (mark-to-market)
+    const totalCashflows: { amount: number; date: string }[] = [];
+
     (baskets as Basket[]).forEach((basket) => {
       let basketNet = 0;
       let basketInvested = 0;
       basket.stocks.forEach((stock) => {
         const qty = stock.quantity ?? 0;
         const buyPrice = stock.buy_price ?? 0;
-        // Cashflow OUT: buy (always at basket.created_at)
+
+        // Buy cashflow — always goes into total; active only if stock is not yet exited
         if (qty && buyPrice && basket.created_at) {
-          cashflows.push({
-            amount: -1 * qty * buyPrice,
+          totalCashflows.push({
+            amount: -qty * buyPrice,
             date: basket.created_at,
           });
         }
+
         if (qty > 0) {
-          // Cashflow IN: sell or holding value
           if (isExited(stock)) {
-            // Exited: use sell_price and sell_date
+            // Exited: realized sell cashflow → total XIRR only (not active)
             const sellPrice = Number(stock.sell_price);
-            const sellDate =
-              typeof stock.sell_date === "string" &&
-              stock.sell_date.trim() !== ""
-                ? stock.sell_date
+            const sellTime =
+              typeof stock.sell_time === "string" && stock.sell_time.trim() !== ""
+                ? stock.sell_time
                 : new Date().toISOString();
-            if (sellPrice && sellDate) {
-              cashflows.push({
-                amount: qty * sellPrice,
-                date: sellDate,
-              });
+            if (sellPrice && sellTime) {
+              totalCashflows.push({ amount: qty * sellPrice, date: sellTime });
             }
           } else {
-            // Not exited: use LTP as sell price, today as sell date for XIRR
+            // Active: mark-to-market with LTP → goes into BOTH cashflow series
             const ltpOrBuy = Number(stock.ltp ?? stock.buy_price ?? 0);
-            cashflows.push({
-              amount: qty * ltpOrBuy,
-              date: new Date().toISOString(),
-            });
+            const now = new Date().toISOString();
+            if (buyPrice && basket.created_at) {
+              activeCashflows.push({
+                amount: -qty * buyPrice,
+                date: basket.created_at,
+              });
+            }
+            activeCashflows.push({ amount: qty * ltpOrBuy, date: now });
+            totalCashflows.push({ amount: qty * ltpOrBuy, date: now });
           }
-          // Always include stock in invested/return totals (exited or not)
+
+          // Portfolio totals (unchanged logic)
           const stockSellOrLtp = isExited(stock)
             ? Number(stock.sell_price)
             : Number(stock.ltp ?? stock.buy_price ?? 0);
@@ -212,21 +219,28 @@ const Dashboard = memo(function Dashboard() {
       invested += basketInvested;
       ret += basketNet - basketInvested;
     });
-    let xirr = 0;
-    function fixExtremeXIRR(xirr: number): number {
-      if (!isFinite(xirr) || Math.abs(xirr) > 1000) return 0;
-      if (Object.is(xirr, -0) || Math.abs(xirr) < 0.005) return 0;
-      return xirr;
+
+    function fixExtremeXIRR(x: number): number {
+      if (!isFinite(x) || Math.abs(x) > 1000) return 0;
+      if (Object.is(x, -0) || Math.abs(x) < 0.005) return 0;
+      return x;
     }
-    if (cashflows.length > 1) {
-      xirr = calculateXIRR(cashflows);
-      xirr = fixExtremeXIRR(xirr);
+
+    let activeXirr = 0;
+    let totalXirr = 0;
+    if (activeCashflows.length > 1) {
+      activeXirr = fixExtremeXIRR(calculateXIRR(activeCashflows));
     }
+    if (totalCashflows.length > 1) {
+      totalXirr = fixExtremeXIRR(calculateXIRR(totalCashflows));
+    }
+
     return {
       totalNetValue: netValue,
       totalInvested: invested,
       totalReturn: ret,
-      xirr,
+      activeXirr,
+      totalXirr,
     };
     // isExited is a stable function, but to satisfy lint, include it in deps
   }, [baskets, isExited]);
@@ -262,51 +276,85 @@ const Dashboard = memo(function Dashboard() {
                             <span className="font-sans text-slate-400 mr-1 text-sm sm:text-base">₹</span>
                             {totalNetValue.toLocaleString()}
                           </div>
-              </div>              {/* Invested, XIRR, Total Return */}
-              <div className="flex flex-col sm:flex-row w-full gap-4 sm:gap-8 border-t border-slate-100 pt-5 sm:pt-8 relative z-10">
+              </div>              {/* Invested | Active XIRR | Total XIRR | Total Return — 4-col on desktop, stacked on mobile */}
+              <div className="flex flex-col sm:flex-row w-full gap-0 border-t border-slate-100 pt-5 sm:pt-7 relative z-10">
+
                 {/* Invested */}
-                <div className="flex items-center justify-between sm:block sm:flex-1 pb-4 sm:pb-0 border-b sm:border-b-0 border-slate-100 sm:space-y-1.5">
-                  <div className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-slate-500">
+                <div className="flex items-center justify-between sm:flex-col sm:items-start sm:flex-1 sm:min-w-0 pb-3.5 sm:pb-0 border-b sm:border-b-0 border-slate-100 sm:pr-4 sm:space-y-1">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
                     Invested
                   </div>
-                  <div className="text-sm sm:text-lg font-bold text-slate-800 tabular-nums font-heading">
+                  <div className="text-sm sm:text-base font-bold text-slate-800 tabular-nums font-heading truncate">
                     ₹{totalInvested.toLocaleString()}
                   </div>
                 </div>
 
-                {/* XIRR */}
-                <div className="flex items-center justify-between sm:block sm:flex-1 pb-4 sm:pb-0 border-b sm:border-b-0 border-slate-100 sm:border-l sm:pl-8 sm:space-y-1.5">
-                  <div className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-slate-500">
-                    XIRR
+                {/* Divider — only on desktop */}
+                <div className="hidden sm:block w-px bg-slate-100 self-stretch mx-1" />
+
+                {/* Active XIRR */}
+                <div className="flex items-center justify-between sm:flex-col sm:items-start sm:flex-1 sm:min-w-0 py-3.5 sm:py-0 border-b sm:border-b-0 border-slate-100 sm:px-4 sm:space-y-1">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                    Active XIRR
                   </div>
                   <div
-                    className={`text-sm sm:text-lg font-bold tabular-nums font-heading ${
-                      xirr >= 0.01
+                    className={`text-sm sm:text-base font-bold tabular-nums font-heading ${
+                      activeXirr >= 0.01
                         ? "text-emerald-600"
-                        : xirr <= -0.01
+                        : activeXirr <= -0.01
                           ? "text-rose-500"
-                          : "text-slate-600"
+                          : "text-slate-500"
                     }`}
                   >
-                    {(() => {
-                      const displayXirr = xirr;
-                      if (displayXirr >= 0.01)
-                        return `+${displayXirr.toFixed(2)}%`;
-                      if (displayXirr <= -0.01)
-                        return `-${Math.abs(displayXirr).toFixed(2)}%`;
-                      return "0.00%";
-                    })()}
+                    {activeXirr >= 0.01
+                      ? `+${activeXirr.toFixed(2)}%`
+                      : activeXirr <= -0.01
+                        ? `-${Math.abs(activeXirr).toFixed(2)}%`
+                        : "—"}
                   </div>
                 </div>
 
+                {/* Divider — only on desktop */}
+                <div className="hidden sm:block w-px bg-slate-100 self-stretch mx-1" />
+
+                {/* Total XIRR */}
+                <div className="flex items-center justify-between sm:flex-col sm:items-start sm:flex-1 sm:min-w-0 py-3.5 sm:py-0 border-b sm:border-b-0 border-slate-100 sm:px-4 sm:space-y-1">
+                  <div className="flex items-center gap-1">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                      Total XIRR
+                    </div>
+                    <span className="hidden sm:inline text-[8px] font-bold uppercase tracking-wide text-slate-300">
+                      all
+                    </span>
+                  </div>
+                  <div
+                    className={`text-sm sm:text-base font-bold tabular-nums font-heading ${
+                      totalXirr >= 0.01
+                        ? "text-emerald-600"
+                        : totalXirr <= -0.01
+                          ? "text-rose-500"
+                          : "text-slate-500"
+                    }`}
+                  >
+                    {totalXirr >= 0.01
+                      ? `+${totalXirr.toFixed(2)}%`
+                      : totalXirr <= -0.01
+                        ? `-${Math.abs(totalXirr).toFixed(2)}%`
+                        : "—"}
+                  </div>
+                </div>
+
+                {/* Divider — only on desktop */}
+                <div className="hidden sm:block w-px bg-slate-100 self-stretch mx-1" />
+
                 {/* Total Return */}
-                <div className="flex items-center justify-between sm:block sm:flex-1 sm:border-l border-slate-100 sm:pl-8 sm:space-y-1.5">
-                  <div className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-slate-500">
+                <div className="flex items-center justify-between sm:flex-col sm:items-start sm:flex-1 sm:min-w-0 pt-3.5 sm:pt-0 sm:pl-4 sm:space-y-1">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
                     Total Return
                   </div>
-                  <div className="flex items-center sm:items-baseline gap-2 text-right sm:text-left">
+                  <div className="flex sm:flex-col items-center sm:items-start gap-2 sm:gap-0.5">
                     <div
-                      className={`text-sm sm:text-lg font-bold tabular-nums font-heading ${
+                      className={`text-sm sm:text-base font-bold tabular-nums font-heading ${
                         totalReturn > 0
                           ? "text-emerald-600"
                           : totalReturn < 0
@@ -317,12 +365,12 @@ const Dashboard = memo(function Dashboard() {
                       {totalReturn > 0 ? "+" : totalReturn < 0 ? "-" : ""}₹{Math.abs(totalReturn).toLocaleString()}
                     </div>
                     <div
-                      className={`px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] uppercase tracking-wider font-bold ${
+                      className={`px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wider font-bold ${
                         totalReturn > 0
                           ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/50"
                           : totalReturn < 0
                             ? "bg-rose-50 text-rose-700 ring-1 ring-rose-200/50"
-                            : "bg-slate-100 text-slate-600"
+                            : "bg-slate-100 text-slate-500"
                       }`}
                     >
                       {(() => {
@@ -338,6 +386,7 @@ const Dashboard = memo(function Dashboard() {
                   </div>
                 </div>
               </div>
+
             </div>
           </div>
         </section>
@@ -380,7 +429,7 @@ const Dashboard = memo(function Dashboard() {
                     const qty = stock.quantity ?? 0;
                     const buyPrice = stock.buy_price ?? 0;
                     basketInvested += qty * buyPrice;
-                    const hasSell = stock.sell_price != null && !isNaN(Number(stock.sell_price)) && typeof stock.sell_date === "string" && stock.sell_date.trim() !== "";
+                    const hasSell = stock.sell_price != null && !isNaN(Number(stock.sell_price)) && typeof stock.sell_time === "string" && stock.sell_time.trim() !== "";
                     const sellOrLtp = hasSell ? Number(stock.sell_price) : Number(stock.ltp ?? stock.buy_price ?? 0);
                     basketSellValue += qty * sellOrLtp;
                   });

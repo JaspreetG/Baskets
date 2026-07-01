@@ -7,7 +7,7 @@ import type { PostgrestSingleResponse } from "@supabase/postgrest-js";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { globalStore } from "@/store";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/sonner";
 
 export default function InvestBasket() {
   const navigate = useNavigate();
