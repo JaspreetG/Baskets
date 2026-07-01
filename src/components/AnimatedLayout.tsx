@@ -13,47 +13,36 @@ const routeMap = {
 };
 
 /**
- * Directional slide variants — mimics native iOS navigation.
- *
- * direction > 0  (PUSH — forward):
- *   Enter: slides in from the RIGHT  (x: 100% → 0)
- *   Exit:  slides out to the LEFT    (x: 0 → -24%)
- *
- * direction < 0  (POP — back):
- *   Enter: slides in from the LEFT   (x: -100% → 0)
- *   Exit:  slides out to the RIGHT   (x: 0 → 24%)
- *
- * The slight parallax on exit (24% vs 100% travel) mirrors iOS depth cue.
+ * Snappy horizontal camera-panning track animation.
+ * Pages slide 100% side-by-side with solid opacity to look like a horizontal window scroll.
  */
 const slideVariants = {
   enter: (direction: number) => ({
     x: direction > 0 ? "100%" : "-100%",
-    opacity: 0,
   }),
   center: {
-    x: 0,
-    opacity: 1,
+    x: "0%",
   },
   exit: (direction: number) => ({
-    x: direction > 0 ? "-24%" : "24%",
-    opacity: 0,
+    x: direction > 0 ? "-100%" : "100%",
   }),
 };
 
-/** Spring tuned for ~280ms total — matching iOS UINavigationController timing. */
+/** Snappy spring transition tuned for high-velocity navigation */
 const iosSpring = {
   type: "spring" as const,
-  stiffness: 420,
-  damping: 38,
-  mass: 0.75,
+  stiffness: 480,
+  damping: 42,
+  mass: 0.8,
 };
 
 const AnimatedLayout = () => {
   const location = useLocation();
   const navigationType = useNavigationType();
 
-  // POP = back/forward browser navigation → enter from left
-  // PUSH or REPLACE = programmatic navigate / link click → enter from right
+  // Determine direction:
+  // POP indicates going back (enter from left, exit to right)
+  // PUSH/REPLACE indicates going forward (enter from right, exit to left)
   const direction = navigationType === "POP" ? -1 : 1;
 
   let path = "/";
@@ -64,17 +53,11 @@ const AnimatedLayout = () => {
   const Page = routeMap[path as keyof typeof routeMap] ?? Dashboard;
 
   return (
-    /**
-     * overflow: hidden clips the off-screen page during the slide.
-     * mode="wait" ensures exit fully completes before enter begins —
-     * this prevents both pages being in the DOM simultaneously
-     * (which would cause double-height layout flash).
-     */
     <div
-      className="relative w-full overflow-hidden"
-      style={{ minHeight: "100dvh" }}
+      className="relative w-full overflow-x-hidden"
+      style={{ minHeight: "100dvh", height: "100%" }}
     >
-      <AnimatePresence initial={false} custom={direction} mode="wait">
+      <AnimatePresence initial={false} custom={direction}>
         <motion.div
           key={location.key}
           custom={direction}
@@ -83,7 +66,14 @@ const AnimatedLayout = () => {
           animate="center"
           exit="exit"
           transition={iosSpring}
-          style={{ width: "100%" }}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            minHeight: "100dvh",
+            background: "#fbfbfd", // prevent background bleed through during transitions
+          }}
         >
           <Page />
         </motion.div>

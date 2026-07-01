@@ -71,7 +71,7 @@ export default function SearchBasket() {
           your basket. When you’re ready, hit <strong className="font-bold text-primary-600">Dashboard</strong> to go back.
         </p>
 
-        <div className="sticky top-0 z-20 -mx-4 mb-6 bg-transparent px-4 py-4 backdrop-blur-2xl sm:static sm:mx-0 sm:bg-transparent sm:p-0">
+        <div className="sticky top-0 z-20 -mx-4 mb-6 bg-white/80 px-4 py-4 backdrop-blur-2xl sm:static sm:mx-0 sm:bg-transparent sm:p-0">
           <div className="relative">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-5 sm:pl-6">
               <FaSearch className="h-5 w-5 sm:h-6 sm:w-6 text-slate-400" />
@@ -169,7 +169,7 @@ export default function SearchBasket() {
       </ul>
       
       {/* Sticky Done Button */}
-      <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-30 bg-gradient-to-t from-slate-50 via-slate-50/90 to-transparent pb-6 pt-12 px-4 md:px-8">
+      <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-30 bg-gradient-to-t from-[#fbfbfd] via-[#fbfbfd]/90 to-transparent pb-6 pt-12 px-4 md:px-8">
         <div className="pointer-events-auto mx-auto max-w-2xl">
           <Link to="/invest" className="block w-full">
             <Button className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-primary-600 text-[15px] font-bold text-white shadow-[0_8px_20px_rgba(59,130,246,0.25)] transition-all hover:-translate-y-0.5 hover:bg-primary-500 hover:shadow-[0_12px_25px_rgba(59,130,246,0.35)]">
