@@ -16,7 +16,7 @@ begin
   returning id into basket_id;
 
   -- Loop through JSONB array and insert each stock
-  insert into stocks (basket_id, symbol, name, quantity, buy_price, sell_price, sell_date)
+  insert into stocks (basket_id, symbol, name, quantity, buy_price, sell_price, sell_time)
   select
     basket_id,
     s->>'symbol',
@@ -24,7 +24,7 @@ begin
     (s->>'quantity')::int,
     (s->>'buy_price')::numeric,
     nullif(s->>'sell_price', '')::numeric,
-    nullif(s->>'sell_date', '')::date
+    nullif(s->>'sell_time', '')::timestamptz
   from jsonb_array_elements(stock_list) as s;
 
   return basket_id;

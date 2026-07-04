@@ -6,7 +6,7 @@ CREATE TABLE baskets (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES auth.users(id),
   name TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT now()
+  created_at TIMESTAMPTZ DEFAULT now()
 );
 
 CREATE TABLE stocks (
@@ -16,9 +16,9 @@ CREATE TABLE stocks (
   name TEXT NOT NULL,
   quantity INTEGER NOT NULL,
   buy_price NUMERIC NOT NULL,
-  sell_price NUMERIC, -- NEW
-  buy_time TIMESTAMP DEFAULT now(),
-  sell_date DATE
+  sell_price NUMERIC, -- optional
+  buy_time TIMESTAMPTZ DEFAULT now(), 
+  sell_time TIMESTAMPTZ               
 );
 
 ALTER TABLE baskets ENABLE ROW LEVEL SECURITY;

@@ -1,15 +1,25 @@
 import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
 import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { Logo } from "@/components/Logo";
+import { useAuthStore } from "@/store/auth";
 
 export default function Auth() {
   const hasMounted = useRef(false);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated());
+  const navigate = useNavigate();
 
   useEffect(() => {
     hasMounted.current = true;
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({

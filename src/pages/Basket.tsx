@@ -9,6 +9,7 @@ import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/lib/supabase";
 import { globalStore } from "@/store";
 import type { Basket } from "@/store";
+import { getISTDaysDiff } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -26,14 +27,6 @@ function getISTDateString(date: Date | string): string {
     month: "2-digit",
     year: "numeric",
   }).format(new Date(date));
-}
-
-// Convert any date (string or Date) to IST ISO string: yyyy-mm-ddTHH:mm:ss.sssZ
-// Uses explicit +5:30 offset math — avoids locale string parsing which is implementation-defined.
-function toISTISOString(date: Date | string): string {
-  const utcMs = new Date(date).getTime();
-  const istMs = utcMs + 5.5 * 60 * 60 * 1000;
-  return new Date(istMs).toISOString();
 }
 
 export default function Basket() {
@@ -199,8 +192,8 @@ export default function Basket() {
     ) {
       if (
         !latestSellDate ||
-        new Date(toISTISOString(s.sell_time)) >
-          new Date(toISTISOString(latestSellDate))
+        new Date(s.sell_time).getTime() >
+          new Date(latestSellDate).getTime()
       ) {
         latestSellDate = s.sell_time;
       }
@@ -227,29 +220,10 @@ export default function Basket() {
   const exitDateIST =
     latestSellDate !== undefined ? getISTDateString(latestSellDate) : "-";
 
-  // Days invested calculation (using IST, truncating both dates to 00:00 IST)
+  // Days invested calculation (using IST timezone-safe calendar days difference helper)
   let investedDays = 0;
   if (earliestDate) {
-    // Always use IST, truncate to date only before subtracting
-    const investedDateIST = new Date(toISTISOString(earliestDate));
-    investedDateIST.setHours(0, 0, 0, 0);
-    if (latestSellDate) {
-      const sellDateIST = new Date(toISTISOString(latestSellDate));
-      sellDateIST.setHours(0, 0, 0, 0);
-      investedDays = Math.max(0, Math.floor(
-        (sellDateIST.getTime() - investedDateIST.getTime()) /
-          (1000 * 60 * 60 * 24),
-      ));
-    } else {
-      const now = new Date();
-      // "today" in IST — use explicit offset math (consistent with toISTISOString)
-      const todayIST = new Date(toISTISOString(now));
-      todayIST.setHours(0, 0, 0, 0);
-      investedDays = Math.max(0, Math.floor(
-        (todayIST.getTime() - investedDateIST.getTime()) /
-          (1000 * 60 * 60 * 24),
-      ));
-    }
+    investedDays = getISTDaysDiff(earliestDate, latestSellDate ?? new Date());
   }
 
   async function handleExitBasket() {
@@ -308,7 +282,7 @@ export default function Basket() {
         }));
 
       // Build payload — sell_time is the only column in our database schema for exits.
-      const sellTimeIST = toISTISOString(new Date()); // ISO Timestamptz
+      const sellTimeIST = new Date().toISOString(); // ISO Timestamptz
       const payload = {
         exit_basket: {
           basket_id: basket!.id,

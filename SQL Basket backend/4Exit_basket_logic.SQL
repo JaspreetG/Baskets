@@ -4,6 +4,10 @@ language plpgsql
 as $$
 declare
   stock jsonb;
+  exit_time timestamptz := coalesce(
+    (exit_basket->>'sell_time')::timestamptz,
+    now()
+  );
 begin
   -- Ensure basket belongs to current user
   if not exists (
@@ -14,14 +18,14 @@ begin
     raise exception 'Unauthorized or basket not found';
   end if;
 
-  -- Loop through each stock in the exit_basket and update its sell_price and sell_date
+  -- Loop through each stock in the exit_basket and update its sell_price and sell_time
   for stock in
     select jsonb_array_elements(exit_basket->'stocks')
   loop
     update stocks
     set
       sell_price = (stock->>'sell_price')::numeric,
-      sell_date = (exit_basket->>'sell_date')::date
+      sell_time = exit_time
     where basket_id = (exit_basket->>'basket_id')::uuid
       and symbol = stock->>'symbol';
   end loop;

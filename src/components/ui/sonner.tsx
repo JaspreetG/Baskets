@@ -49,4 +49,5 @@ const toast = {
   dismiss: sonnerToast.dismiss,
 };
 
+/* eslint-disable-next-line react-refresh/only-export-components */
 export { Toaster, toast };

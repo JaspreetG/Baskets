@@ -4,14 +4,7 @@ import { useCallback, useEffect, useMemo, memo } from "react";
 import { supabase } from "@/lib/supabase";
 import { LogOut } from "lucide-react";
 import { globalStore } from "@/store";
-
-// Helper to convert any date (string or Date) to IST ISO string (yyyy-mm-ddTHH:mm:ss.sssZ)
-// Uses explicit +5:30 offset math — avoids locale string parsing which is implementation-defined.
-function toISTISOString(date: Date | string): string {
-  const utcMs = new Date(date).getTime();
-  const istMs = utcMs + 5.5 * 60 * 60 * 1000;
-  return new Date(istMs).toISOString();
-}
+import { getISTDaysDiff } from "@/lib/utils";
 
 // Utility for XIRR calculation
 // cashflows: array of { amount: number, date: string }, negative for investment, positive for return
@@ -30,6 +23,11 @@ function calculateXIRR(cashflows: { amount: number; date: string }[]): number {
   }));
   // Sort by date ascending
   flows.sort((a, b) => a.date - b.date);
+
+  // If the total duration is less than 1 day, XIRR is mathematically undefined/meaningless
+  if (flows[flows.length - 1].date - flows[0].date < 24 * 60 * 60 * 1000) {
+    return 0;
+  }
 
   // Newton-Raphson method
   const maxIter = 100;
@@ -415,8 +413,8 @@ const Dashboard = memo(function Dashboard() {
             {baskets.length > 0 ? (
               [...baskets]
                 .sort((a, b) => {
-                  const aDate = a.created_at ? new Date(toISTISOString(a.created_at)).getTime() : 0;
-                  const bDate = b.created_at ? new Date(toISTISOString(b.created_at)).getTime() : 0;
+                  const aDate = a.created_at ? new Date(a.created_at).getTime() : 0;
+                  const bDate = b.created_at ? new Date(b.created_at).getTime() : 0;
                   return bDate - aDate;
                 })
                 .map((basket) => {
@@ -436,10 +434,7 @@ const Dashboard = memo(function Dashboard() {
 
                   let daysSince = 0;
                   if (earliestDate) {
-                    const createdAtIST = new Date(toISTISOString(earliestDate));
-                    const todayIST = new Date(new Date().toLocaleDateString("en-US", { timeZone: "Asia/Kolkata" }));
-                    const diffMs = todayIST.getTime() - new Date(createdAtIST).setHours(0, 0, 0, 0);
-                    daysSince = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+                    daysSince = getISTDaysDiff(earliestDate, new Date());
                   }
 
                   // CAGR calculation: ((endValue / beginValue) ^ (1 / years)) - 1
